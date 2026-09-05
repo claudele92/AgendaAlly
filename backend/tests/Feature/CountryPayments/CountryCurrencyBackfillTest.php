@@ -49,8 +49,10 @@ class CountryCurrencyBackfillTest extends TestCase
         $activeCountry   = Country::query()->create(['active' => true, 'code' => 'ZZ']);
         $inactiveCountry = Country::query()->create(['active' => false, 'code' => 'YY']);
 
-        $activePayment   = Payment::factory()->create(['active' => true]);
-        Payment::factory()->create(['active' => false]); // must never get enabled anywhere
+        $activePayment = Payment::factory()->create(['active' => true, 'tag' => Payment::TAG_STRIPE]);
+        Payment::factory()->create(['active' => false, 'tag' => Payment::TAG_PAY_PAL]); // must never get enabled anywhere
+        $walletPayment = Payment::factory()->create(['active' => true, 'tag' => Payment::TAG_WALLET]);
+        $cashPayment   = Payment::factory()->create(['active' => true, 'tag' => Payment::TAG_CASH]);
 
         $this->migration()->up();
 
@@ -58,7 +60,11 @@ class CountryCurrencyBackfillTest extends TestCase
             $activeCountry->fresh()->payments()->where('payment_id', $activePayment->id)->exists()
         );
         $this->assertSame(0, $inactiveCountry->fresh()->payments()->count());
+        // Only the one external gateway — wallet/cash are excluded entirely,
+        // they stay always-available everywhere rather than being scoped.
         $this->assertSame(1, $activeCountry->fresh()->payments()->count());
+        $this->assertFalse($activeCountry->fresh()->payments()->where('payment_id', $walletPayment->id)->exists());
+        $this->assertFalse($activeCountry->fresh()->payments()->where('payment_id', $cashPayment->id)->exists());
     }
 
     public function test_historical_booking_currency_snapshot_is_unaffected(): void

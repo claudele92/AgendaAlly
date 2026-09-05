@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\Schema;
  *  1. Every country with no `currency_id` set gets the platform's current
  *     default currency (there is no other per-country signal to use).
  *  2. Every active country gets a `country_payments` row for every currently
- *     active payment gateway, so no active country is left with zero
- *     available gateways after this migration.
+ *     active external payment gateway (cash/wallet excluded — see below), so
+ *     no active country is left with zero available gateways after this
+ *     migration. Inactive countries get none; activating one is expected to
+ *     be an explicit admin action (set currency, pick gateways), not
+ *     something pre-filled here.
  *
  * Two backup tables record exactly which countries/rows this migration
  * touched, so `down()` reverses precisely those — not any currency
@@ -66,7 +69,15 @@ return new class extends Migration {
             }
 
             $activeCountryIds = DB::table('countries')->where('active', true)->pluck('id');
-            $activePaymentIds = DB::table('payments')->where('active', true)->pluck('id');
+
+            // 'cash' and 'wallet' (Payment::TAG_CASH / TAG_WALLET) are payment
+            // *methods*, not rails tied to a country's banking/regulatory setup
+            // the way Stripe/PayStack/Orange Money etc. are. They stay always
+            // available everywhere and are excluded from country scoping.
+            $activePaymentIds = DB::table('payments')
+                ->where('active', true)
+                ->whereNotIn('tag', ['cash', 'wallet'])
+                ->pluck('id');
 
             foreach ($activeCountryIds as $countryId) {
                 foreach ($activePaymentIds as $paymentId) {
