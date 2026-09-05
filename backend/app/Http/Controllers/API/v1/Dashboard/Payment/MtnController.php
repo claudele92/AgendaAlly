@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API\v1\Dashboard\Payment;
 
 use App\Helpers\ResponseError;
 use App\Models\PaymentProcess;
-use App\Models\ShopPayment;
 use App\Models\Transaction;
 use App\Services\PaymentService\MtnService;
 use Illuminate\Http\JsonResponse;
@@ -67,14 +66,13 @@ class MtnController extends PaymentBaseController
                 return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
             }
 
-            $shopId = $this->service->resolveGatewayShopId($paymentProcess->model_type, $paymentProcess->model_id);
-            $shopPayment = ShopPayment::forShopAndPayment($shopId, data_get($paymentProcess->data, 'payment_id'));
+            $config = $this->service->resolveGatewayConfig($paymentProcess->data, data_get($paymentProcess->data, 'payment_id'));
 
-            if (!$shopPayment) {
+            if (!$config) {
                 return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
             }
 
-            $result = $this->service->checkStatus($shopPayment, $referenceId);
+            $result = $this->service->checkStatus($config, $referenceId);
 
             $status = match ($result['status'] ?? null) {
                 'FAILED'     => Transaction::STATUS_CANCELED,

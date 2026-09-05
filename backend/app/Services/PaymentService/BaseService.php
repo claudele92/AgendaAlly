@@ -19,7 +19,11 @@ use App\Models\ParcelOrder;
 use App\Models\Payment;
 use App\Models\PaymentProcess;
 use App\Models\Payout;
+use App\Models\PlatformPaymentConfig;
+use App\Models\Shop;
 use App\Models\ShopAdsPackage;
+use App\Models\ShopLocation;
+use App\Models\ShopPayment;
 use App\Models\Subscription;
 use App\Models\Transaction;
 use App\Models\UserGiftCart;
@@ -29,6 +33,7 @@ use App\Models\Wallet;
 use App\Models\WalletHistory;
 use App\Repositories\CartRepository\CartRepository;
 use App\Services\CoreService;
+use App\Services\PaymentService\Contracts\GatewayConfig;
 use App\Services\OrderService\OrderService;
 use App\Services\TransactionService\TransactionService;
 use App\Services\UserServices\UserWalletService;
@@ -622,7 +627,8 @@ class BaseService extends CoreService
             'model_type'  => get_class($model),
             'model_id'    => $model->id,
             'total_price' => round($totalPrice * 100, 2),
-            'currency'    => $currency?->title ?? data_get($payload, 'currency')
+            'currency'    => $currency?->title ?? data_get($payload, 'currency'),
+            'shop_id'     => $model->shop_id,
         ];
     }
 
@@ -780,6 +786,52 @@ class BaseService extends CoreService
         }
 
         throw new Exception('This payment method is only available for shop orders and bookings');
+    }
+
+    /**
+     * The single chokepoint deciding which credential source a gateway
+     * transaction resolves against: customer-facing checkout (bookings,
+     * carts/orders) uses the shop's own ShopPayment config; a
+     * platform-fee purchase (a Subscription plan, an ads package) uses
+     * the platform's own PlatformPaymentConfig for the paying shop's
+     * country instead — the platform, not the shop, is the merchant of
+     * record for its own fees. OrangeService/MtnService never see which
+     * one they got; both implement the same GatewayConfig contract.
+     *
+     * The fallback throw is a plain Exception, caught the same way every
+     * other error in these two services already is: PaymentBaseController
+     * ::processTransaction() wraps the whole call in try/catch and turns
+     * any Throwable into a clean 400 JSON error response carrying the
+     * message below — never a raw 500.
+     *
+     * @throws Exception
+     */
+    public function resolveGatewayConfig(array $before, int $paymentId): ?GatewayConfig
+    {
+        $modelType = data_get($before, 'model_type');
+        $modelId   = (int) data_get($before, 'model_id');
+
+        if (in_array($modelType, [Booking::class, Cart::class], true)) {
+            $shopId = $this->resolveGatewayShopId($modelType, $modelId);
+
+            return ShopPayment::forShopAndPayment($shopId, $paymentId);
+        }
+
+        if (in_array($modelType, [Subscription::class, ShopAdsPackage::class], true)) {
+            $shopId = (int) data_get($before, 'shop_id');
+            /** @var Shop|null $shop */
+            $shop = $shopId ? Shop::find($shopId) : null;
+
+            $country = $shop?->checkoutCountry(ShopLocation::PRODUCT) ?? $shop?->checkoutCountry(ShopLocation::SERVICE);
+
+            if (!$country) {
+                throw new Exception('Unable to resolve a country for this shop\'s platform fee payment');
+            }
+
+            return PlatformPaymentConfig::forCountryAndPayment($country->id, $paymentId);
+        }
+
+        throw new Exception('This payment method is only available for shop orders, bookings, subscriptions, and ads packages');
     }
 
     public function getValidateData(array $data): array

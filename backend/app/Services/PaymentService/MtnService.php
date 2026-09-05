@@ -6,7 +6,7 @@ namespace App\Services\PaymentService;
 use App\Models\Payment;
 use App\Models\PaymentProcess;
 use App\Models\Payout;
-use App\Models\ShopPayment;
+use App\Services\PaymentService\Contracts\GatewayConfig;
 use Exception;
 use Http;
 use Illuminate\Database\Eloquent\Model;
@@ -16,9 +16,11 @@ use Throwable;
 /**
  * MTN Mobile Money via MTN's own Collections API (momodeveloper.mtn.com)
  * — not a third-party aggregator. Credentials/target_environment/currency
- * are all per-shop config (see ShopPayment); nothing here branches on
- * country — target_environment and currency are just parameters the
- * shop's config resolves.
+ * all come from a GatewayConfig (either a shop's own ShopPayment for
+ * customer-facing checkout, or the platform's PlatformPaymentConfig for
+ * a platform-fee purchase — see BaseService::resolveGatewayConfig());
+ * nothing here branches on country — target_environment and currency
+ * are just parameters the resolved config supplies.
  */
 class MtnService extends BaseService
 {
@@ -43,25 +45,22 @@ class MtnService extends BaseService
         [, $before] = $this->getPayload($data, []);
 
         $modelId = data_get($before, 'model_id');
-        $shopId  = $this->resolveGatewayShopId(data_get($before, 'model_type'), $modelId);
+        $config  = $this->resolveGatewayConfig($before, $payment->id);
 
-        /** @var ShopPayment|null $shopPayment */
-        $shopPayment = ShopPayment::forShopAndPayment($shopId, $payment->id);
-
-        if (!$shopPayment?->subscription_key || !$shopPayment->api_user || !$shopPayment->api_key || !$shopPayment->target_environment) {
-            throw new Exception('This shop has not configured MTN Mobile Money yet');
+        if (!$config?->hasMtnCredentials()) {
+            throw new Exception('MTN Mobile Money has not been configured for this transaction yet');
         }
 
-        $token = $this->getToken($shopPayment);
+        $token = $this->getToken($config);
 
         $referenceId = Str::uuid()->toString();
         $host        = request()->getSchemeAndHttpHost();
         $amount      = number_format((float) data_get($before, 'total_price') / 100, 2, '.', '');
 
-        $response = Http::withHeaders($this->requestHeaders($shopPayment, $token, $referenceId))
-            ->post($this->baseUrl($shopPayment) . '/collection/v1_0/requesttopay', [
+        $response = Http::withHeaders($this->requestHeaders($config, $token, $referenceId))
+            ->post($this->baseUrl($config) . '/collection/v1_0/requesttopay', [
                 'amount'     => $amount,
-                'currency'   => $shopPayment->currency,
+                'currency'   => $config->getCurrency(),
                 'externalId' => $referenceId,
                 'payer'      => [
                     'partyIdType' => 'MSISDN',
@@ -99,12 +98,12 @@ class MtnService extends BaseService
      *
      * @throws Exception
      */
-    public function checkStatus(ShopPayment $shopPayment, string $referenceId): array
+    public function checkStatus(GatewayConfig $config, string $referenceId): array
     {
-        $token = $this->getToken($shopPayment);
+        $token = $this->getToken($config);
 
-        $response = Http::withHeaders($this->requestHeaders($shopPayment, $token, $referenceId))
-            ->get("{$this->baseUrl($shopPayment)}/collection/v1_0/requesttopay/$referenceId");
+        $response = Http::withHeaders($this->requestHeaders($config, $token, $referenceId))
+            ->get("{$this->baseUrl($config)}/collection/v1_0/requesttopay/$referenceId");
 
         if (!$response->successful()) {
             throw new Exception('Unable to reach MTN status endpoint', $response->status());
@@ -116,14 +115,14 @@ class MtnService extends BaseService
     /**
      * @throws Exception
      */
-    private function getToken(ShopPayment $shopPayment): string
+    private function getToken(GatewayConfig $config): string
     {
-        $credentials = base64_encode("{$shopPayment->api_user}:{$shopPayment->api_key}");
+        $credentials = base64_encode("{$config->getApiUser()}:{$config->getApiKey()}");
 
         $response = Http::withHeaders([
             'Authorization'             => "Basic $credentials",
-            'Ocp-Apim-Subscription-Key' => $shopPayment->subscription_key,
-        ])->post($this->baseUrl($shopPayment) . '/collection/token/');
+            'Ocp-Apim-Subscription-Key' => $config->getSubscriptionKey(),
+        ])->post($this->baseUrl($config) . '/collection/token/');
 
         $json = $response->json();
 
@@ -134,19 +133,19 @@ class MtnService extends BaseService
         return $json['access_token'];
     }
 
-    private function requestHeaders(ShopPayment $shopPayment, string $token, string $referenceId): array
+    private function requestHeaders(GatewayConfig $config, string $token, string $referenceId): array
     {
         return [
             'Content-Type'              => 'application/json',
             'Authorization'             => "Bearer $token",
             'X-Reference-Id'            => $referenceId,
-            'X-Target-Environment'      => $shopPayment->target_environment,
-            'Ocp-Apim-Subscription-Key' => $shopPayment->subscription_key,
+            'X-Target-Environment'      => $config->getTargetEnvironment(),
+            'Ocp-Apim-Subscription-Key' => $config->getSubscriptionKey(),
         ];
     }
 
-    private function baseUrl(ShopPayment $shopPayment): string
+    private function baseUrl(GatewayConfig $config): string
     {
-        return rtrim($shopPayment->base_url ?: 'https://sandbox.momodeveloper.mtn.com', '/');
+        return rtrim($config->getBaseUrl() ?: 'https://sandbox.momodeveloper.mtn.com', '/');
     }
 }

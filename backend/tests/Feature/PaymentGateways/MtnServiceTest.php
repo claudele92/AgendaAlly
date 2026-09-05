@@ -138,7 +138,7 @@ class MtnServiceTest extends TestCase
         $booking = $this->makeBooking($shop, 250.0);
         $this->actingAs($booking->user, 'sanctum');
 
-        $this->expectExceptionMessage('This shop has not configured MTN Mobile Money yet');
+        $this->expectExceptionMessage('MTN Mobile Money has not been configured for this transaction yet');
 
         (new MtnService())->processTransaction(['booking_id' => $booking->id, 'phone' => '237600000000']);
     }

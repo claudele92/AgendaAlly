@@ -115,7 +115,7 @@ class OrangeServiceTest extends TestCase
         $booking = $this->makeBooking($shop, 500.0);
         $this->actingAs($booking->user, 'sanctum');
 
-        $this->expectExceptionMessage('This shop has not configured Orange Money yet');
+        $this->expectExceptionMessage('Orange Money has not been configured for this transaction yet');
 
         (new OrangeService())->processTransaction(['booking_id' => $booking->id]);
     }
