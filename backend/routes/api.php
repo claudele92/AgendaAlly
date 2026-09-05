@@ -402,6 +402,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('payu-process',          [Payment\PayuController::class,         'processTransaction']);
             Route::post('stripe-process',        [Payment\StripeController::class,       'processTransaction']);
             Route::post('mtn-process',           [Payment\MtnController::class,          'processTransaction']);
+            Route::get('mtn-process/{referenceId}/status', [Payment\MtnController::class, 'checkStatus']);
             Route::post('razorpay-process',      [Payment\RazorPayController::class,     'processTransaction']);
             Route::post('paystack-process',      [Payment\PayStackController::class,     'processTransaction']);
             Route::post('paytabs-process',       [Payment\PayTabsController::class,      'processTransaction']);
