@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CurrencySeeder::class);
         $this->call(NotificationSeeder::class);
         $this->call(RoleSeeder::class);
+        $this->call(ShopPermissionSeeder::class);
         $this->call(CategorySeeder::class);
         $this->call(ShopTagSeeder::class);
         $this->call(PaymentSeeder::class);

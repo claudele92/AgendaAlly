@@ -15,16 +15,31 @@ class SellerRequest extends BaseRequest
      */
     public function rules(): array
     {
+        $user   = auth('sanctum')->user();
+        $shopId = $this->input('shop_id') ?? $user?->shop?->id ?? $user?->moderatorShop?->id;
+
         return [
             'user_id' => [
                 'required',
                 'int',
                 Rule::exists('users', 'id')
             ],
+            // Fixed platform roles — unchanged, unrelated to the shop_roles
+            // system below. 'shop_manager' is no longer a valid value here:
+            // that category is now a seller-defined shop_role instead.
             'role' => [
-                'required',
+                'required_without:shop_role_id',
                 'string',
-                Rule::in(['shop_manager', 'moderator', 'master', 'deliveryman'])
+                Rule::in(['moderator', 'master', 'deliveryman'])
+            ],
+            // The seller's own previously-created role for this shop. Must
+            // already exist — there is no default/auto-created role, so an
+            // invite can't be sent for this category until the seller has
+            // created at least one shop_role.
+            'shop_role_id' => [
+                'required_without:role',
+                'integer',
+                Rule::exists('shop_roles', 'id')->where('shop_id', $shopId),
             ],
         ];
     }

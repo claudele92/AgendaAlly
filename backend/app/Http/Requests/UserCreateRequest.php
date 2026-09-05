@@ -26,6 +26,14 @@ class UserCreateRequest extends BaseRequest
             'shop_id'                         => 'array',
             'shop_id.*'                       => 'integer|exists:shops,id',
             'role'                            => ['string', 'exists:roles,name'],
+            'shop_role_id'                    => [
+                'nullable',
+                'integer',
+                Rule::exists('shop_roles', 'id')->where(
+                    'shop_id',
+                    auth('sanctum')->user()?->shop?->id ?? auth('sanctum')->user()?->moderatorShop?->id
+                ),
+            ],
             'lastname'                        => ['string'],
             'birthday'                        => ['date_format:Y-m-d'],
             'firebase_token'                  => ['string'],

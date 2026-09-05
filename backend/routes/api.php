@@ -627,26 +627,51 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
 
             Route::get('filter',                        [Seller\FilterController::class, 'filter']);
 
-            /* Seller Shop Users */
-            Route::get('shop/users/paginate',           [Seller\UserController::class, 'shopUsersPaginate']);
-            Route::get('shop/users/role/deliveryman',   [Seller\UserController::class, 'getDeliveryman']);
-            Route::get('shop/users/{uuid}',             [Seller\UserController::class, 'shopUserShow']);
+            /* Seller Shop Users (staff) */
+            Route::middleware('shop.permission:staff.view')->group(function () {
+                Route::get('shop/users/paginate',           [Seller\UserController::class, 'shopUsersPaginate']);
+                Route::get('shop/users/role/deliveryman',   [Seller\UserController::class, 'getDeliveryman']);
+                Route::get('shop/users/{uuid}',             [Seller\UserController::class, 'shopUserShow']);
+            });
+            Route::middleware('shop.permission:staff.invite')->group(function () {
+                Route::post('users/{uuid}/change/status',   [Seller\UserController::class, 'setUserActive']);
+                Route::post('users',                        [Seller\UserController::class, 'store']);
+                Route::put('users/{user}',                  [Seller\UserController::class, 'update']);
+            });
 
-            /* Seller Users */
-            Route::get('users/paginate',                [Seller\UserController::class, 'paginate']);
-            Route::get('users/{uuid}',                  [Seller\UserController::class, 'show']);
-            Route::post('users/{uuid}/change/status',   [Seller\UserController::class, 'setUserActive']);
-            Route::apiResource('users',       Seller\UserController::class)->only(['store', 'update']);
+            /* Seller Users (customers) */
+            Route::middleware('shop.permission:customers.view')->group(function () {
+                Route::get('users/paginate',                [Seller\UserController::class, 'paginate']);
+                Route::get('users/{uuid}',                  [Seller\UserController::class, 'show']);
+            });
 
             /* User Working Days */
-            Route::apiResource('user-working-days', Seller\UserWorkingDayController::class);
-            Route::delete('user-working-days/delete',   [Seller\UserWorkingDayController::class, 'destroy']);
+            Route::middleware('shop.permission:bookings.availability')->group(function () {
+                Route::apiResource('user-working-days', Seller\UserWorkingDayController::class);
+                Route::delete('user-working-days/delete',   [Seller\UserWorkingDayController::class, 'destroy']);
+            });
 
             /* Seller Invite */
-            Route::get('shops/invites/paginate',             [Seller\InviteController::class, 'paginate']);
-            Route::post('shops/invites/{id}/status/change',  [Seller\InviteController::class, 'changeStatus']);
-            Route::post('shop/invitation/link',              [Seller\InviteController::class, 'create']);
-            Route::delete('shop/invitations/delete',         [Seller\InviteController::class, 'delete']);
+            Route::middleware('shop.permission:staff.view')->group(function () {
+                Route::get('shops/invites/paginate',             [Seller\InviteController::class, 'paginate']);
+            });
+            Route::middleware('shop.permission:staff.invite')->group(function () {
+                Route::post('shops/invites/{id}/status/change',  [Seller\InviteController::class, 'changeStatus']);
+                Route::post('shop/invitation/link',              [Seller\InviteController::class, 'create']);
+                Route::delete('shop/invitations/delete',         [Seller\InviteController::class, 'delete']);
+            });
+
+            /* Seller shop staff roles */
+            Route::middleware('shop.permission:staff.view')->group(function () {
+                Route::get('roles/permissions',    [Seller\RoleController::class, 'permissions']);
+                Route::get('roles/paginate',       [Seller\RoleController::class, 'paginate']);
+                Route::get('roles/{role}',         [Seller\RoleController::class, 'show']);
+            });
+            Route::middleware('shop.permission:staff.roles.manage')->group(function () {
+                Route::post('roles',               [Seller\RoleController::class, 'store']);
+                Route::put('roles/{role}',         [Seller\RoleController::class, 'update']);
+                Route::delete('roles/{role}',      [Seller\RoleController::class, 'destroy']);
+            });
 
             /* Seller discount */
             Route::get('discounts/paginate',            [Seller\DiscountController::class, 'paginate']);
@@ -672,9 +697,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::delete('orders/delete',            [Seller\OrderController::class, 'destroy']);
 
             /* Transaction */
-            Route::get('transactions/paginate', [Seller\TransactionController::class, 'paginate']);
-            Route::get('transactions/{id}',     [Seller\TransactionController::class, 'show']);
-            Route::post('transactions/{id}',    [Seller\TransactionController::class, 'update']);
+            Route::middleware('shop.permission:payments.view')->group(function () {
+                Route::get('transactions/paginate', [Seller\TransactionController::class, 'paginate']);
+                Route::get('transactions/{id}',     [Seller\TransactionController::class, 'show']);
+            });
+            Route::middleware('shop.permission:payments.payouts.manage')->group(function () {
+                Route::post('transactions/{id}',    [Seller\TransactionController::class, 'update']);
+            });
 
             /* AI Translations */
             Route::apiResource('ai-translations', Seller\AITranslationController::class)->only(['index', 'show', 'store']);
@@ -697,15 +726,28 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('shop-tags/paginate',    [Seller\TagController::class, 'shopTagsPaginate']);
 
             /* Payments */
-            Route::post('shop-payments/{id}/active/status', [Seller\ShopPaymentController::class, 'setActive']);
-            Route::get('shop-payments/shop-non-exist',      [Seller\ShopPaymentController::class, 'shopNonExist']);
-            Route::get('shop-payments/delete',              [Seller\ShopPaymentController::class, 'destroy']);
-            Route::apiResource('shop-payments',   Seller\ShopPaymentController::class);
+            Route::middleware('shop.permission:payments.view')->group(function () {
+                Route::get('shop-payments',            [Seller\ShopPaymentController::class, 'index']);
+                Route::get('shop-payments/{shopPayment}', [Seller\ShopPaymentController::class, 'show']);
+                Route::get('shop-payments/shop-non-exist', [Seller\ShopPaymentController::class, 'shopNonExist']);
+            });
+            Route::middleware('shop.permission:payments.gateways.manage')->group(function () {
+                Route::post('shop-payments/{id}/active/status', [Seller\ShopPaymentController::class, 'setActive']);
+                Route::get('shop-payments/delete',      [Seller\ShopPaymentController::class, 'destroy']);
+                Route::post('shop-payments',            [Seller\ShopPaymentController::class, 'store']);
+                Route::put('shop-payments/{shopPayment}', [Seller\ShopPaymentController::class, 'update']);
+                Route::delete('shop-payments/{shopPayment}', [Seller\ShopPaymentController::class, 'destroy']);
+            });
 
             /* Order Refunds */
-            Route::get('order-refunds/paginate',  [Seller\OrderRefundsController::class, 'paginate']);
-            Route::delete('order-refunds/delete', [Seller\OrderRefundsController::class, 'destroy']);
-            Route::apiResource('order-refunds', Seller\OrderRefundsController::class);
+            Route::middleware('shop.permission:payments.view')->group(function () {
+                Route::get('order-refunds/paginate',  [Seller\OrderRefundsController::class, 'paginate']);
+                Route::get('order-refunds/{orderRefund}', [Seller\OrderRefundsController::class, 'show']);
+            });
+            Route::middleware('shop.permission:payments.refunds.manage')->group(function () {
+                Route::delete('order-refunds/delete', [Seller\OrderRefundsController::class, 'destroy']);
+                Route::put('order-refunds/{orderRefund}', [Seller\OrderRefundsController::class, 'update']);
+            });
 
             /* Shop Working Days */
             Route::apiResource('shop-working-days', Seller\ShopWorkingDayController::class)
@@ -718,9 +760,16 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::delete('shop-closed-dates/delete', [Seller\ShopClosedDateController::class, 'destroy']);
 
             /* Payouts */
-            Route::apiResource('payouts', Seller\PayoutsController::class);
-
-            Route::delete('payouts/delete', [Seller\PayoutsController::class, 'destroy']);
+            Route::middleware('shop.permission:payments.view')->group(function () {
+                Route::get('payouts',            [Seller\PayoutsController::class, 'index']);
+                Route::get('payouts/{payout}',   [Seller\PayoutsController::class, 'show']);
+            });
+            Route::middleware('shop.permission:payments.payouts.manage')->group(function () {
+                Route::post('payouts',           [Seller\PayoutsController::class, 'store']);
+                Route::put('payouts/{payout}',   [Seller\PayoutsController::class, 'update']);
+                Route::delete('payouts/{payout}', [Seller\PayoutsController::class, 'destroy']);
+                Route::delete('payouts/delete',  [Seller\PayoutsController::class, 'destroy']);
+            });
 
             /* Report Orders */
             Route::get('orders/report/chart',    [Seller\OrderReportController::class, 'reportChart']);
@@ -784,14 +833,24 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::delete('master-disabled-times/delete', [Seller\MasterDisabledTimeController::class, 'destroy']);
 
             /* Bookings */
-            Route::apiResource('bookings',   Seller\BookingController::class);
-            Route::get('bookings/{id}/get-all',        [Seller\BookingController::class, 'bookingsByParent']);
-            Route::post('bookings/{id}/status/update', [Seller\BookingController::class, 'statusUpdate']);
-            Route::post('bookings/{id}/notes/update',  [Seller\BookingController::class, 'notesUpdate']);
-            Route::post('bookings/{id}/times/update',  [Seller\BookingController::class, 'timesUpdate']);
-            Route::post('bookings/{id}/extra-time',    [Seller\BookingController::class, 'extraTime']);
-            Route::delete('bookings/delete',           [Seller\BookingController::class, 'destroy']);
-            Route::post('bookings/calculate',          [Seller\BookingController::class, 'calculate']);
+            Route::middleware('shop.permission:bookings.view')->group(function () {
+                Route::get('bookings',                  [Seller\BookingController::class, 'index']);
+                Route::get('bookings/{booking}',         [Seller\BookingController::class, 'show']);
+                Route::get('bookings/{id}/get-all',      [Seller\BookingController::class, 'bookingsByParent']);
+                Route::post('bookings/calculate',        [Seller\BookingController::class, 'calculate']);
+            });
+            Route::middleware('shop.permission:bookings.manage')->group(function () {
+                Route::post('bookings',                  [Seller\BookingController::class, 'store']);
+                Route::put('bookings/{booking}',         [Seller\BookingController::class, 'update']);
+                Route::post('bookings/{id}/notes/update', [Seller\BookingController::class, 'notesUpdate']);
+                Route::post('bookings/{id}/times/update', [Seller\BookingController::class, 'timesUpdate']);
+                Route::post('bookings/{id}/extra-time',   [Seller\BookingController::class, 'extraTime']);
+                Route::delete('bookings/{booking}',       [Seller\BookingController::class, 'destroy']);
+                Route::delete('bookings/delete',          [Seller\BookingController::class, 'destroy']);
+            });
+            Route::middleware('shop.permission:bookings.status')->group(function () {
+                Route::post('bookings/{id}/status/update', [Seller\BookingController::class, 'statusUpdate']);
+            });
 
             /* Coupon */
             Route::get('coupons/paginate',  [Seller\CouponController::class, 'paginate']);

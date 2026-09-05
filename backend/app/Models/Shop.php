@@ -300,6 +300,11 @@ class Shop extends Model
         return $this->hasMany(ShopLocation::class);
     }
 
+    public function roles(): HasMany
+    {
+        return $this->hasMany(ShopRole::class);
+    }
+
     public function location(): HasOne
     {
         return $this->hasOne(ShopLocation::class);
