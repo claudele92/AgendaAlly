@@ -247,6 +247,30 @@ class User extends Authenticatable implements MustVerifyEmail
             'user_id', 'id', 'id', 'shop_id');
     }
 
+    /**
+     * Whether this user can perform $permissionKey (e.g. 'bookings.view')
+     * for the given shop. The shop's owner always has every permission,
+     * unconditionally — they are never represented as a shop_role
+     * assignment, so there is no row to misconfigure or delete that could
+     * lock them out. Everyone else needs an accepted invitation to that
+     * shop with a shop_role that grants the permission.
+     */
+    public function hasShopPermission(int $shopId, string $permissionKey): bool
+    {
+        if ($this->shop?->id === $shopId) {
+            return true;
+        }
+
+        $invitation = $this->invitations()
+            ->where('shop_id', $shopId)
+            ->where('status', Invitation::ACCEPTED)
+            ->whereNotNull('shop_role_id')
+            ->with('shopRole.permissions')
+            ->first();
+
+        return (bool) $invitation?->shopRole?->hasPermission($permissionKey);
+    }
+
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class, 'user_id');

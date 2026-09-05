@@ -38,13 +38,18 @@ final class InviteService extends CoreService
                 throw new Exception(__('errors.' . ResponseError::ERROR_257, locale: $user->lang ?? $this->language));
             }
 
+            // See sellerCreate() — a shop_role always implies 'shop_manager'
+            // as the platform role that gates seller-dashboard entry.
+            $role = !empty($data['shop_role_id']) ? 'shop_manager' : ($data['role'] ?? 'master');
+
             $invite = $this->model()
                 ->updateOrCreate([
                     'user_id'    => auth('sanctum')->id(),
                     'created_by' => auth('sanctum')->id()
                 ], [
-                    'shop_id' => $shop->id,
-                    'role'    => $data['role'] ?? 'master',
+                    'shop_id'      => $shop->id,
+                    'role'         => $role,
+                    'shop_role_id' => $data['shop_role_id'] ?? null,
                 ]);
 
             $sellerToken = $shop->seller?->firebase_token;
@@ -80,6 +85,14 @@ final class InviteService extends CoreService
 
             if ($user->hasAnyRole(['seller', 'admin'])) {
                 throw new Exception(__('errors.' . ResponseError::ERROR_257, locale: $user->lang ?? $this->language));
+            }
+
+            // A seller-defined shop_role always implies the 'shop_manager'
+            // platform role too — that's what still gates entry to the
+            // seller dashboard at the route level; shop_role_id is the
+            // fine-grained layer on top of it, not a replacement for it.
+            if (!empty($data['shop_role_id'])) {
+                $data['role'] = 'shop_manager';
             }
 
             $invite = $this->model()

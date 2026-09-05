@@ -74,7 +74,12 @@ class UserController extends SellerBaseController
             $validated['phone_verified_at'] = now();
         }
 
-        if (!in_array($validated['role'], ['user', 'moderator', 'shop_manager', 'deliveryman', 'master'])) {
+        // A seller-defined shop_role always implies the 'shop_manager'
+        // platform role — the fixed string is no longer client-choosable
+        // directly, it's derived from picking one of the seller's own roles.
+        if (!empty($validated['shop_role_id'])) {
+            $validated['role'] = 'shop_manager';
+        } elseif (!in_array($validated['role'], ['user', 'moderator', 'deliveryman', 'master'])) {
             $validated['role'] = 'user';
         }
 
@@ -108,6 +113,10 @@ class UserController extends SellerBaseController
 
         if (!empty(data_get($validated, 'phone'))) {
             $validated['phone_verified_at'] = now();
+        }
+
+        if (!empty($validated['shop_role_id'])) {
+            $validated['role'] = 'shop_manager';
         }
 
         $result = $this->service->update($uuid, $validated);

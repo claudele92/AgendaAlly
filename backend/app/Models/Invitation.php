@@ -80,6 +80,11 @@ class Invitation extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function shopRole(): BelongsTo
+    {
+        return $this->belongsTo(ShopRole::class);
+    }
+
     public static function getStatusKey($value)
     {
         foreach (self::STATUS as $index => $status) {
