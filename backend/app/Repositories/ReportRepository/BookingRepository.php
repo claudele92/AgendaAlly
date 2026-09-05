@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\ReportRepository;
 
+use App\Helpers\CountryContext;
 use App\Models\Booking;
 use App\Models\Invitation;
 use App\Models\Order;
@@ -109,9 +110,11 @@ class BookingRepository
     {
         $dateFrom = $filter['date_from'] ?? now()->format('Y-m-d');
         $dateTo   = $filter['date_to']   ?? now()->format('Y-m-d');
+        $restrictedShopIds = CountryContext::restrictedShopIds();
 
         $bookings = DB::table('bookings')
             ->where('shop_id', $filter['shop_id'])
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->whereDate('start_date', '>=', $dateFrom)
             ->whereDate('end_date', '<=', $dateTo)
             ->select([
@@ -145,8 +148,11 @@ class BookingRepository
             default => '%Y-%m-%d %H:00',
         };
 
+        $restrictedShopIds = CountryContext::restrictedShopIds();
+
         return DB::table('bookings')
             ->where('shop_id', $filter['shop_id'])
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->whereDate('start_date', '>=', $dateFrom)
             ->whereDate('end_date', '<=', $dateTo)
             ->select([
@@ -222,6 +228,7 @@ class BookingRepository
     {
         $dateFrom = $filter['date_from'] ?? now()->format('Y-m-d');
         $dateTo   = $filter['date_to']   ?? now()->format('Y-m-d');
+        $restrictedShopIds = CountryContext::restrictedShopIds();
 
         $bookings = DB::table('bookings')
             ->select([
@@ -239,6 +246,7 @@ class BookingRepository
                 DB::raw("sum(if(status='canceled', total_price, 0)) as canceled_total_price"),
             ])
             ->when(data_get($filter, 'shop_id'),   fn($q) => $q->where('shop_id',   $filter['shop_id']))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->when(data_get($filter, 'master_id'), fn($q) => $q->where('master_id', $filter['master_id']))
             ->whereDate('created_at', '>=', $dateFrom)
             ->whereDate('created_at', '<=', $dateTo)

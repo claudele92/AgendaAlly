@@ -7,6 +7,7 @@ namespace App\Models;
 use DB;
 use Schema;
 use Eloquent;
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Payable;
 use App\Traits\Loadable;
 use App\Traits\Reviewable;
@@ -116,7 +117,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Order extends Model
 {
-    use HasFactory, Payable, Reviewable, Loadable, UserSearch;
+    use HasFactory, Payable, Reviewable, Loadable, UserSearch, BelongsToShopCountry;
 
     protected $guarded = ['id'];
 

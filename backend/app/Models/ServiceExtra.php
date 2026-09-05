@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Loadable;
 use Carbon\Carbon;
 use Eloquent;
@@ -37,7 +38,7 @@ use Illuminate\Support\Collection;
  */
 class ServiceExtra extends Model
 {
-    use HasFactory, Loadable;
+    use HasFactory, Loadable, BelongsToShopCountry;
 
     protected $guarded = ['id'];
 

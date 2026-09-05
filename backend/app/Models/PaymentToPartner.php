@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryRestriction;
 use App\Traits\Payable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -33,7 +34,7 @@ use Illuminate\Support\Carbon;
  */
 class PaymentToPartner extends Model
 {
-    use HasFactory, Payable;
+    use HasFactory, Payable, HasCountryRestriction;
 
     protected $guarded = ['id'];
 
@@ -59,6 +60,11 @@ class PaymentToPartner extends Model
     public function model(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function scopeInCountry(Builder $query, int $countryId): Builder
+    {
+        return $query->whereHas('model.shop.locations', fn ($q) => $q->where('country_id', $countryId));
     }
 
 	public function scopeFilter($query, array $filter): void

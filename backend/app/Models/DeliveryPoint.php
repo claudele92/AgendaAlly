@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasDirectCountryColumn;
 use App\Traits\Areas;
 use App\Traits\Cities;
 use App\Traits\Countries;
@@ -59,7 +60,7 @@ use Schema;
  */
 class DeliveryPoint extends Model
 {
-    use Loadable, Reviewable, SetCurrency, Regions, Countries, Cities, Areas;
+    use Loadable, Reviewable, SetCurrency, Regions, Countries, Cities, Areas, HasDirectCountryColumn;
 
     protected $guarded = ['id'];
 

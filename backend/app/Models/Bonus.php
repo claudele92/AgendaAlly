@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\SetCurrency;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,7 +49,7 @@ use Illuminate\Support\Carbon;
  */
 class Bonus extends Model
 {
-    use HasFactory, SetCurrency;
+    use HasFactory, SetCurrency, BelongsToShopCountry;
 
     const TYPE_COUNT = 'count';
     const TYPE_SUM   = 'sum';

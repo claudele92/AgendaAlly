@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryRestriction;
 use App\Traits\Loadable;
 use Database\Factories\PayoutFactory;
 use Eloquent;
@@ -45,7 +46,7 @@ use Illuminate\Support\Carbon;
  */
 class Payout extends Model
 {
-    use HasFactory, Loadable;
+    use HasFactory, Loadable, HasCountryRestriction;
 
     protected $guarded = ['id'];
 
@@ -62,6 +63,11 @@ class Payout extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function scopeInCountry(Builder $query, int $countryId): Builder
+    {
+        return $query->whereHas('createdBy.shop.locations', fn ($q) => $q->where('country_id', $countryId));
     }
 
     public function payment(): BelongsTo

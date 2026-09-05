@@ -6,6 +6,7 @@ namespace App\Models;
 use Str;
 use Schema;
 use Eloquent;
+use App\Models\Concerns\HasCountryRestriction;
 use App\Traits\Loadable;
 use App\Traits\Reviewable;
 use App\Traits\SetCurrency;
@@ -135,7 +136,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  */
 class Shop extends Model
 {
-    use HasFactory, Loadable, SetCurrency, Reviewable;
+    use HasFactory, Loadable, SetCurrency, Reviewable, HasCountryRestriction;
 
     protected $guarded = ['id'];
 
@@ -298,6 +299,11 @@ class Shop extends Model
     public function locations(): HasMany
     {
         return $this->hasMany(ShopLocation::class);
+    }
+
+    public function scopeInCountry(Builder $query, int $countryId): Builder
+    {
+        return $query->whereHas('locations', fn ($q) => $q->where('country_id', $countryId));
     }
 
     public function roles(): HasMany

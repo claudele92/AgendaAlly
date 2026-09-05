@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,7 +37,7 @@ use Schema;
  */
 class Story extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToShopCountry;
 
     protected $guarded = ['id'];
 

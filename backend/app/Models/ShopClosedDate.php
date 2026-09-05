@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,7 +32,7 @@ use Illuminate\Support\Carbon;
  */
 class ShopClosedDate extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToShopCountry;
 
     protected $guarded = ['id'];
 

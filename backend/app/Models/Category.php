@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountryOrGlobal;
 use App\Traits\Loadable;
 use App\Traits\MetaTagable;
 use Database\Factories\CategoryFactory;
@@ -75,7 +76,7 @@ use Schema;
  */
 class Category extends Model
 {
-    use HasFactory, Loadable, MetaTagable;
+    use HasFactory, Loadable, MetaTagable, BelongsToShopCountryOrGlobal;
 
     protected $guarded = ['id'];
 
