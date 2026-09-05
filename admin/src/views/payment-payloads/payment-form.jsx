@@ -301,6 +301,17 @@ export default function PaymentPayloadForm({ form, handleSubmit }) {
                     />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label={t('stripe.wallet.payment.method.configuration')}
+                    name='wallet_payment_method_configuration'
+                    tooltip={t(
+                      'stripe.wallet.payment.method.configuration.hint',
+                    )}
+                  >
+                    <Input placeholder='pmc_...' />
+                  </Form.Item>
+                </Col>
               </>
             ) : activePayment?.label === 'Razorpay' ? (
               <>
