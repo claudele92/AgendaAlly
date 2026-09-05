@@ -39,7 +39,7 @@ class CountryAdminController extends AdminBaseController
         }
     }
 
-    public function paginate(FilterParamsRequest $request): AnonymousResourceCollection
+    public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
         return CountryAdminResource::collection($this->repository->paginate($request->all()));
     }
