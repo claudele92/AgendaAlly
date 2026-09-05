@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Payable;
 use App\Traits\Reviewable;
 use Eloquent;
@@ -93,7 +94,7 @@ use Illuminate\Support\Collection;
  */
 class Booking extends Model
 {
-    use Reviewable, Payable;
+    use Reviewable, Payable, BelongsToShopCountry;
 
     public $guarded = ['id'];
 

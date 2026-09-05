@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryRestriction;
 use App\Traits\Loadable;
 use App\Traits\UserSearch;
 use Database\Factories\ReviewFactory;
@@ -61,7 +62,7 @@ use Illuminate\Support\Carbon;
  */
 class Review extends Model
 {
-    use HasFactory, Loadable, UserSearch;
+    use HasFactory, Loadable, UserSearch, HasCountryRestriction;
 
     protected $guarded = ['id'];
 
@@ -86,6 +87,21 @@ class Review extends Model
     public function assignable(): MorphTo
     {
         return $this->morphTo('assignable');
+    }
+
+    /**
+     * Only reviews of a Shop resolve to a country; reviews of a User
+     * (e.g. a deliveryman) are excluded for a restricted country admin —
+     * deliverymen are out of scope for this system (see the
+     * country-admin-hierarchy PR description).
+     */
+    public function scopeInCountry(Builder $query, int $countryId): Builder
+    {
+        return $query->whereHasMorph(
+            'assignable',
+            [Shop::class],
+            fn ($q) => $q->whereHas('locations', fn ($q2) => $q2->where('country_id', $countryId))
+        );
     }
 
     public function user(): BelongsTo

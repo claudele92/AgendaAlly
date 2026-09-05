@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use Database\Factories\ExtraGroupFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class ExtraGroup extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToShopCountry;
 
     protected $guarded = ['id'];
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Loadable;
 use App\Traits\SetCurrency;
 use Carbon\Carbon;
@@ -55,7 +56,7 @@ use Illuminate\Support\Collection;
  */
 class Service extends Model
 {
-    use Loadable, SetCurrency;
+    use Loadable, SetCurrency, BelongsToShopCountry;
 
     public $guarded = ['id'];
 

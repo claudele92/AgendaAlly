@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasDirectCountryColumn;
 use App\Traits\Countries;
 use App\Traits\Regions;
 use Eloquent;
@@ -38,7 +39,7 @@ use Illuminate\Support\Collection;
  */
 class City extends Model
 {
-    use Regions, Countries;
+    use Regions, Countries, HasDirectCountryColumn;
 
     public $guarded = ['id'];
     public $timestamps = false;

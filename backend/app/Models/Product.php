@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\ByLocation;
 use App\Traits\Loadable;
 use App\Traits\MetaTagable;
@@ -98,7 +99,7 @@ use Schema;
  */
 class Product extends Model
 {
-    use HasFactory, Loadable, Reviewable, SetCurrency, MetaTagable, ByLocation, SoftDeletes;
+    use HasFactory, Loadable, Reviewable, SetCurrency, MetaTagable, ByLocation, SoftDeletes, BelongsToShopCountry;
 
     protected $guarded = ['id'];
 

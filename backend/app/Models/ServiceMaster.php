@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Loadable;
 use App\Traits\SetCurrency;
 use Carbon\Carbon;
@@ -54,6 +55,7 @@ class ServiceMaster extends Model
 {
     use Loadable;
     use SetCurrency;
+    use BelongsToShopCountry;
 
     public $guarded = ['id'];
 

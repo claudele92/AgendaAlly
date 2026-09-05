@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Payable;
 use App\Traits\SetCurrency;
 use Eloquent;
@@ -41,7 +42,7 @@ use Schema;
  */
 class ShopAdsPackage extends Model
 {
-    use SetCurrency, Payable;
+    use SetCurrency, Payable, BelongsToShopCountry;
 
     public $guarded     = ['id'];
     public $timestamps  = false;

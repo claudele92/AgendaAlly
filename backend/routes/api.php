@@ -912,7 +912,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('statistics/users',          [Admin\DashboardController::class, 'usersStatistic']);
             Route::get('statistics/sales',          [Admin\DashboardController::class, 'salesReport']);
 
-            Route::group(['prefix' => 'report'], function () {
+            Route::group(['prefix' => 'report', 'middleware' => 'country.permission:reports.view'], function () {
                 Route::get('performance-dashboard',     [Admin\ReportController::class, 'performanceDashboard']);
                 Route::get('online-presence-dashboard', [Admin\ReportController::class, 'onlinePresenceDashboard']);
                 Route::get('sales-summary',             [Admin\ReportController::class, 'salesSummary']);
@@ -1009,7 +1009,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('shop/export',                   [Admin\ShopController::class, 'fileExport']);
             Route::post('shop/import',                  [Admin\ShopController::class, 'fileImport']);
             Route::get('shops/search',                  [Admin\ShopController::class, 'shopsSearch']);
-            Route::get('shops/paginate',                [Admin\ShopController::class, 'paginate']);
+            Route::middleware('country.permission:vendors.view')->group(function () {
+                Route::get('shops/paginate',            [Admin\ShopController::class, 'paginate']);
+            });
             Route::post('shops/{uuid}/image/delete',    [Admin\ShopController::class, 'imageDelete']);
             Route::post('shops/{uuid}/status/change',   [Admin\ShopController::class, 'statusChange']);
             Route::apiResource('shops',       Admin\ShopController::class);
@@ -1069,7 +1071,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             /* Orders */
             Route::get('order/export',                   [Admin\OrderController::class, 'fileExport']);
             Route::post('order/import',                  [Admin\OrderController::class, 'fileImport']);
-            Route::get('orders/paginate',                [Admin\OrderController::class, 'paginate']);
+            Route::middleware('country.permission:orders.view')->group(function () {
+                Route::get('orders/paginate',            [Admin\OrderController::class, 'paginate']);
+            });
             Route::get('order/products/calculate',       [Admin\OrderReportController::class, 'orderStocksCalculate']);
             Route::post('order/{id}/deliveryman',        [Admin\OrderController::class, 'orderDeliverymanUpdate']);
             Route::post('order/{id}/status',             [Admin\OrderController::class, 'orderStatusUpdate']);
@@ -1145,8 +1149,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('translations/drop/all',         [Admin\TranslationController::class, 'dropAll']);
 
             /* Transaction */
-            Route::get('transactions/paginate',     [Admin\TransactionController::class, 'paginate']);
-            Route::get('transactions/{id}',         [Admin\TransactionController::class, 'show']);
+            Route::middleware('country.permission:transactions.view')->group(function () {
+                Route::get('transactions/paginate', [Admin\TransactionController::class, 'paginate']);
+                Route::get('transactions/{id}',     [Admin\TransactionController::class, 'show']);
+            });
             Route::post('transactions/{id}',        [Admin\TransactionController::class, 'update']);
             Route::get('transactions/drop/all',     [Admin\TransactionController::class, 'dropAll']);
 
@@ -1157,7 +1163,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('payment-to-partners/drop/all',              [Admin\PaymentToPartnerController::class, 'dropAll']);
 
             /* Tickets */
-            Route::get('tickets/paginate',          [Admin\TicketController::class, 'paginate']);
+            Route::middleware('country.permission:tickets.view')->group(function () {
+                Route::get('tickets/paginate',      [Admin\TicketController::class, 'paginate']);
+            });
             Route::post('tickets/{id}/status',      [Admin\TicketController::class, 'setStatus']);
             Route::get('tickets/statuses',          [Admin\TicketController::class, 'getStatuses']);
             Route::apiResource('tickets',         Admin\TicketController::class);
@@ -1472,7 +1480,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('master-disabled-times/drop/all',  [Admin\MasterDisabledTimeController::class, 'dropAll']);
 
             /* Bookings */
-            Route::apiResource('bookings',   Admin\BookingController::class);
+            Route::middleware('country.permission:bookings.view')->group(function () {
+                Route::apiResource('bookings', Admin\BookingController::class)->only(['index', 'show']);
+            });
+            Route::apiResource('bookings',   Admin\BookingController::class)->except(['index', 'show']);
             Route::get('bookings/{id}/get-all',        [Admin\BookingController::class, 'bookingsByParent']);
             Route::post('bookings/{id}/status/update', [Admin\BookingController::class, 'statusUpdate']);
             Route::post('bookings/{id}/notes/update',  [Admin\BookingController::class, 'notesUpdate']);
@@ -1499,6 +1510,31 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('invites/{id}/status/change', [Admin\InviteController::class, 'changeStatus']);
             Route::post('invitation/link',            [Admin\InviteController::class, 'create']);
             Route::delete('invitations/delete',       [Admin\InviteController::class, 'delete']);
+
+            /* Country admin assignment — superadmin only, self-guarded in the controller */
+            Route::apiResource('country-admins', Admin\CountryAdminController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+
+            /* Country staff roles */
+            Route::middleware('country.permission:staff.view')->group(function () {
+                Route::get('country-roles/permissions', [Admin\CountryRoleController::class, 'permissions']);
+                Route::get('country-roles/paginate',    [Admin\CountryRoleController::class, 'paginate']);
+                Route::get('country-roles/{role}',      [Admin\CountryRoleController::class, 'show']);
+            });
+            Route::middleware('country.permission:staff.roles.manage')->group(function () {
+                Route::post('country-roles',            [Admin\CountryRoleController::class, 'store']);
+                Route::put('country-roles/{role}',       [Admin\CountryRoleController::class, 'update']);
+                Route::delete('country-roles/{role}',    [Admin\CountryRoleController::class, 'destroy']);
+            });
+
+            /* Country staff invites */
+            Route::middleware('country.permission:staff.view')->group(function () {
+                Route::get('country-invites/paginate',   [Admin\CountryInviteController::class, 'paginate']);
+            });
+            Route::middleware('country.permission:staff.invite')->group(function () {
+                Route::post('country-invites',                    [Admin\CountryInviteController::class, 'create']);
+                Route::post('country-invites/{id}/status/change', [Admin\CountryInviteController::class, 'changeStatus']);
+                Route::delete('country-invites/delete',           [Admin\CountryInviteController::class, 'delete']);
+            });
 
             /* Service Extra */
             Route::apiResource('service-extras',    Admin\ServiceExtraController::class)->except(['destroy']);

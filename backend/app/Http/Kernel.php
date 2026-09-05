@@ -8,6 +8,7 @@ use App\Http\Middleware\BlockIpMiddleware;
 use App\Http\Middleware\CheckParentSeller;
 use App\Http\Middleware\CheckSellerShop;
 use App\Http\Middleware\CheckShopPermission;
+use App\Http\Middleware\CheckCountryPermission;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\PurifyHtmlFields;
@@ -103,5 +104,6 @@ class Kernel extends HttpKernel
         'check.shop'            => CheckSellerShop::class,
         'check.parentSeller'    => CheckParentSeller::class,
         'shop.permission'       => CheckShopPermission::class,
+        'country.permission'    => CheckCountryPermission::class,
     ];
 }

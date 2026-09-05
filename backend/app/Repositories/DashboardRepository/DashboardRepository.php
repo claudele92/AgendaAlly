@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\DashboardRepository;
 
+use App\Helpers\CountryContext;
 use App\Models\Language;
 use App\Models\Order;
 use App\Models\Product;
@@ -34,10 +35,12 @@ class DashboardRepository extends CoreRepository
     {
         $shopId = data_get($filter, 'shop_id');
         $time   = now()->{$time}()->format('Y-m-d 00:00:01');
+        $restrictedShopIds = CountryContext::restrictedShopIds();
 
         return DB::table('orders')
             ->where('created_at', '>=', $time)
-            ->when($shopId, fn($q) => $q->where('shop_id', $shopId));
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds));
     }
 
     /**

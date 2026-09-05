@@ -301,6 +301,50 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Invitation::class);
     }
 
+    public function countryAdmin(): HasOne
+    {
+        return $this->hasOne(CountryAdmin::class);
+    }
+
+    public function countryInvitations(): HasMany
+    {
+        return $this->hasMany(CountryInvitation::class);
+    }
+
+    /**
+     * An 'admin'/'manager' role holder with no CountryAdmin row is an
+     * unrestricted global superadmin — see the country_admins migration.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(['admin', 'manager']) && !$this->countryAdmin;
+    }
+
+    /**
+     * Whether this user can perform $permissionKey for the given country.
+     * A global superadmin always passes, unconditionally, before any
+     * country_role lookup — mirrors User::hasShopPermission().
+     */
+    public function hasCountryPermission(int $countryId, string $permissionKey): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($this->countryAdmin?->country_id === $countryId) {
+            return true;
+        }
+
+        $invitation = $this->countryInvitations()
+            ->where('country_id', $countryId)
+            ->where('status', CountryInvitation::ACCEPTED)
+            ->whereNotNull('country_role_id')
+            ->with('countryRole.permissions')
+            ->first();
+
+        return (bool) $invitation?->countryRole?->hasPermission($permissionKey);
+    }
+
     public function socialProviders(): HasMany
     {
         return $this->hasMany(SocialProvider::class,'user_id','id');

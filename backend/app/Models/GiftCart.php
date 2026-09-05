@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Payable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,7 +40,7 @@ use Schema;
  */
 class GiftCart extends Model
 {
-    use Payable;
+    use Payable, BelongsToShopCountry;
 
     protected $guarded = ['id'];
 

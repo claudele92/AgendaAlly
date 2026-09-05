@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasDirectCountryColumn;
 use App\Traits\Areas;
 use App\Traits\Cities;
 use App\Traits\Countries;
@@ -53,7 +54,7 @@ use Schema;
 
 class Warehouse extends Model
 {
-    use Loadable, Regions, Countries, Cities, Areas;
+    use Loadable, Regions, Countries, Cities, Areas, HasDirectCountryColumn;
 
     protected $guarded = ['id'];
     protected $casts   = [

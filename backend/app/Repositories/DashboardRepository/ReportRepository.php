@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\DashboardRepository;
 
+use App\Helpers\CountryContext;
 use App\Models\Payment;
 use App\Models\Transaction;
 use Cache;
@@ -83,6 +84,7 @@ class ReportRepository extends CoreRepository
         $dateFrom = data_get($filter, 'date_from');
         $dateTo   = data_get($filter, 'date_to');
         $shopId   = data_get($filter, 'shop_id');
+        $restrictedShopIds = CountryContext::restrictedShopIds();
         $masterId = data_get($filter, 'master_id');
 
         $canceledStatus = Booking::STATUS_CANCELED;
@@ -103,6 +105,7 @@ class ReportRepository extends CoreRepository
             ->when($dateFrom, fn($q, $dateFrom) => $q->where('created_at', '>=', $dateFrom))
             ->when($dateTo,   fn($q, $dateTo)   => $q->where('created_at', '<=', $dateTo))
             ->when($shopId,   fn($q)            => $q->where('shop_id',   $shopId))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->when($masterId, fn($q)            => $q->where('master_id', $masterId))
             ->select([
                 DB::raw('count(id) as ended_count'),
@@ -121,6 +124,7 @@ class ReportRepository extends CoreRepository
             ->when($dateFrom, fn($q, $dateFrom) => $q->where('created_at', '>=', $dateFrom))
             ->when($dateTo,   fn($q, $dateTo)   => $q->where('created_at', '<=', $dateTo))
             ->when($shopId,   fn($q)            => $q->where('shop_id', $shopId))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->select([
                 DB::raw('count(id) as total_count'),
                 DB::raw('sum(total_price) as total_price'),
@@ -302,6 +306,7 @@ class ReportRepository extends CoreRepository
         $dateFrom = data_get($filter, 'date_from');
         $dateTo   = data_get($filter, 'date_to');
         $shopId   = data_get($filter, 'shop_id');
+        $restrictedShopIds = CountryContext::restrictedShopIds();
         $masterId = data_get($filter, 'master_id');
 
         $canceledStatus = Booking::STATUS_CANCELED;
@@ -322,6 +327,7 @@ class ReportRepository extends CoreRepository
             ->when($dateFrom, fn($q, $dateFrom) => $q->where('created_at', '>=', $dateFrom))
             ->when($dateTo,   fn($q, $dateTo)   => $q->where('created_at', '<=', $dateTo))
             ->when($shopId,   fn($q)            => $q->where('shop_id',   $shopId))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->when($masterId, fn($q)            => $q->where('master_id', $masterId))
             ->select([
                 DB::raw('count(id) as ended_count'),
@@ -341,6 +347,7 @@ class ReportRepository extends CoreRepository
             ->when($dateFrom, fn($q, $dateFrom) => $q->where('created_at', '>=', $dateFrom))
             ->when($dateTo,   fn($q, $dateTo)   => $q->where('created_at', '<=', $dateTo))
             ->when($shopId,   fn($q)            => $q->where('shop_id', $shopId))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->select([
                 DB::raw('count(id) as total_count'),
                 DB::raw('sum(total_price) as total_price'),
@@ -949,6 +956,7 @@ class ReportRepository extends CoreRepository
         $dateFrom = data_get($filter, 'date_from');
         $dateTo   = data_get($filter, 'date_to');
         $shopId   = data_get($filter, 'shop_id');
+        $restrictedShopIds = CountryContext::restrictedShopIds();
         $masterId = data_get($filter, 'master_id');
 
         $newStatus      = Booking::STATUS_NEW;

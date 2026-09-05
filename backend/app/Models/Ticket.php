@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryRestriction;
 use Database\Factories\TicketFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -52,7 +54,7 @@ use Illuminate\Support\Carbon;
  */
 class Ticket extends Model
 {
-    use HasFactory;
+    use HasFactory, HasCountryRestriction;
 
     protected $guarded = ['id'];
 
@@ -77,6 +79,22 @@ class Ticket extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * Tickets with a resolvable order are scoped to that order's country;
+     * general-support tickets with no order at all are excluded entirely
+     * for a restricted country admin (superadmin-only, by design — see
+     * the country-admin-hierarchy PR description).
+     */
+    public function scopeInCountry(Builder $query, int $countryId): Builder
+    {
+        return $query->whereHas('order.shop.locations', fn ($q) => $q->where('country_id', $countryId));
     }
 
     public function scopeFilter($query, array $filter) {

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCountryRestriction;
 use Database\Factories\TransactionFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -56,7 +57,7 @@ use Illuminate\Support\Carbon;
  */
 class Transaction extends Model
 {
-    use HasFactory;
+    use HasFactory, HasCountryRestriction;
 
     protected $guarded = ['id'];
 
@@ -79,6 +80,15 @@ class Transaction extends Model
     public function payable(): MorphTo
     {
         return $this->morphTo('payable');
+    }
+
+    public function scopeInCountry(Builder $query, int $countryId): Builder
+    {
+        return $query->whereHasMorph(
+            'payable',
+            [Order::class, Booking::class],
+            fn ($q) => $q->whereHas('shop.locations', fn ($q2) => $q2->where('country_id', $countryId))
+        );
     }
 
     public function user(): BelongsTo

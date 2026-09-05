@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToShopCountry;
 use App\Traits\Loadable;
 use App\Traits\Payable;
 use Carbon\Carbon;
@@ -43,7 +44,7 @@ use Illuminate\Support\Collection;
  */
 class MemberShip extends Model
 {
-    use Loadable, Payable;
+    use Loadable, Payable, BelongsToShopCountry;
 
     public $guarded = ['id'];
     protected $table = 'member_ships';

@@ -7,6 +7,7 @@ set_time_limit(0);
 ini_set('memory_limit', '4G');
 
 use Throwable;
+use App\Helpers\CountryContext;
 use App\Models\Bonus;
 use App\Models\Order;
 use App\Models\Shop;
@@ -690,6 +691,7 @@ class OrderReportRepository extends CoreRepository
 
         $type     = data_get($filter, 'type');
         $shopId   = data_get($filter, 'shop_id');
+        $restrictedShopIds = CountryContext::restrictedShopIds();
 
         $column = [
             'count',
@@ -709,6 +711,7 @@ class OrderReportRepository extends CoreRepository
             ->where('created_at', '>=', $dateFrom)
             ->where('created_at', '<=', $dateTo)
             ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('shop_id', $restrictedShopIds))
             ->whereIn('status', [Order::STATUS_DELIVERED, Order::STATUS_CANCELED])
             ->select([
                 DB::raw("sum(if(status = 'delivered', 1, 0)) as count"),
@@ -813,6 +816,7 @@ class OrderReportRepository extends CoreRepository
     public function overviewCategories(array $filter): array
     {
         [$dateFrom, $dateTo, $key, $shopId] = $this->getKeys($filter);
+        $restrictedShopIds = CountryContext::restrictedShopIds();
 
         $column = data_get(['id', 'count', 'total_price', 'quantity'], $key, $key);
 
@@ -831,6 +835,7 @@ class OrderReportRepository extends CoreRepository
                     ->whereIn('o.status', [Order::STATUS_DELIVERED, Order::STATUS_CANCELED]);
             })
             ->when($shopId, fn($q) => $q->where('p.shop_id', '=', $shopId))
+            ->when($restrictedShopIds !== null, fn($q) => $q->whereIn('p.shop_id', $restrictedShopIds))
             ->select([
                 DB::raw('sum(distinct od.quantity) as quantity'),
                 DB::raw('sum(distinct o.total_price) as total_price'),
