@@ -47,6 +47,16 @@ class RoleSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
+                // Shop-side staff role, assignable via seller invites (see InviteService/Seller\UserController).
+                'id' => 14,
+                'name' => 'shop_manager',
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                // Admin-side staff role only — reserved by the `role:admin|manager` route middleware.
+                // Never assign this via a seller invite; use `shop_manager` instead.
                 'id' => 21,
                 'name' => 'manager',
                 'guard_name' => 'web',
