@@ -99,4 +99,30 @@ final class CountryService extends CoreService
         }
     }
 
+    /**
+     * Sync which payment gateways are available for a country, and whether
+     * each is active. $payments is an array of ['payment_id' => int, 'active' => bool].
+     */
+    public function updatePayments(Country $model, array $payments): array
+    {
+        try {
+            $sync = [];
+
+            foreach ($payments as $payment) {
+                $sync[data_get($payment, 'payment_id')] = ['active' => (bool) data_get($payment, 'active')];
+            }
+
+            $model->payments()->sync($sync);
+
+            return [
+                'status' => true,
+                'code'   => ResponseError::NO_ERROR,
+                'data'   => $model->load('payments')
+            ];
+        } catch (Throwable $e) {
+            $this->error($e);
+            return ['status' => false, 'code' => ResponseError::ERROR_502, 'message' => $e->getMessage()];
+        }
+    }
+
 }

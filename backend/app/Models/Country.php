@@ -8,6 +8,8 @@ use App\Traits\Regions;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
@@ -18,8 +20,10 @@ use Illuminate\Support\Collection;
  * @property int $id
  * @property string|null $code
  * @property int|null $region_id
+ * @property int|null $currency_id
  * @property boolean $active
  * @property string|null $img
+ * @property Currency|null $currency
  * @property City|null $city
  * @property Collection|City[] $cities
  * @property Area|null $area
@@ -31,6 +35,7 @@ use Illuminate\Support\Collection;
  * @property Collection|DeliveryPrice[] $deliveryPrices
  * @property DeliveryPrice|null $deliveryPrice
  * @property int|null $delivery_price_count
+ * @property Collection|Payment[] $payments
  * @method static Builder|self active()
  * @method static Builder|self filter(array $filter)
  * @method static Builder|self newModelQuery()
@@ -49,6 +54,18 @@ class Country extends Model
     public $casts = [
         'active' => 'bool',
     ];
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+    public function payments(): BelongsToMany
+    {
+        return $this->belongsToMany(Payment::class, 'country_payments')
+            ->withPivot('active')
+            ->withTimestamps();
+    }
 
     public function translations(): HasMany
     {

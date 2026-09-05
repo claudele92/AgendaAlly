@@ -26,6 +26,7 @@ class CountryResource extends JsonResource
             'code'          => $this->code,
             'active'        => (bool)$this->active,
             'region_id'     => $this->when($this->region_id, $this->region_id),
+            'currency_id'   => $this->when($this->currency_id, $this->currency_id),
             'img'           => $this->when($this->img, $this->img),
             'cities_count'  => $this->when($this->cities_count, $this->cities_count),
 
@@ -36,6 +37,8 @@ class CountryResource extends JsonResource
             'region'        => RegionResource::make($this->whenLoaded('region')),
             'city'          => CityResource::make($this->whenLoaded('city')),
             'cities'        => CityResource::collection($this->whenLoaded('cities')),
+            'currency'      => CurrencyResource::make($this->whenLoaded('currency')),
+            'payments'      => PaymentResource::collection($this->whenLoaded('payments')),
         ];
     }
 }

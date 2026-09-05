@@ -1280,6 +1280,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             /* Countries */
             Route::apiResource('countries', Admin\CountryController::class);
             Route::get('country/{id}/active', [Admin\CountryController::class, 'changeActive']);
+            Route::post('countries/{country}/payments', [Admin\CountryController::class, 'updatePayments']);
             Route::delete('countries/delete', [Admin\CountryController::class, 'destroy']);
             Route::get('countries/drop/all',  [Admin\CountryController::class, 'dropAll']);
 

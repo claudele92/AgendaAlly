@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API\v1\Dashboard\Admin;
 use App\Helpers\ResponseError;
 use App\Http\Requests\FilterParamsRequest;
 use App\Http\Requests\Country\StoreRequest;
+use App\Http\Requests\Country\UpdatePaymentsRequest;
 use App\Http\Resources\CountryResource;
 use App\Models\Country;
 use App\Repositories\CountryRepository\CountryRepository;
@@ -142,6 +143,28 @@ class CountryController extends AdminBaseController
         return $this->successResponse(
             __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_DELETED, locale: $this->language),
             []
+        );
+    }
+
+    /**
+     * Set which payment gateways are available for a country, and whether
+     * each is active.
+     *
+     * @param Country $country
+     * @param UpdatePaymentsRequest $request
+     * @return JsonResponse
+     */
+    public function updatePayments(Country $country, UpdatePaymentsRequest $request): JsonResponse
+    {
+        $result = $this->service->updatePayments($country, $request->validated('payments'));
+
+        if (!data_get($result, 'status')) {
+            return $this->onErrorResponse($result);
+        }
+
+        return $this->successResponse(
+            __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_UPDATED, locale: $this->language),
+            CountryResource::make(data_get($result, 'data'))
         );
     }
 }
