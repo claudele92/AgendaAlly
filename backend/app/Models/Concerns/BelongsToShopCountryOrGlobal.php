@@ -7,9 +7,10 @@ namespace App\Models\Concerns;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * For models with a nullable shop_id (Category, Brand): platform-wide
- * catalog entries (shop_id null) stay visible to every country admin, in
- * addition to shop-specific ones belonging to their own country.
+ * For models with a nullable shop_id (Category, Brand, PropertyGroup):
+ * platform-wide catalog entries (shop_id null) stay visible to every
+ * country admin, in addition to shop-specific ones belonging to their
+ * own country.
  */
 trait BelongsToShopCountryOrGlobal
 {

@@ -6,15 +6,25 @@ namespace App\Services\CountryAdminService;
 
 use App\Helpers\ResponseError;
 use App\Models\CountryAdmin;
+use App\Models\User;
 use App\Services\CoreService;
 use Throwable;
 
 /**
- * Assigns/reassigns a user's single restricted country — purely additive
- * against Spatie's roles. This table only restricts an existing
- * admin/manager to one country; it never grants dashboard access on its
- * own. Use the existing users/{uuid}/role/update endpoint to give the
- * user the 'manager' role first if they don't already have it.
+ * Assigns/reassigns a user's single restricted country. Creating the
+ * assignment also grants the 'manager' Spatie role in the same operation
+ * if the user doesn't already hold 'admin'/'manager' — otherwise a newly
+ * assigned country admin couldn't reach the admin panel at all, since
+ * that's still gated by the coarse `role:admin|manager` route group.
+ *
+ * That grant is tracked via manager_role_granted so delete() can revoke
+ * exactly it, and only it: a user who already held 'manager' (or 'admin')
+ * before being restricted to a country keeps that role on removal — it
+ * was never ours to take away, and its holder reverting to an
+ * unrestricted superadmin is just the restriction being lifted. A user
+ * who only had 'manager' because this assignment granted it must lose it
+ * on removal, or they'd accidentally become an unrestricted superadmin
+ * despite never having earned that on their own.
  */
 final class CountryAdminService extends CoreService
 {
@@ -26,10 +36,20 @@ final class CountryAdminService extends CoreService
     public function create(array $data): array
     {
         try {
+            /** @var User $user */
+            $user = User::findOrFail($data['user_id']);
+
+            $grantRole = !$user->hasAnyRole(['admin', 'manager']);
+
+            if ($grantRole) {
+                $user->assignRole('manager');
+            }
+
             $admin = CountryAdmin::query()->create([
-                'user_id'    => $data['user_id'],
-                'country_id' => $data['country_id'],
-                'created_by' => auth('sanctum')->id(),
+                'user_id'              => $data['user_id'],
+                'country_id'           => $data['country_id'],
+                'created_by'           => auth('sanctum')->id(),
+                'manager_role_granted' => $grantRole,
             ]);
 
             return [
@@ -62,6 +82,10 @@ final class CountryAdminService extends CoreService
     public function delete(CountryAdmin $admin): array
     {
         try {
+            if ($admin->manager_role_granted) {
+                $admin->user?->removeRole('manager');
+            }
+
             $admin->delete();
 
             return ['status' => true, 'code' => ResponseError::NO_ERROR];

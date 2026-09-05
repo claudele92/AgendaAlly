@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToShopCountry;
+use App\Models\Concerns\BelongsToShopCountryOrGlobal;
 use App\Traits\Loadable;
 use Database\Factories\CouponFactory;
 use Eloquent;
@@ -62,7 +62,7 @@ use Schema;
  */
 class Coupon extends Model
 {
-    use HasFactory, Loadable, BelongsToShopCountry;
+    use HasFactory, Loadable, BelongsToShopCountryOrGlobal;
 
     protected $guarded = ['id'];
 

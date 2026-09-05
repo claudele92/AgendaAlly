@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $user_id
  * @property int $country_id
  * @property int|null $created_by
+ * @property bool $manager_role_granted
  */
 class CountryAdmin extends Model
 {
