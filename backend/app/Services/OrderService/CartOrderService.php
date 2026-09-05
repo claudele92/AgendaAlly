@@ -6,11 +6,12 @@ namespace App\Services\OrderService;
 use App\Helpers\OrderHelper;
 use App\Helpers\ResponseError;
 use App\Models\Cart;
-use App\Models\Currency;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\Settings;
+use App\Models\Shop;
+use App\Models\ShopLocation;
 use App\Models\Transaction;
 use App\Services\CoreService;
 use App\Services\TransactionService\TransactionService;
@@ -49,12 +50,6 @@ class CartOrderService extends CoreService
             throw new Exception(__('errors.' . ResponseError::ERROR_404, locale: $this->language));
         }
 
-        $currency = Currency::currenciesList()->where('id', data_get($data, 'currency_id'))->first();
-
-        if (empty($currency)) {
-            $currency = Currency::currenciesList()->where('default', 1)->first();
-        }
-
         $count        = 0;
         $digitalCount = 0;
         $orders       = [];
@@ -75,8 +70,17 @@ class CartOrderService extends CoreService
                     continue;
                 }
 
-                $data['currency_id']    = $currency?->id;
-                $data['rate']           = $currency?->rate;
+                // Each shop in a multi-vendor cart resolves its own currency —
+                // a cart can span shops in different countries, so a single
+                // cart-wide currency would be wrong for at least one of them.
+                $country = Shop::find($cartDetail->shop_id)?->checkoutCountry(ShopLocation::PRODUCT);
+
+                if (!$country) {
+                    throw new Exception(__('errors.' . ResponseError::ERROR_400, locale: $this->language));
+                }
+
+                $data['currency_id']    = $country->currency_id;
+                $data['rate']           = $country->currency->rate;
                 $data['type']           = $cartDetail->shop->delivery_type;
                 $data['total_price']    = 0;
                 $data['commission_fee'] = 0;

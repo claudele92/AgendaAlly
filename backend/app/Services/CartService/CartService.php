@@ -10,15 +10,18 @@ use App\Models\Bonus;
 use App\Models\CartDetailProduct;
 use App\Models\Cart;
 use App\Models\CartDetail;
-use App\Models\Currency;
+use App\Models\Country;
 use App\Models\Language;
 use App\Models\Product;
+use App\Models\Shop;
+use App\Models\ShopLocation;
 use App\Models\Stock;
 use App\Models\User;
 use App\Models\UserCart;
 use App\Models\WholeSalePrice;
 use App\Repositories\CartRepository\CartRepository;
 use App\Services\CoreService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Str;
@@ -32,6 +35,25 @@ class CartService extends CoreService
     protected function getModelClass(): string
     {
         return Cart::class;
+    }
+
+    /**
+     * Confirms the given shop's e-commerce (PRODUCT) country matches the
+     * customer's declared cart country, and returns that country (with its
+     * currency loaded) so callers can derive currency_id/rate from it
+     * instead of trusting a client-supplied currency_id. Returns null if
+     * the shop's country isn't configured for checkout, or doesn't match —
+     * callers should reject the request rather than fall back to a guess.
+     */
+    private function matchingShopCountry(int $shopId, int $expectedCountryId): ?Country
+    {
+        $country = Shop::find($shopId)?->checkoutCountry(ShopLocation::PRODUCT);
+
+        if (!$country || $country->id !== $expectedCountryId) {
+            return null;
+        }
+
+        return $country;
     }
 
     /**
@@ -66,12 +88,24 @@ class CartService extends CoreService
             ];
         }
 
+        $country = $this->matchingShopCountry($stock->product->shop_id, (int) data_get($data, 'country_id'));
+
+        if (!$country) {
+            return [
+                'status'  => false,
+                'code'    => ResponseError::ERROR_400,
+                'message' => __('errors.' . ResponseError::ERROR_400, locale: $this->language)
+            ];
+        }
+
         $quantity = OrderHelper::actualQuantity($stock, data_get($data, 'quantity', 0)) ?? 0;
 
         data_set($data, 'quantity', $quantity);
         data_set($data, 'price', ($stock->price + $stock->tax_price) * $quantity);
         data_set($data, 'discount', $stock->actual_discount * $quantity);
         data_set($data, 'shop_id', $stock->product->shop_id);
+        data_set($data, 'currency_id', $country->currency_id);
+        data_set($data, 'rate', $country->currency->rate);
 
         /** @var Cart $cart */
         $cart = $this->model()
@@ -594,9 +628,24 @@ class CartService extends CoreService
         $userId           = $user->id;
         $data['owner_id'] = $userId;
         $data['user_id']  = $userId;
-        $data['rate']     = Currency::find($data['currency_id'])->rate;
         $data['city_id']  = data_get($data, 'city_id');
         $data['area_id']  = data_get($data, 'area_id');
+
+        // Cart-level currency comes from the customer's declared country,
+        // not the client-supplied currency_id — collectProducts() below
+        // rejects any product whose shop doesn't match this same country.
+        $country = Country::with('currency')->find(data_get($data, 'country_id'));
+
+        if (!$country?->currency) {
+            return [
+                'status'  => false,
+                'code'    => ResponseError::ERROR_400,
+                'message' => __('errors.' . ResponseError::ERROR_400, locale: $this->language)
+            ];
+        }
+
+        $data['currency_id'] = $country->currency_id;
+        $data['rate']        = $country->currency->rate;
 
         /** @var Cart $cart */
         $with = (new CartRepository)->with();
@@ -676,6 +725,10 @@ class CartService extends CoreService
                 $dataStocks = collect(data_get($data, 'products', []));
 
                 foreach ($stocks as $stock) {
+
+                    if (!$this->matchingShopCountry($stock->product->shop_id, (int) data_get($data, 'country_id'))) {
+                        throw new Exception(__('errors.' . ResponseError::ERROR_400, locale: $this->language));
+                    }
 
                     $qty = data_get($dataStocks->where('stock_id', $stock->id)->first(), 'quantity');
 

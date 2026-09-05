@@ -305,6 +305,39 @@ class Shop extends Model
         return $this->hasOne(ShopLocation::class);
     }
 
+    public function serviceLocation(): HasOne
+    {
+        return $this->hasOne(ShopLocation::class)->where('type', ShopLocation::SERVICE);
+    }
+
+    public function productLocation(): HasOne
+    {
+        return $this->hasOne(ShopLocation::class)->where('type', ShopLocation::PRODUCT);
+    }
+
+    /**
+     * The country configured for this shop's bookings (SERVICE) or
+     * e-commerce orders (PRODUCT), with its currency loaded. Null if the
+     * shop has no location of that type, no country set on it, or that
+     * country has no currency configured yet — callers should treat null
+     * as "this shop cannot currently complete a checkout of this kind".
+     */
+    public function checkoutCountry(int $locationType): ?Country
+    {
+        $countryId = $locationType === ShopLocation::SERVICE
+            ? $this->serviceLocation?->country_id
+            : $this->productLocation?->country_id;
+
+        if (!$countryId) {
+            return null;
+        }
+
+        /** @var Country|null $country */
+        $country = Country::with('currency')->find($countryId);
+
+        return $country?->currency ? $country : null;
+    }
+
     public function socials(): HasMany
     {
         return $this->hasMany(ShopSocial::class);

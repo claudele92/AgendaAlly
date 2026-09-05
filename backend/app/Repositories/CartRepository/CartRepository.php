@@ -7,7 +7,6 @@ use App\Helpers\OrderHelper;
 use App\Helpers\ResponseError;
 use App\Models\Cart;
 use App\Models\CartDetailProduct;
-use App\Models\Currency;
 use App\Models\Settings;
 use App\Repositories\CoreRepository;
 use App\Services\CartService\CartService;
@@ -71,19 +70,13 @@ class CartRepository extends CoreRepository
         /** @var Cart $cart */
         (new CartService)->calculateTotalPrice($cart);
 
-        $cart = $this->model()
+        // Currency is set once, from the shop's own country, when items are
+        // added to the cart (CartService) — it must not drift on every read
+        // based on whatever currency_id happens to be in the request.
+        return $this->model()
             ->filter($filter)
             ->with($this->with())
             ->first();
-
-        /** @var Currency $currency */
-        $currency = Currency::currenciesList()->where('id', (int)request('currency_id'))->first();
-
-        if (!empty($cart) && !empty($currency?->id) && $cart->currency_id !== (int)$currency?->id) {
-            $cart->update(['currency_id' => $currency->id, 'rate' => $currency->rate]);
-        }
-
-        return $cart;
     }
 
     /**
@@ -93,8 +86,6 @@ class CartRepository extends CoreRepository
      */
     public function calculateByCartId(int $id, array $data): array
     {
-        $currency = Currency::currenciesList()->where('id', data_get($data, 'currency_id'))->first();
-
         $cart = Cart::with($this->with())
             ->withCount('userCarts')
             ->find($id);
@@ -110,17 +101,10 @@ class CartRepository extends CoreRepository
         }
 
         /** @var Cart $cart */
-        if (!empty($currency)) {
-
-            /** @var Currency $currency */
-            $cart->update([
-                'currency_id' => $currency->id,
-                'rate'        => $currency->rate
-            ]);
-
-        }
-
-        $rate           = $currency?->rate ?? $cart->rate;
+        // Currency is set once, from the shop's own country, when items are
+        // added to the cart (CartService) — never overwritten here from a
+        // client-supplied currency_id.
+        $rate           = $cart->rate;
         $totalTax       = 0;
         $totalShopTax   = 0;
         $price          = 0;

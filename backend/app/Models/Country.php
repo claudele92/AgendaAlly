@@ -67,6 +67,26 @@ class Country extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Payment ids available at checkout for this country: the gateways
+     * explicitly enabled for it, plus cash/wallet, which are always
+     * available everywhere and are never country-scoped.
+     */
+    public function activePaymentIds(): Collection
+    {
+        $countryScoped = $this->payments()
+            ->wherePivot('active', true)
+            ->where('payments.active', true)
+            ->pluck('payments.id');
+
+        $alwaysOn = Payment::query()
+            ->where('active', true)
+            ->whereIn('tag', [Payment::TAG_CASH, Payment::TAG_WALLET])
+            ->pluck('id');
+
+        return $countryScoped->merge($alwaysOn)->unique()->values();
+    }
+
     public function translations(): HasMany
     {
         return $this->hasMany(CountryTranslation::class);

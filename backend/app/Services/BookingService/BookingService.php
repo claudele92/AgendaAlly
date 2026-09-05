@@ -14,7 +14,6 @@ use App\Models\Point;
 use App\Models\Payment;
 use App\Models\Booking;
 use App\Helpers\Utility;
-use App\Models\Currency;
 use App\Models\Settings;
 use App\Models\MemberShip;
 use App\Models\Transaction;
@@ -55,8 +54,6 @@ class BookingService extends CoreService
         try {
             $models = DB::transaction(function () use ($data, $calculate) {
 
-                $rate = Currency::currenciesList()->find($this->currency)?->rate ?: 1;
-
                 $calculate = (new BookingRepository)->calculate($data);
 
                 if (!data_get($calculate, 'status')) {
@@ -68,6 +65,11 @@ class BookingService extends CoreService
                         )
                     );
                 }
+
+                // Resolved from the shop's own country by BookingRepository::calculate()
+                // for customer-facing requests — never from the request/platform default.
+                $rate       = $calculate['rate'] ?: 1;
+                $currencyId = $calculate['currency_id'] ?? null;
 
                 $models    = [];
                 $parentId  = null;
@@ -113,7 +115,7 @@ class BookingService extends CoreService
 
                     $item['parent_id']         = $parentId;
                     $item['user_id']           = $data['user_id'];
-                    $item['currency_id']       = $this->currency;
+                    $item['currency_id']       = $currencyId;
                     $item['user_gift_cart_id'] = $data['user_gift_cart_id'] ?? null;
                     $item['start_date']        = $calculateValue['start_date'];
                     $item['end_date']          = $calculateValue['end_date'];

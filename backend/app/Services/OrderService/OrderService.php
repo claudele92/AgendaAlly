@@ -11,7 +11,6 @@ use App\Models\Order;
 use App\Models\Coupon;
 use App\Models\Payment;
 use App\Models\Settings;
-use App\Models\Currency;
 use App\Helpers\OrderHelper;
 use App\Traits\Notification;
 use App\Services\CoreService;
@@ -111,23 +110,16 @@ class OrderService extends CoreService
                     default                 => throw new Exception('error data'),
                 };
 
-                $currency = Currency::currenciesList()->where('id', data_get($data, 'currency_id'))->first();
-
-                if (empty($currency)) {
-                    /** @var Currency $currency */
-                    $currency = Currency::currenciesList()->where('default', 1)->first();
-                }
-
-                $tips = $data['tips'] ?? 0;
-
-                if ($tips > 0 && $currency?->rate > 0) {
-                    $tips = $tips / $currency->rate / count($orders);
-                }
+                // Each order already carries its own shop-resolved rate (a
+                // multi-vendor cart can produce orders in different
+                // currencies), so tips are converted per-order rather than
+                // with one cart-wide currency.
+                $tipsTotal = $data['tips'] ?? 0;
 
                 foreach ($orders as $key => $order) {
 
-                    if ($tips > 0) {
-                        $data['tips'] = $tips;
+                    if ($tipsTotal > 0 && $order->rate > 0) {
+                        $data['tips'] = ($tipsTotal / $order->rate) / count($orders);
                     }
 
                     $this->calculateOrder($order, $data, false, count($orders));

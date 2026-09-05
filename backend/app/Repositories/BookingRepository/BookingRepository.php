@@ -17,6 +17,8 @@ use App\Models\ServiceExtra;
 use App\Models\ServiceMaster;
 use App\Models\ServiceMasterPrice;
 use App\Models\Settings;
+use App\Models\Shop;
+use App\Models\ShopLocation;
 use App\Models\User;
 use App\Models\UserGiftCart;
 use App\Models\UserMemberShip;
@@ -142,10 +144,25 @@ class BookingRepository extends CoreRepository
             $data['user_id'] = auth('sanctum')->id();
         }
 
-        $rate = Currency::currenciesList()->where('active', 1)->where('default', 1)->first()?->rate ?: 1;
+        $defaultCurrency = Currency::currenciesList()->where('active', 1)->where('default', 1)->first();
+        $rate            = $defaultCurrency?->rate ?: 1;
+        $currencyId      = $defaultCurrency?->id;
 
         if (request()->is('api/v1/dashboard/user/*') || request()->is('api/v1/rest/*')) {
-            $rate = Currency::currenciesList()->find($this->currency)?->rate ?: 1;
+            // Customer-facing checkout: currency/rate come from the shop's
+            // own country, never from the request or platform default.
+            $firstServiceMasterId = data_get($data, 'data.0.service_master_id');
+            $shopIdForCurrency    = ServiceMaster::find($firstServiceMasterId)?->shop_id;
+            $country              = $shopIdForCurrency
+                ? Shop::find($shopIdForCurrency)?->checkoutCountry(ShopLocation::SERVICE)
+                : null;
+
+            if (!$country) {
+                throw new Exception(__('errors.' . ResponseError::ERROR_400, locale: $this->language));
+            }
+
+            $rate       = $country->currency->rate ?: 1;
+            $currencyId = $country->currency_id;
         }
 
         $serviceFee = Settings::where('key', 'booking_service_fee')->first()?->value;
@@ -412,6 +429,7 @@ class BookingRepository extends CoreRepository
             'shop_id'               => $data['shop_id'],
             'user_gift_cart_id'     => $data['user_gift_cart_id'] ?? 0,
             'rate'                  => $rate,
+            'currency_id'           => $currencyId,
             'price'                 => $price + $discount,
             'total_price'           => max($totalPrice + $serviceFee, 0),
             'total_extra_price'     => max($extraPrice, 0),
