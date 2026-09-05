@@ -89,23 +89,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Application MTN payment
-    |--------------------------------------------------------------------------
-    |
-    | This MTN payment website
-    |
-    */
-
-    'LOGIN'          => env('LOGIN'),
-    'PASSWORD'       => env('PASSWORD'),
-    'AGENCY_CODE'    => env('AGENCY_CODE'),
-    'LOGIN_AGENT'    => env('LOGIN_AGENT'),
-    'PASSWORD_AGENT' => env('PASSWORD_AGENT'),
-    'PARTNER_ID'     => env('PARTNER_ID'),
-    'SERVICE_CODE'   => env('SERVICE_CODE'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Application ADMIN URL
     |--------------------------------------------------------------------------
     |

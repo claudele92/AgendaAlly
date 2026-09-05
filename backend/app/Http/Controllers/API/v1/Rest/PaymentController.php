@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1\Rest;
 use App\Helpers\ResponseError;
 use App\Http\Requests\FilterParamsRequest;
 use App\Http\Resources\PaymentResource;
+use App\Models\CartDetail;
 use App\Models\Payment;
 use App\Models\Shop;
 use App\Models\ShopLocation;
@@ -34,7 +35,14 @@ class PaymentController extends RestBaseController
      * globally active gateway. `location_type` (ShopLocation::PRODUCT or
      * ShopLocation::SERVICE) is then required, since a shop's product and
      * service arms can sit in different countries. Without `shop_id`, the
-     * old unscoped global list is returned unchanged.
+     * old unscoped global list is returned unchanged — except that
+     * `cart_id`, when given, excludes Orange Money/MTN Mobile Money if
+     * that cart's items span more than one shop: those two gateways
+     * settle directly into one shop's own merchant account, so there is
+     * no single account a split-shop cart could pay into. The customer
+     * should never be offered an option that would then fail at payment
+     * time — see MtnService/OrangeService::resolveGatewayShopId() for
+     * the backend backstop if this is ever reached anyway.
      *
      * @param FilterParamsRequest $request
      * @return AnonymousResourceCollection|JsonResponse
@@ -45,6 +53,14 @@ class PaymentController extends RestBaseController
 
         if (!$shopId) {
             $payments = $this->repository->paymentsList($request->merge(['active' => 1])->all());
+
+            $cartId = $request->input('cart_id');
+
+            if ($cartId && $this->cartSpansMultipleShops((int) $cartId)) {
+                $payments = $payments->reject(
+                    fn (Payment $payment) => in_array($payment->tag, [Payment::TAG_ORANGE, Payment::TAG_MTN], true)
+                );
+            }
 
             return PaymentResource::collection($payments);
         }
@@ -76,6 +92,13 @@ class PaymentController extends RestBaseController
         return PaymentResource::collection($payments);
     }
 
+
+    private function cartSpansMultipleShops(int $cartId): bool
+    {
+        return CartDetail::whereHas('userCart', fn ($q) => $q->where('cart_id', $cartId))
+            ->distinct()
+            ->count('shop_id') > 1;
+    }
 
     /**
      * Display the specified resource.

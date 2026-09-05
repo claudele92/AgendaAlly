@@ -10,6 +10,7 @@ use App\Models\Booking;
 use App\Models\BookingExtraTime;
 use App\Models\AuctionUser;
 use App\Models\Cart;
+use App\Models\CartDetail;
 use App\Models\Currency;
 use App\Models\GiftCart;
 use App\Models\MemberShip;
@@ -739,6 +740,46 @@ class BaseService extends CoreService
         }
 
         throw new Exception(__('errors.' . ResponseError::ERROR_109, locale: $this->language));
+    }
+
+    /**
+     * Resolves the single shop a gateway transaction is for — needed by
+     * gateways whose credentials are per-shop rather than platform-level
+     * (Orange Money, MTN Mobile Money). A cart spanning more than one
+     * shop has no single answer: split-payment per shop isn't supported,
+     * so this throws rather than guessing which shop's account should
+     * receive the whole payment. Bookings always belong to exactly one
+     * shop already, so they're unaffected.
+     *
+     * @throws Exception
+     */
+    public function resolveGatewayShopId(string $modelType, int $modelId): int
+    {
+        if ($modelType === Booking::class) {
+            $shopId = Booking::find($modelId)?->shop_id;
+
+            if (!$shopId) {
+                throw new Exception('Booking not found');
+            }
+
+            return $shopId;
+        }
+
+        if ($modelType === Cart::class) {
+            $shopIds = CartDetail::whereHas('userCart', fn ($q) => $q->where('cart_id', $modelId))
+                ->distinct()
+                ->pluck('shop_id');
+
+            if ($shopIds->count() !== 1) {
+                throw new Exception($shopIds->count() > 1
+                    ? 'This payment method does not support a cart with items from more than one shop'
+                    : 'Cart is empty');
+            }
+
+            return $shopIds->first();
+        }
+
+        throw new Exception('This payment method is only available for shop orders and bookings');
     }
 
     public function getValidateData(array $data): array

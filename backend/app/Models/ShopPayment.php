@@ -24,6 +24,13 @@ use Schema;
  * @property Carbon|null $updated_at
  * @property string|null $merchant_email
  * @property string|null $payment_key
+ * @property string|null $merchant_key encrypted at rest — Orange Money
+ * @property string|null $subscription_key encrypted at rest — MTN MoMo
+ * @property string|null $api_user encrypted at rest — MTN MoMo
+ * @property string|null $api_key encrypted at rest — MTN MoMo
+ * @property string|null $target_environment MTN MoMo routing value, e.g. 'mtnivorycoast'
+ * @property string|null $currency ISO code the gateway call uses; defaults from the shop's country, overridable
+ * @property string|null $base_url sandbox vs. production endpoint override
  * @property-read Payment|null $payment
  * @property-read Shop|null $shop
  * @method static Builder|self newModelQuery()
@@ -49,12 +56,31 @@ class ShopPayment extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'status' => 'bool',
+        'status'           => 'bool',
+        'merchant_key'     => 'encrypted',
+        'subscription_key' => 'encrypted',
+        'api_user'         => 'encrypted',
+        'api_key'          => 'encrypted',
     ];
 
     public function payment(): BelongsTo
     {
         return $this->belongsTo(Payment::class);
+    }
+
+    /**
+     * Resolves the config a shop needs for one of the gateways whose
+     * merchant registration is done by the receiving business itself
+     * (Orange Money, MTN Mobile Money) — there is no platform-level
+     * fallback for these, so a missing row means the shop hasn't
+     * configured that gateway yet.
+     */
+    public static function forShopAndPayment(int $shopId, int $paymentId): ?self
+    {
+        return static::query()
+            ->where('shop_id', $shopId)
+            ->where('payment_id', $paymentId)
+            ->first();
     }
 
     public function scopeFilter($query, array $filter) {
