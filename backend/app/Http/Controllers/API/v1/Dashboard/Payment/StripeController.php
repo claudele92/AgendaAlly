@@ -69,7 +69,7 @@ class StripeController extends PaymentBaseController
 
             $to = config('app.front_url') . 'wallet';
 
-            if ($wallet?->user?->hasRole(['seller', 'admin', 'moderator', 'deliveryman', 'manager'])) {
+            if ($wallet?->user?->hasRole(['seller', 'admin', 'moderator', 'deliveryman', 'manager', 'shop_manager'])) {
                 $to = config('app.admin_url');
             }
 

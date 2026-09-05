@@ -61,7 +61,7 @@ class UserService extends CoreService
 
                 $user->syncRoles($data['role'] ?? 'user');
 
-                if ($user->hasRole(['moderator', 'deliveryman', 'master']) && isset($data['shop_id'])) {
+                if ($user->hasRole(['moderator', 'deliveryman', 'master', 'shop_manager']) && isset($data['shop_id'])) {
 
                     foreach ($data['shop_id'] as $shopId) {
                         $user->invitations()->create([
@@ -228,7 +228,7 @@ class UserService extends CoreService
 
                     $user->syncRoles($data['role']);
 
-                    if (in_array($data['role'], ['moderator', 'deliveryman', 'master']) && isset($data['shop_id'])) {
+                    if (in_array($data['role'], ['moderator', 'deliveryman', 'master', 'shop_manager']) && isset($data['shop_id'])) {
 
                         if (isset($data['delete_shop_id'])) {
                             $user->invitations()->whereIn('shop_id', $data['delete_shop_id'])->delete();
