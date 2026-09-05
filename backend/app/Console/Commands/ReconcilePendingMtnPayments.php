@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 
 use App\Models\Payment;
 use App\Models\PaymentProcess;
-use App\Models\ShopPayment;
 use App\Models\Transaction;
 use App\Services\PaymentService\MtnService;
 use Illuminate\Console\Command;
@@ -20,6 +19,13 @@ use Throwable;
  * still unresolved after a few minutes, using the same
  * MtnService::checkStatus()/BaseService::afterHook() path the webhook
  * itself uses, so a late poll and an on-time webhook land identically.
+ *
+ * Covers both customer-facing checkout (shop-level ShopPayment config)
+ * and platform-fee purchases (platform-level PlatformPaymentConfig) —
+ * every pending MTN PaymentProcess row is queried by `payment_id` alone,
+ * regardless of which config resolved it; resolveGatewayConfig() (see
+ * BaseService) picks the right one per row the same way processTransaction
+ * did when the row was created.
  *
  * Requests still unresolved after 24h are treated as failed locally —
  * MTN's own sandbox/production request-to-pay requests don't stay
@@ -75,14 +81,13 @@ class ReconcilePendingMtnPayments extends Command
                 return;
             }
 
-            $shopId      = $service->resolveGatewayShopId($process->model_type, $process->model_id);
-            $shopPayment = ShopPayment::forShopAndPayment($shopId, data_get($process->data, 'payment_id'));
+            $config = $service->resolveGatewayConfig($process->data, data_get($process->data, 'payment_id'));
 
-            if (!$shopPayment) {
+            if (!$config) {
                 return;
             }
 
-            $result = $service->checkStatus($shopPayment, $referenceId);
+            $result = $service->checkStatus($config, $referenceId);
 
             $status = match ($result['status'] ?? null) {
                 'FAILED'     => Transaction::STATUS_CANCELED,

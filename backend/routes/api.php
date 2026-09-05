@@ -1515,6 +1515,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             /* Country admin assignment — superadmin only, self-guarded in the controller */
             Route::apiResource('country-admins', Admin\CountryAdminController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
+            /* Platform Orange Money/MTN Mobile Money config — superadmin only, self-guarded in the controller */
+            Route::get('platform-payment-configs/paginate',       [Admin\PlatformPaymentConfigController::class, 'paginate']);
+            Route::get('platform-payment-configs/{platformPaymentConfig}', [Admin\PlatformPaymentConfigController::class, 'show']);
+            Route::post('platform-payment-configs',               [Admin\PlatformPaymentConfigController::class, 'store']);
+            Route::put('platform-payment-configs/{platformPaymentConfig}', [Admin\PlatformPaymentConfigController::class, 'update']);
+            Route::delete('platform-payment-configs/delete',      [Admin\PlatformPaymentConfigController::class, 'destroy']);
+
             /* Country staff roles */
             Route::middleware('country.permission:staff.view')->group(function () {
                 Route::get('country-roles/permissions', [Admin\CountryRoleController::class, 'permissions']);

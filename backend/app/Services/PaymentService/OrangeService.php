@@ -6,7 +6,6 @@ namespace App\Services\PaymentService;
 use App\Models\Payment;
 use App\Models\PaymentProcess;
 use App\Models\Payout;
-use App\Models\ShopPayment;
 use Exception;
 use Http;
 use Illuminate\Database\Eloquent\Model;
@@ -37,23 +36,20 @@ class OrangeService extends BaseService
         [$key, $before] = $this->getPayload($data, []);
 
         $modelId = data_get($before, 'model_id');
-        $shopId  = $this->resolveGatewayShopId(data_get($before, 'model_type'), $modelId);
+        $config  = $this->resolveGatewayConfig($before, $payment->id);
 
-        /** @var ShopPayment|null $shopPayment */
-        $shopPayment = ShopPayment::forShopAndPayment($shopId, $payment->id);
-
-        if (!$shopPayment?->merchant_key) {
-            throw new Exception('This shop has not configured Orange Money yet');
+        if (!$config?->hasOrangeCredentials()) {
+            throw new Exception('Orange Money has not been configured for this transaction yet');
         }
 
         // Orange's OAuth client credentials: client_id is the existing
-        // shared shop_payments column, merchant_key is the client_secret
-        // (encrypted at rest — see ShopPayment).
-        $baseUrl = $shopPayment->base_url ?: 'https://api.sandbox.orange-sonatel.com';
+        // shared client_id column, merchant_key is the client_secret
+        // (encrypted at rest — see ShopPayment/PlatformPaymentConfig).
+        $baseUrl = $config->getBaseUrl() ?: 'https://api.sandbox.orange-sonatel.com';
 
         $tokenPayload = $this->getToken($baseUrl, [
-            'client_id'     => $shopPayment->client_id,
-            'client_secret' => $shopPayment->merchant_key,
+            'client_id'     => $config->getClientId(),
+            'client_secret' => $config->getMerchantKey(),
         ]);
 
         $token = $tokenPayload['token']['access_token'];
@@ -68,7 +64,7 @@ class OrangeService extends BaseService
         ])
             ->withoutVerifying()
             ->post("$baseUrl/api/eWallet/v4/qrcode", [
-                'amount' => ['unit' => $shopPayment->currency, 'value' => $amount],
+                'amount' => ['unit' => $config->getCurrency(), 'value' => $amount],
                 'callbackCancelUrl'  => "$host/api/v1/webhook/orange/payment",
                 'callbackSuccessUrl' => "$host/api/v1/webhook/orange/payment",
                 'code' => 123456,

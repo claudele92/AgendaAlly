@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\PaymentService\Contracts\GatewayConfig;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,7 +50,7 @@ use Schema;
  * @method static Builder|self whereUpdatedAt($value)
  * @mixin Eloquent
  */
-class ShopPayment extends Model
+class ShopPayment extends Model implements GatewayConfig
 {
     use HasFactory;
 
@@ -81,6 +82,56 @@ class ShopPayment extends Model
             ->where('shop_id', $shopId)
             ->where('payment_id', $paymentId)
             ->first();
+    }
+
+    public function getClientId(): ?string
+    {
+        return $this->client_id;
+    }
+
+    public function getMerchantKey(): ?string
+    {
+        return $this->merchant_key;
+    }
+
+    public function getSubscriptionKey(): ?string
+    {
+        return $this->subscription_key;
+    }
+
+    public function getApiUser(): ?string
+    {
+        return $this->api_user;
+    }
+
+    public function getApiKey(): ?string
+    {
+        return $this->api_key;
+    }
+
+    public function getTargetEnvironment(): ?string
+    {
+        return $this->target_environment;
+    }
+
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+
+    public function getBaseUrl(): ?string
+    {
+        return $this->base_url;
+    }
+
+    public function hasOrangeCredentials(): bool
+    {
+        return (bool) $this->merchant_key;
+    }
+
+    public function hasMtnCredentials(): bool
+    {
+        return (bool) ($this->subscription_key && $this->api_user && $this->api_key && $this->target_environment);
     }
 
     public function scopeFilter($query, array $filter) {
