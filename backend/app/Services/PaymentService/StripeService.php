@@ -8,6 +8,8 @@ use Throwable;
 use Stripe\Stripe;
 use App\Models\Payout;
 use App\Models\Payment;
+use App\Models\ShopAdsPackage;
+use App\Models\Subscription;
 use Stripe\Checkout\Session;
 use App\Models\PaymentProcess;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +17,16 @@ use Stripe\Exception\ApiErrorException;
 
 class StripeService extends BaseService
 {
+    /**
+     * Platform-fee purchases only — Apple Pay/Google Pay ride the same
+     * hosted Checkout Session used everywhere else (they're wallet UI
+     * variants of 'card', not a separate integration), scoped to just
+     * these two transaction types via a dedicated Stripe "Payment Method
+     * Configuration" (see paymentMethodParams()) rather than the
+     * account-wide default, which stays card-only for regular checkout.
+     */
+    private const WALLET_MODEL_TYPES = [Subscription::class, ShopAdsPackage::class];
+
     protected function getModelClass(): string
     {
         return Payout::class;
@@ -43,7 +55,7 @@ class StripeService extends BaseService
         $modelId = data_get($before, 'model_id');
 
         $session = Session::create([
-            'payment_method_types' => ['card'],
+            ...$this->paymentMethodParams(data_get($before, 'model_type'), $payload),
             'line_items' => [
                 [
                     'price_data' => [
@@ -72,6 +84,27 @@ class StripeService extends BaseService
                 'payment_id' => $payment->id,
             ], $before)
         ]);
+    }
+
+    /**
+     * A Checkout Session takes either `payment_method_types` or
+     * `payment_method_configuration`, never both. Everywhere except
+     * Subscription/ShopAdsPackage purchases keeps the existing
+     * card-only default unchanged. Platform-fee purchases use the
+     * dedicated wallet configuration only if the superadmin has
+     * actually set one on the Stripe payload (Payment Payloads screen)
+     * — if they haven't, this falls back to plain card, same as every
+     * other transaction type, rather than silently failing the session.
+     */
+    private function paymentMethodParams(?string $modelType, ?array $payload): array
+    {
+        $walletConfigurationId = data_get($payload, 'wallet_payment_method_configuration');
+
+        if (in_array($modelType, self::WALLET_MODEL_TYPES, true) && $walletConfigurationId) {
+            return ['payment_method_configuration' => $walletConfigurationId];
+        }
+
+        return ['payment_method_types' => ['card']];
     }
 
 }
