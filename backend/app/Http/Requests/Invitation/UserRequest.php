@@ -18,7 +18,7 @@ class UserRequest extends BaseRequest
         return [
             'role' => [
                 'string',
-                Rule::in(['manager', 'master', 'deliveryman'])
+                Rule::in(['shop_manager', 'moderator', 'master', 'deliveryman'])
             ],
         ];
     }

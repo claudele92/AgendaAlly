@@ -24,7 +24,7 @@ class SellerRequest extends BaseRequest
             'role' => [
                 'required',
                 'string',
-                Rule::in(['manager', 'master', 'deliveryman'])
+                Rule::in(['shop_manager', 'moderator', 'master', 'deliveryman'])
             ],
         ];
     }

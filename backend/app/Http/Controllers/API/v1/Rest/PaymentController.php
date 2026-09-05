@@ -6,6 +6,8 @@ use App\Helpers\ResponseError;
 use App\Http\Requests\FilterParamsRequest;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
+use App\Models\Shop;
+use App\Models\ShopLocation;
 use App\Repositories\PaymentRepository\PaymentRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -27,12 +29,49 @@ class PaymentController extends RestBaseController
     /**
      * Display a listing of the resource.
      *
+     * When `shop_id` is given, the list is scoped to that shop's country
+     * (plus cash/wallet, which are always available) rather than every
+     * globally active gateway. `location_type` (ShopLocation::PRODUCT or
+     * ShopLocation::SERVICE) is then required, since a shop's product and
+     * service arms can sit in different countries. Without `shop_id`, the
+     * old unscoped global list is returned unchanged.
+     *
      * @param FilterParamsRequest $request
-     * @return AnonymousResourceCollection
+     * @return AnonymousResourceCollection|JsonResponse
      */
-    public function index(FilterParamsRequest $request): AnonymousResourceCollection
+    public function index(FilterParamsRequest $request): AnonymousResourceCollection|JsonResponse
     {
-        $payments = $this->repository->paymentsList($request->merge(['active' => 1])->all());
+        $shopId = $request->input('shop_id');
+
+        if (!$shopId) {
+            $payments = $this->repository->paymentsList($request->merge(['active' => 1])->all());
+
+            return PaymentResource::collection($payments);
+        }
+
+        $locationType = (int) $request->input('location_type');
+
+        if (!in_array($locationType, [ShopLocation::PRODUCT, ShopLocation::SERVICE])) {
+            return $this->onErrorResponse([
+                'code'    => ResponseError::ERROR_400,
+                'message' => __('errors.' . ResponseError::ERROR_400, locale: $this->language),
+            ]);
+        }
+
+        /** @var Shop|null $shop */
+        $shop    = Shop::find($shopId);
+        $country = $shop?->checkoutCountry($locationType);
+
+        if (!$country) {
+            return $this->onErrorResponse([
+                'code'    => ResponseError::ERROR_400,
+                'message' => __('errors.' . ResponseError::ERROR_400, locale: $this->language),
+            ]);
+        }
+
+        $payments = Payment::query()
+            ->whereIn('id', $country->activePaymentIds())
+            ->get();
 
         return PaymentResource::collection($payments);
     }

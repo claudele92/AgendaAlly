@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -75,5 +76,12 @@ class Payment extends Model
     public function paymentPayload(): HasOne
     {
         return $this->hasOne(PaymentPayload::class);
+    }
+
+    public function countries(): BelongsToMany
+    {
+        return $this->belongsToMany(Country::class, 'country_payments')
+            ->withPivot('active')
+            ->withTimestamps();
     }
 }

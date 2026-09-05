@@ -24,6 +24,9 @@ class PaymentResource extends JsonResource
             'input'         => $this->when($this->input, (int) $this->input),
             'sandbox'       => $this->when($this->sandbox, (boolean) $this->sandbox),
             'active'        => (bool)$this->active,
+            // Present only when loaded through Country::payments() — the
+            // per-country toggle, distinct from this payment's own global 'active'.
+            'country_active' => $this->when(isset($this->pivot), fn() => (bool) $this->pivot->active),
             'created_at'    => $this->when($this->created_at, $this->created_at?->format('Y-m-d H:i:s') . 'Z'),
             'updated_at'    => $this->when($this->updated_at, $this->updated_at?->format('Y-m-d H:i:s') . 'Z'),
 

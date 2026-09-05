@@ -19,6 +19,7 @@ class StoreRequest extends BaseRequest
             'active'        => 'required|boolean',
             'code'          => 'required|string',
             'region_id'     => ['required', 'integer', Rule::exists('regions', 'id')],
+            'currency_id'   => ['nullable', 'integer', Rule::exists('currencies', 'id')],
             'images'        => 'array',
             'images.*'      => 'string',
             'title'         => 'required|array',

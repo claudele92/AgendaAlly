@@ -74,7 +74,7 @@ class UserController extends SellerBaseController
             $validated['phone_verified_at'] = now();
         }
 
-        if (!in_array($validated['role'], ['user', 'moderator', 'deliveryman', 'master'])) {
+        if (!in_array($validated['role'], ['user', 'moderator', 'shop_manager', 'deliveryman', 'master'])) {
             $validated['role'] = 'user';
         }
 

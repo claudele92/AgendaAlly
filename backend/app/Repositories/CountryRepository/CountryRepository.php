@@ -34,6 +34,7 @@ class CountryRepository extends CoreRepository
         return Country::filter($filter)
             ->with([
                 'translation' => fn($query) => $query->where('locale', $this->language),
+                'currency',
             ])
             ->withCount([
                 'cities' => fn($q) => $q->when(data_get($filter, 'has_price'),  fn($q) => $q->whereHas('deliveryPrice'))
@@ -61,6 +62,8 @@ class CountryRepository extends CoreRepository
             'translations',
             'city.translation' => fn($query) => $query
                 ->where('locale', $this->language),
+            'currency',
+            'payments',
         ]);
     }
 

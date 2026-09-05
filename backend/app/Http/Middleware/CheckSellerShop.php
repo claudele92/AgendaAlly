@@ -43,7 +43,7 @@ class CheckSellerShop
             return $next($request);
         }
 
-        if ($user?->moderatorShop && $user?->role == 'moderator' || $user?->role == 'deliveryman') {
+        if ($user?->moderatorShop && in_array($user?->role, ['moderator', 'shop_manager']) || $user?->role == 'deliveryman') {
             return $next($request);
         }
 

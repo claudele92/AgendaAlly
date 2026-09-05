@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services\OrderService;
 
-use App\Models\Currency;
+use App\Helpers\ResponseError;
 use App\Models\Order;
 use App\Models\Settings;
 use App\Models\Shop;
+use App\Models\ShopLocation;
 use App\Services\CoreService;
 use Exception;
 use Throwable;
@@ -25,18 +26,10 @@ class POSOrderService extends CoreService
      */
     public function create(array $data): array
     {
-        $currency = Currency::currenciesList()->where('id', data_get($data, 'currency_id'))->first();
-
-        if (empty($currency)) {
-            $currency = Currency::currenciesList()->where('default', 1)->first();
-        }
-
         if (!isset($data['user_id'])) {
             $data['user_id'] = auth('sanctum')->id();
         }
 
-        $data['currency_id']    = $currency?->id;
-        $data['rate']           = $currency?->rate;
         $data['total_price']    = 0;
         $data['commission_fee'] = 0;
 
@@ -51,6 +44,17 @@ class POSOrderService extends CoreService
                 throw new Exception('shop not found');
             }
 
+            // Each shop resolves its own currency — a single POS batch can
+            // cover multiple shops (a walk-in ordering from several stalls),
+            // and they are not guaranteed to share a country/currency.
+            $country = $shop->checkoutCountry(ShopLocation::PRODUCT);
+
+            if (!$country) {
+                throw new Exception(__('errors.' . ResponseError::ERROR_400, locale: $this->language));
+            }
+
+            $data['currency_id']  = $country->currency_id;
+            $data['rate']         = $country->currency->rate;
             $data['type']         = $shop->delivery_type;
             $data['shop_id']      = $item['shop_id'];
             $data['parent_id']    = $parentId;
