@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { Form, Row, Col, Input, Button, Switch, Modal, Spin } from 'antd';
+import { Form, Row, Col, Input, Button, Switch, Modal, Spin, Tabs } from 'antd';
 import { useTranslation } from 'react-i18next';
 import LanguageList from 'components/language-list';
 import { shallowEqual, useSelector, useDispatch, batch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { fetchCountry } from 'redux/slices/deliveryzone/country';
 import countryService from 'services/deliveryzone/country';
+import currencyService from 'services/currency';
 import { useEffect } from 'react';
 import { InfiniteSelect } from 'components/infinite-select';
+import { AsyncSelect } from 'components/async-select';
 import regionService from 'services/deliveryzone/region';
 import MediaUpload from 'components/upload';
 import createImage from 'helpers/createImage';
+import CountryPayments from './country-payments';
+
+const { TabPane } = Tabs;
 
 export default function CountryForm({ visible, setVisible, id, setId }) {
   const [form] = Form.useForm();
@@ -25,6 +30,7 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [image, setImage] = useState([]);
+  const [tab, setTab] = useState('main');
 
   const handleClose = () => {
     setData(null);
@@ -32,6 +38,7 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
     form.resetFields();
     setId(null);
     setImage([]);
+    setTab('main');
   };
 
   const addCountry = (values) => {
@@ -41,6 +48,7 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
         active: values.active,
         code: values.code,
         region_id: values?.region_id?.value,
+        currency_id: values?.currency_id?.value,
         title: {
           ...Object.assign(
             {},
@@ -65,6 +73,7 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
       .update(data.id, {
         images: [values?.images?.[0]?.url],
         region_id: values?.region_id?.value,
+        currency_id: values?.currency_id?.value,
         active: values.active,
         code: values.code,
         title: {
@@ -103,6 +112,16 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
     return Object.assign({}, ...result);
   }
 
+  const fetchCurrency = () =>
+    currencyService.getAll().then(({ data }) =>
+      data
+        .filter((item) => item.active)
+        .map((item) => ({
+          label: item.title,
+          value: item.id,
+        })),
+    );
+
   const fetchRegion = ({ search, page }) => {
     return regionService
       .get({ search: !!search?.length ? search : undefined, page })
@@ -129,6 +148,9 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
               label: data.region.translation.title,
               value: data.region.id,
             },
+            currency_id: data.currency
+              ? { label: data.currency.title, value: data.currency.id }
+              : undefined,
             ...getLanguageFields(data),
           });
         })
@@ -145,13 +167,15 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
       loading={loading}
       title={t('add.country')}
     >
-      <Form
-        form={form}
-        onFinish={onFinish}
-        layout='vertical'
-        initialValues={{ active: true }}
-      >
-        <Spin spinning={loading}>
+      <Tabs activeKey={tab} onChange={setTab}>
+        <TabPane key='main' tab={t('main')}>
+          <Form
+            form={form}
+            onFinish={onFinish}
+            layout='vertical'
+            initialValues={{ active: true }}
+          >
+            <Spin spinning={loading}>
           <Row gutter={24}>
             <Col span={24}>
               <LanguageList />
@@ -208,6 +232,11 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
               </Form.Item>
             </Col>
             <Col span={24}>
+              <Form.Item name='currency_id' label={t('currency')}>
+                <AsyncSelect fetchOptions={fetchCurrency} />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
               <Form.Item label={t('code')} name='code'>
                 <Input />
               </Form.Item>
@@ -221,12 +250,19 @@ export default function CountryForm({ visible, setVisible, id, setId }) {
                 <Switch defaultChecked />
               </Form.Item>
             </Col>
-          </Row>
-        </Spin>
-        <Button type='primary' htmlType='submit' loading={loadingBtn}>
-          {t('submit')}
-        </Button>
-      </Form>
+            </Row>
+            </Spin>
+            <Button type='primary' htmlType='submit' loading={loadingBtn}>
+              {t('submit')}
+            </Button>
+          </Form>
+        </TabPane>
+        {data?.id && (
+          <TabPane key='payments' tab={t('payments')}>
+            <CountryPayments countryId={data.id} />
+          </TabPane>
+        )}
+      </Tabs>
     </Modal>
   );
 }

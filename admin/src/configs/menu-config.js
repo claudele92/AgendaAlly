@@ -759,6 +759,14 @@ const adminRoutes = [
         type: 'single',
       },
       {
+        name: 'platform.payment.configs',
+        icon: 'wallet',
+        url: 'platform-payment-configs',
+        id: 'platform.payment.configs',
+        type: 'single',
+        superadminOnly: true,
+      },
+      {
         name: 'sms-payload',
         icon: 'message',
         url: 'settings/sms-payload',
@@ -1655,6 +1663,14 @@ const managerRoutes = [
         url: 'payment-payloads',
         id: 'payment.payloads',
         type: 'single',
+      },
+      {
+        name: 'platform.payment.configs',
+        icon: 'wallet',
+        url: 'platform-payment-configs',
+        id: 'platform.payment.configs',
+        type: 'single',
+        superadminOnly: true,
       },
       {
         name: 'sms-payload',
