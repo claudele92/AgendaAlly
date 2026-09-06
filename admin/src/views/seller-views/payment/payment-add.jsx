@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import Paystack from '../../../assets/images/paystack.svg';
 import { FaPaypal } from 'react-icons/fa';
 import { SiStripe, SiRazorpay } from 'react-icons/si';
+import GatewayCredentialFields from '../../../components/payment/gateway-credential-fields';
 
 export default function SellerPaymentAdd() {
   const { t } = useTranslation();
@@ -124,100 +125,10 @@ export default function SellerPaymentAdd() {
           {activePayment?.label === 'Cash' ||
           activePayment?.label === 'Wallet' ? (
             ''
-          ) : activePayment?.label === 'Orange' ? (
-            <>
-              <Col span={12}>
-                <Form.Item
-                  label={t('client.id')}
-                  name={'client_id'}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('required'),
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label={t('merchant.key')}
-                  name={'merchant_key'}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('required'),
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-            </>
-          ) : activePayment?.label === 'Mtn' ? (
-            <>
-              <Col span={12}>
-                <Form.Item
-                  label={t('subscription.key')}
-                  name={'subscription_key'}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('required'),
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label={t('api.user')}
-                  name={'api_user'}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('required'),
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label={t('api.key')}
-                  name={'api_key'}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('required'),
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label={t('target.environment')}
-                  name={'target_environment'}
-                  rules={[
-                    {
-                      required: true,
-                      message: t('required'),
-                    },
-                    {
-                      pattern: /^[a-z]+$/,
-                      message: t('must.be.lowercase.letters.only'),
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-            </>
+          ) : ['orange', 'mtn'].includes(
+              activePayment?.label?.toLowerCase(),
+            ) ? (
+            <GatewayCredentialFields tag={activePayment.label.toLowerCase()} />
           ) : (
             <>
               <Col span={12}>

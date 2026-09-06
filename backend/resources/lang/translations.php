@@ -3087,4 +3087,9 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'subscription.key','value' => 'Subscription key'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'target.environment','value' => 'Target environment'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'must.be.lowercase.letters.only','value' => 'Must be lowercase letters only'),
+
+  // Superadmin platform Orange Money / MTN Mobile Money config screen
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'platform.payment.configs','value' => 'Platform payment configs'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.platform.payment.config','value' => 'Add platform payment config'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'edit.platform.payment.config','value' => 'Edit platform payment config'),
 );
