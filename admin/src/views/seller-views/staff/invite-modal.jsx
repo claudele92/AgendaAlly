@@ -12,7 +12,12 @@ import { addMenu } from '../../../redux/slices/menu';
 // contact info (see Invitation\SellerRequest on the backend) — so this is
 // a two-step flow: resolve an exact email/phone to a user first, then
 // pick a shop_role for them.
-export default function InviteModal({ shopRoles, handleCancel, onInvited }) {
+export default function InviteModal({
+  shopRoles,
+  shopLocations,
+  handleCancel,
+  onInvited,
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -22,7 +27,16 @@ export default function InviteModal({ shopRoles, handleCancel, onInvited }) {
   const [searchError, setSearchError] = useState(null);
   const [resolvedUser, setResolvedUser] = useState(null);
   const [roleId, setRoleId] = useState(null);
+  const [locationId, setLocationId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const locationLabel = (location) => {
+    const typeLabel = location.type === 2 ? t('service') : t('product');
+    const place = [location.country?.translation?.title, location.city?.translation?.title]
+      .filter(Boolean)
+      .join(', ');
+    return place ? `${typeLabel} — ${place}` : `${typeLabel} #${location.id}`;
+  };
 
   const goCreateRole = () => {
     handleCancel();
@@ -61,7 +75,11 @@ export default function InviteModal({ shopRoles, handleCancel, onInvited }) {
 
     setSubmitting(true);
     staffInviteService
-      .create({ user_id: resolvedUser.id, shop_role_id: roleId })
+      .create({
+        user_id: resolvedUser.id,
+        shop_role_id: roleId,
+        ...(locationId ? { shop_location_id: locationId } : {}),
+      })
       .then(() => {
         toast.success(t('invite.sent'));
         onInvited?.();
@@ -148,6 +166,20 @@ export default function InviteModal({ shopRoles, handleCancel, onInvited }) {
                 }))}
               />
             </Form.Item>
+            {!!shopLocations?.length && (
+              <Form.Item label={t('assign.to.branch')}>
+                <Select
+                  allowClear
+                  placeholder={t('assign.to.branch.optional')}
+                  value={locationId}
+                  onChange={setLocationId}
+                  options={shopLocations.map((location) => ({
+                    value: location.id,
+                    label: locationLabel(location),
+                  }))}
+                />
+              </Form.Item>
+            )}
             <Button
               type='primary'
               disabled={!roleId}

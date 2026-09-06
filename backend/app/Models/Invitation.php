@@ -20,11 +20,13 @@ use Illuminate\Support\Carbon;
  * @property int $created_by
  * @property string|null $role
  * @property int $status
+ * @property int|null $shop_location_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Shop $shop
  * @property-read User $user
  * @property-read User $createdBy
+ * @property-read ShopLocation|null $shopLocation
  * @method static InvitationFactory factory(...$parameters)
  * @method static Builder|self filter($filter)
  * @method static Builder|self newModelQuery()
@@ -83,6 +85,11 @@ class Invitation extends Model
     public function shopRole(): BelongsTo
     {
         return $this->belongsTo(ShopRole::class);
+    }
+
+    public function shopLocation(): BelongsTo
+    {
+        return $this->belongsTo(ShopLocation::class);
     }
 
     public static function getStatusKey($value)

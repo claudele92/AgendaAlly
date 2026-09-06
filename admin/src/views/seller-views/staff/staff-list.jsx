@@ -9,6 +9,7 @@ import CustomModal from '../../../components/modal';
 import { disableRefetch } from '../../../redux/slices/menu';
 import { fetchStaffInvites } from '../../../redux/slices/staffInvite';
 import { fetchShopRoles } from '../../../redux/slices/shopRole';
+import { fetchSellerShopLocations } from '../../../redux/slices/shop-locations';
 import staffInviteService from '../../../services/seller/staffInvite';
 import useDidUpdate from '../../../helpers/useDidUpdate';
 import { RoleBadge, StatusBadge } from './badges';
@@ -25,6 +26,10 @@ export default function StaffList() {
     shallowEqual,
   );
   const { shopRoles } = useSelector((state) => state.shopRole, shallowEqual);
+  const { locations: shopLocations } = useSelector(
+    (state) => state.shopLocations,
+    shallowEqual,
+  );
 
   const [id, setId] = useState(null);
   const [action, setAction] = useState(null); // 'cancel' | 'remove'
@@ -34,6 +39,7 @@ export default function StaffList() {
   useEffect(() => {
     dispatch(fetchStaffInvites());
     dispatch(fetchShopRoles());
+    dispatch(fetchSellerShopLocations());
     // eslint-disable-next-line
   }, []);
 
@@ -169,6 +175,7 @@ export default function StaffList() {
       {inviteModalVisible && (
         <InviteModal
           shopRoles={shopRoles}
+          shopLocations={shopLocations}
           handleCancel={() => setInviteModalVisible(false)}
           onInvited={() => dispatch(fetchStaffInvites())}
         />
