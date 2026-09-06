@@ -654,10 +654,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             /* Seller Invite */
             Route::middleware('shop.permission:staff.view')->group(function () {
                 Route::get('shops/invites/paginate',             [Seller\InviteController::class, 'paginate']);
+                Route::get('shops/invites/{id}',                 [Seller\InviteController::class, 'show']);
             });
             Route::middleware('shop.permission:staff.invite')->group(function () {
                 Route::get('shop/invitation/search-user',        [Seller\InviteController::class, 'searchUser']);
                 Route::post('shops/invites/{id}/status/change',  [Seller\InviteController::class, 'changeStatus']);
+                Route::put('shops/invites/{id}',                 [Seller\InviteController::class, 'update']);
                 Route::post('shop/invitation/link',              [Seller\InviteController::class, 'create']);
                 Route::delete('shop/invitations/delete',         [Seller\InviteController::class, 'delete']);
             });

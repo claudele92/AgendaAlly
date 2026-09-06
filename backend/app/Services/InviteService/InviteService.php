@@ -218,6 +218,73 @@ final class InviteService extends CoreService
         }
     }
 
+    public function show(int $shopId, int $id): ?Invitation
+    {
+        return $this->model()
+            ->with(['user.roles', 'shopRole', 'shopLocation.country.translation', 'shopLocation.city.translation'])
+            ->firstWhere(['id' => $id, 'shop_id' => $shopId]);
+    }
+
+    /**
+     * Changes which shop_role and/or branch (shop_location) an existing
+     * invitation is tied to - user_id and the platform role aren't editable
+     * here (see InviteUpdateRequest). Allowed for 'new' and 'accepted'
+     * invitations alike: shop-role permissions are resolved with a live
+     * query against the invitation's shop_role_id on every request (see
+     * User::hasShopPermission()), never cached or Spatie-synced, so editing
+     * it on an already-accepted invitation takes effect immediately with no
+     * extra sync step. Blocked on rejected/canceled - editing a dead
+     * invitation has no purpose; re-inviting is the correct action there.
+     *
+     * Mirrors sellerCreate()'s one-way coupling: assigning a shop_role_id
+     * still implies the shop_manager platform role. Clearing shop_role_id
+     * back to null never reverts role - that's a separate, larger action
+     * (it gates seller-dashboard entry) outside the scope of this edit.
+     */
+    public function update(int $id, array $data): array
+    {
+        try {
+            /** @var Invitation|null $invite */
+            $invite = $this->model()->firstWhere(['id' => $id, 'shop_id' => data_get($data, 'shop_id')]);
+
+            if (!$invite) {
+                return [
+                    'status'  => false,
+                    'code'    => ResponseError::ERROR_404,
+                    'message' => __('errors.' . ResponseError::ERROR_404, locale: $this->language)
+                ];
+            }
+
+            if (in_array($invite->status, [Invitation::REJECTED, Invitation::CANCELED])) {
+                return [
+                    'status'  => false,
+                    'code'    => ResponseError::ERROR_260,
+                    'message' => __('errors.' . ResponseError::ERROR_260, locale: $this->language)
+                ];
+            }
+
+            $updateData = [
+                'shop_role_id'     => data_get($data, 'shop_role_id'),
+                'shop_location_id' => data_get($data, 'shop_location_id'),
+            ];
+
+            if (!empty($updateData['shop_role_id'])) {
+                $updateData['role'] = 'shop_manager';
+            }
+
+            $invite->update($updateData);
+
+            return [
+                'status' => true,
+                'code'   => ResponseError::NO_ERROR,
+                'data'   => $invite,
+            ];
+        } catch (Throwable $e) {
+            $this->error($e);
+            return ['status' => false, 'code' => ResponseError::ERROR_502, 'message' => $e->getMessage()];
+        }
+    }
+
     public function delete(array $ids, ?int $shopId = null, ?int $userId = null)
     {
         DB::table('invitations')->whereIn('id', $ids)

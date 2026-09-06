@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Alert, Button, Form, Input, Modal, Select } from 'antd';
+import { Alert, Button, Form, Input, Modal } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import staffInviteService from '../../../services/seller/staffInvite';
 import { addMenu } from '../../../redux/slices/menu';
+import { BranchSelect, RoleSelect } from './role-branch-selects';
 
 // The invite endpoint is keyed by an existing user's id, not free-text
 // contact info (see Invitation\SellerRequest on the backend) — so this is
@@ -29,14 +30,6 @@ export default function InviteModal({
   const [roleId, setRoleId] = useState(null);
   const [locationId, setLocationId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-
-  const locationLabel = (location) => {
-    const typeLabel = location.type === 2 ? t('service') : t('product');
-    const place = [location.country?.translation?.title, location.city?.translation?.title]
-      .filter(Boolean)
-      .join(', ');
-    return place ? `${typeLabel} — ${place}` : `${typeLabel} #${location.id}`;
-  };
 
   const goCreateRole = () => {
     handleCancel();
@@ -155,31 +148,12 @@ export default function InviteModal({
                 .filter(Boolean)
                 .join(' · ')}
             />
-            <Form.Item label={t('role')}>
-              <Select
-                placeholder={t('select.role')}
-                value={roleId}
-                onChange={setRoleId}
-                options={shopRoles.map((role) => ({
-                  value: role.id,
-                  label: role.name,
-                }))}
-              />
-            </Form.Item>
-            {!!shopLocations?.length && (
-              <Form.Item label={t('assign.to.branch')}>
-                <Select
-                  allowClear
-                  placeholder={t('assign.to.branch.optional')}
-                  value={locationId}
-                  onChange={setLocationId}
-                  options={shopLocations.map((location) => ({
-                    value: location.id,
-                    label: locationLabel(location),
-                  }))}
-                />
-              </Form.Item>
-            )}
+            <RoleSelect shopRoles={shopRoles} value={roleId} onChange={setRoleId} />
+            <BranchSelect
+              shopLocations={shopLocations}
+              value={locationId}
+              onChange={setLocationId}
+            />
             <Button
               type='primary'
               disabled={!roleId}
