@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
@@ -87,6 +88,14 @@ class Handler extends ExceptionHandler
             $items = $exception->validator->errors()->getMessages();
 
             return $this->onErrorResponse(['code' => ResponseError::ERROR_400, 'data' => $items]);
+        }
+
+        if ($exception instanceof HttpExceptionInterface) {
+            return $this->errorResponse(
+                (string) $exception->getStatusCode(),
+                $exception->getMessage(),
+                $exception->getStatusCode()
+            );
         }
 
         return $this->errorResponse((string)$exception->getCode(), $exception->getMessage(), 500);
