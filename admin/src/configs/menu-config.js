@@ -2840,6 +2840,13 @@ export const data = {
   admin: adminRoutes,
   manager: managerRoutes,
   seller: sellerRoutes,
+  // Invited shop staff (accepted via a shop_role invitation, not an
+  // assigned admin/manager) reach the same seller dashboard routes —
+  // individual actions are already gated server-side by shop_permission
+  // regardless of what the sidebar shows, same as `seller` itself. Without
+  // this entry, a shop_manager's login resolves urls to undefined and the
+  // sidebar's filterDisabledMenus throws.
+  shop_manager: sellerRoutes,
   moderator: moderatorRoutes,
   deliveryman: deliverymanRoutes,
   waiter: waiterRoutes,
