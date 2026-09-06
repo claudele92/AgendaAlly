@@ -51,7 +51,7 @@ class ShopRoleDeletionTest extends TestCase
             'status'       => Invitation::ACCEPTED,
         ]);
 
-        $result = (new ShopRoleService())->delete($role);
+        $result = (new ShopRoleService())->deleteRole($role);
 
         $this->assertFalse($result['status']);
         $this->assertNotNull(ShopRole::find($role->id), 'role must still exist');
@@ -62,7 +62,7 @@ class ShopRoleDeletionTest extends TestCase
         $shop = $this->makeShop();
         $role = ShopRole::query()->create(['shop_id' => $shop->id, 'name' => 'Unused Role']);
 
-        $result = (new ShopRoleService())->delete($role);
+        $result = (new ShopRoleService())->deleteRole($role);
 
         $this->assertTrue($result['status']);
         $this->assertNull(ShopRole::find($role->id));

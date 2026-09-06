@@ -79,7 +79,7 @@ final class CountryAdminService extends CoreService
         }
     }
 
-    public function delete(CountryAdmin $admin): array
+    public function deleteAdmin(CountryAdmin $admin): array
     {
         try {
             if ($admin->manager_role_granted) {

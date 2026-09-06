@@ -75,7 +75,7 @@ final class CountryInviteService extends CoreService
         }
     }
 
-    public function delete(array $ids, int $countryId): void
+    public function deleteInvitations(array $ids, int $countryId): void
     {
         DB::table('country_invitations')
             ->whereIn('id', $ids)

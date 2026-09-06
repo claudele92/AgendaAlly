@@ -77,7 +77,7 @@ class CountryInviteController extends CountryBaseController
             return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
         }
 
-        $this->service->delete($request->input('ids', []), $this->countryId);
+        $this->service->deleteInvitations($request->input('ids', []), $this->countryId);
 
         return $this->successResponse(__('errors.' . ResponseError::NO_ERROR, locale: $this->language));
     }
