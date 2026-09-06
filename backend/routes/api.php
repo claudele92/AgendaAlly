@@ -1541,6 +1541,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
                 Route::get('country-invites/paginate',   [Admin\CountryInviteController::class, 'paginate']);
             });
             Route::middleware('country.permission:staff.invite')->group(function () {
+                Route::get('country-invites/search-user',         [Admin\CountryInviteController::class, 'searchUser']);
                 Route::post('country-invites',                    [Admin\CountryInviteController::class, 'create']);
                 Route::post('country-invites/{id}/status/change', [Admin\CountryInviteController::class, 'changeStatus']);
                 Route::delete('country-invites/delete',           [Admin\CountryInviteController::class, 'delete']);

@@ -3087,4 +3087,12 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'subscription.key','value' => 'Subscription key'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'target.environment','value' => 'Target environment'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'must.be.lowercase.letters.only','value' => 'Must be lowercase letters only'),
+
+  // Country-admin Staff screen (mirrors the seller Staff/Roles tabs)
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'country.roles.description','value' => 'Roles control what country staff can see and do.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.country.roles.yet','value' => 'No country roles yet'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'select.a.country.to.manage.its.staff','value' => 'Select a country to manage its staff'),
+  // Also used by the already-shipped seller Staff screen, which was
+  // missing this key.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'n/a','value' => 'N/A'),
 );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import styles from '../../../assets/scss/components/staff-theme.module.scss';
+import styles from '../../assets/scss/components/staff-theme.module.scss';
 
 // Role-name badge — e.g. "Owner", "Manager", "Receptionist", "Accountant".
 // The owner is never a shop_role (they have full access structurally, not

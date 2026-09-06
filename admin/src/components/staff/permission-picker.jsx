@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Checkbox, Collapse } from 'antd';
-import styles from '../../../assets/scss/components/staff-theme.module.scss';
+import styles from '../../assets/scss/components/staff-theme.module.scss';
 
 const { Panel } = Collapse;
 

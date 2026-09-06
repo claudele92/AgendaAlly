@@ -9,6 +9,7 @@ import CareerRoutes from './admin/career';
 import CategoryImport from './admin/category';
 import CouponRoutes from './admin/coupon';
 import CurrencyRoutes from './admin/currency';
+import CountryStaffRoutes from './admin/country-staff';
 import DeliveryRoutes from './admin/deliveries';
 import EmailProvidersRoutes from './admin/email-provider';
 import ExtrasRoutes from './admin/extras';
@@ -123,6 +124,7 @@ const AllRoutes = [
   ...CategoryImport,
   ...CouponRoutes,
   ...CurrencyRoutes,
+  ...CountryStaffRoutes,
   ...DeliveryRoutes,
   ...EmailProvidersRoutes,
   ...ExtrasRoutes,
