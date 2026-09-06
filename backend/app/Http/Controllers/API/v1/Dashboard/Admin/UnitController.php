@@ -11,7 +11,6 @@ use App\Repositories\UnitRepository\UnitRepository;
 use App\Services\UnitService\UnitService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class UnitController extends AdminBaseController
 {
@@ -29,9 +28,6 @@ class UnitController extends AdminBaseController
      */
     public function paginate(FilterParamsRequest $request): AnonymousResourceCollection
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         $units = $this->repository->unitsPaginate($request->all());
 

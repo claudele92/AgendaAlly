@@ -14,7 +14,6 @@ use App\Models\UserMemberShip;
 use App\Repositories\CoreRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Cache;
 use Schema;
 
 class TransactionRepository extends CoreRepository
@@ -30,9 +29,6 @@ class TransactionRepository extends CoreRepository
      */
     public function paginate(array $filter): LengthAwarePaginator
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         $column = $filter['column'] ?? 'id';
 
@@ -58,9 +54,6 @@ class TransactionRepository extends CoreRepository
      */
     public function show(int $id, ?int $shopId = null): ?Transaction
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return $this->model()
             ->with([

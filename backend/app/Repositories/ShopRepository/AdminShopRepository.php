@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Repositories\ShopRepository;
 
-use Cache;
 use Schema;
 use App\Models\Shop;
 use App\Traits\ByLocation;
@@ -118,10 +117,6 @@ class AdminShopRepository extends CoreRepository
         $latitude       = data_get($filter, 'address.latitude');
         $longitude      = data_get($filter, 'address.longitude');
         $locationExists = !empty($latitude) && !empty($longitude);
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         $shop = Shop::where('uuid', $uuid)
             ->select('*')

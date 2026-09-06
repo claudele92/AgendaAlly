@@ -5,7 +5,6 @@ namespace App\Http\Requests\SmsPayload;
 
 use App\Http\Requests\BaseRequest;
 use App\Models\SmsPayload;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 
 class StoreRequest extends BaseRequest
@@ -17,9 +16,6 @@ class StoreRequest extends BaseRequest
      */
     public function rules(): array
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
         return [
             'type' => [
                 'required',

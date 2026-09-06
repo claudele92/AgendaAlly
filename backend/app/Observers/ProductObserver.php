@@ -8,8 +8,6 @@ use App\Services\ModelLogService\ModelLogService;
 use App\Traits\Loggable;
 use Cache;
 use Illuminate\Support\Str;
-use Psr\SimpleCache\InvalidArgumentException;
-use Throwable;
 
 class ProductObserver
 {
@@ -34,13 +32,7 @@ class ProductObserver
      */
     public function created(): void
     {
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
     }
 
     /**
@@ -51,13 +43,7 @@ class ProductObserver
      */
     public function updated(Product $product): void
     {
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
 
         (new ModelLogService)->logging($product, $product->getAttributes(), 'updated');
     }
@@ -70,13 +56,7 @@ class ProductObserver
      */
     public function deleted(Product $product): void
     {
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
 
         (new ModelLogService)->logging($product, $product->getAttributes(), 'deleted');
     }

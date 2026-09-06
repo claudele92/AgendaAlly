@@ -11,7 +11,6 @@ use App\Models\Point;
 use App\Services\PointService\PointService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class PointController extends AdminBaseController
 {
@@ -31,9 +30,6 @@ class PointController extends AdminBaseController
      */
     public function paginate(FilterParamsRequest $request): AnonymousResourceCollection
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         $points = $this->model
             ->with([
@@ -48,7 +44,6 @@ class PointController extends AdminBaseController
 
         return PointResource::collection($points);
     }
-
 
     /**
      * Store a newly created resource in storage.

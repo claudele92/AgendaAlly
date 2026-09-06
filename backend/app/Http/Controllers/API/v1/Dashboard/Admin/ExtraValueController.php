@@ -7,7 +7,6 @@ use Exception;
 use App\Models\ExtraValue;
 use App\Helpers\ResponseError;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\FilterParamsRequest;
 use App\Http\Resources\ExtraValueResource;
 use App\Http\Requests\ExtraValue\StoreRequest;
@@ -50,10 +49,6 @@ class ExtraValueController extends AdminBaseController
             return $this->onErrorResponse($result);
         }
 
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
-
         return $this->successResponse(
             __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_CREATED, locale: $this->language),
             ExtraValueResource::make(data_get($result, 'data'))
@@ -77,16 +72,11 @@ class ExtraValueController extends AdminBaseController
             ]);
         }
 
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
-
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
             ExtraValueResource::make($extraValue)
         );
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -111,10 +101,6 @@ class ExtraValueController extends AdminBaseController
 
         if (!data_get($result, 'status')) {
             return $this->onErrorResponse($result);
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         return $this->successResponse(
@@ -150,10 +136,6 @@ class ExtraValueController extends AdminBaseController
 
         if (!data_get($result, 'status')) {
             return $this->onErrorResponse($result);
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         return $this->successResponse(

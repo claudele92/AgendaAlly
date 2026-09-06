@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\PaymentPayload;
 
 use App\Http\Requests\BaseRequest;
-use Illuminate\Support\Facades\Cache;
 
 class UpdateRequest extends BaseRequest
 {
@@ -15,9 +14,6 @@ class UpdateRequest extends BaseRequest
      */
     public function rules(): array
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
         return [
             'payload' => 'required|array',
             'payload.*' => ['required']

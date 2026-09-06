@@ -23,7 +23,6 @@ use App\Services\OrderService\OrderStatusUpdateService;
 use App\Traits\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
@@ -77,7 +76,6 @@ class OrderController extends SellerBaseController
             OrderResource::collection(data_get($result, 'data'))
         );
     }
-
 
     /**
      * Display the specified resource.
@@ -160,10 +158,6 @@ class OrderController extends SellerBaseController
             return $this->onErrorResponse($result);
         }
 
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
-
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR),
             OrderResource::make(data_get($result, 'data')),
@@ -186,10 +180,6 @@ class OrderController extends SellerBaseController
                 'code'    => ResponseError::ERROR_400,
                 'message' => $e->getMessage()
             ]);
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         return $this->successResponse(

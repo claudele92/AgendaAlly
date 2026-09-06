@@ -8,7 +8,6 @@ use App\Http\Requests\PrivacyPolicy\StoreRequest;
 use App\Models\PrivacyPolicy;
 use App\Services\PrivacyPolicyService\PrivacyPolicyService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 
 class PrivacyPolicyController extends AdminBaseController
 {
@@ -26,9 +25,6 @@ class PrivacyPolicyController extends AdminBaseController
      */
     public function store(StoreRequest $request): JsonResponse
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         $result = $this->service->create($request->validated());
 

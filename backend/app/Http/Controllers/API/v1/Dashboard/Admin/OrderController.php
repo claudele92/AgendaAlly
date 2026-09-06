@@ -23,7 +23,6 @@ use App\Services\OrderService\OrderStatusUpdateService;
 use App\Traits\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
@@ -269,10 +268,6 @@ class OrderController extends AdminBaseController
                 'code'    => ResponseError::ERROR_400,
                 'message' => $e->getMessage()
             ]);
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         return $this->successResponse(

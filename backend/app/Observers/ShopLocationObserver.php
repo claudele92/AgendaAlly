@@ -6,8 +6,6 @@ namespace App\Observers;
 use App\Models\ShopLocation;
 use App\Traits\Loggable;
 use Cache;
-use Psr\SimpleCache\InvalidArgumentException;
-use Throwable;
 
 class ShopLocationObserver
 {
@@ -21,13 +19,7 @@ class ShopLocationObserver
      */
     public function creating(ShopLocation $shopLocation): void
     {
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
     }
 
     /**
@@ -38,13 +30,7 @@ class ShopLocationObserver
      */
     public function created(ShopLocation $shopLocation): void
     {
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
 
     }
 
@@ -56,13 +42,7 @@ class ShopLocationObserver
      */
     public function updated(ShopLocation $shopLocation): void
     {
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
     }
 
     /**
@@ -73,13 +53,7 @@ class ShopLocationObserver
      */
     public function deleted(ShopLocation $shopLocation): void
     {
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
     }
 
 }

@@ -12,7 +12,6 @@ use App\Repositories\EmailSettingRepository\EmailSettingRepository;
 use App\Services\EmailSettingService\EmailSettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class EmailSettingController extends AdminBaseController
 {
@@ -31,10 +30,6 @@ class EmailSettingController extends AdminBaseController
     public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
         $emailSettings = $this->repository->get($request->all());
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return EmailSettingResource::collection($emailSettings);
     }

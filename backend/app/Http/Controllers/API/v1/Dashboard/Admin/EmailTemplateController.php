@@ -12,7 +12,6 @@ use App\Repositories\EmailTemplateRepository\EmailTemplateRepository;
 use App\Services\EmailTemplateService\EmailTemplateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class EmailTemplateController extends AdminBaseController
 {
@@ -30,9 +29,6 @@ class EmailTemplateController extends AdminBaseController
      */
     public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return EmailTemplateResource::collection($this->repository->paginate($request->all()));
     }

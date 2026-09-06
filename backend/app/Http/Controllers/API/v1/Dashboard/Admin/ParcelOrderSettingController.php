@@ -12,7 +12,6 @@ use App\Repositories\ParcelOrderSettingRepository\ParcelOrderSettingRepository;
 use App\Services\ParcelOrderSettingService\ParcelOrderSettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class ParcelOrderSettingController extends AdminBaseController
 {
@@ -35,10 +34,6 @@ class ParcelOrderSettingController extends AdminBaseController
     {
         $orders = $this->repository->paginate($request->all());
 
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
-
         return ParcelOrderSettingResource::collection($orders);
     }
 
@@ -58,10 +53,6 @@ class ParcelOrderSettingController extends AdminBaseController
             $this->onErrorResponse($result);
         }
 
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
-
         return $this->successResponse(
             __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_CREATED, locale: $this->language),
             ParcelOrderSettingResource::make($this->repository->show(data_get($result, 'data'))),
@@ -76,9 +67,6 @@ class ParcelOrderSettingController extends AdminBaseController
      */
     public function show(ParcelOrderSetting $parcelOrderSetting): JsonResponse
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
@@ -99,10 +87,6 @@ class ParcelOrderSettingController extends AdminBaseController
 
         if (!data_get($result, 'status')) {
             return $this->onErrorResponse($result);
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         return $this->successResponse(

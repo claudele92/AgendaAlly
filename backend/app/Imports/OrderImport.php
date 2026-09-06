@@ -5,7 +5,6 @@ namespace App\Imports;
 
 use App\Models\Order;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
@@ -29,9 +28,6 @@ class OrderImport extends BaseImport implements ToCollection, WithHeadingRow, Wi
      */
     public function collection(Collection $collection)
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         foreach ($collection as $row) {
 

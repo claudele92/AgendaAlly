@@ -9,7 +9,6 @@ use App\Services\CoreService;
 use App\Helpers\ResponseError;
 use App\Models\PaymentPayload;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class PaymentPayloadService extends CoreService
@@ -25,10 +24,6 @@ class PaymentPayloadService extends CoreService
 
         if (!data_get($prepareValidate, 'status')) {
             return $prepareValidate;
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         try {
@@ -60,10 +55,6 @@ class PaymentPayloadService extends CoreService
 
             if (!data_get($prepareValidate, 'status')) {
                 return $prepareValidate;
-            }
-
-            if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-                abort(403);
             }
 
             $paymentPayload = PaymentPayload::where('payment_id', $paymentId)->firstOrFail();

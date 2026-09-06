@@ -12,7 +12,6 @@ use App\Repositories\TicketRepository\TicketRepository;
 use App\Services\TicketService\TicketService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class TicketController extends AdminBaseController
 {
@@ -31,10 +30,6 @@ class TicketController extends AdminBaseController
     public function paginate(FilterParamsRequest $request): AnonymousResourceCollection
     {
         $tickets = $this->repository->paginate($request->all());
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return TicketResource::collection($tickets);
     }

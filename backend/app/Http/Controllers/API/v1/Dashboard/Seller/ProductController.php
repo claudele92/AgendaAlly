@@ -22,7 +22,6 @@ use App\Services\ProductService\ProductService;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
@@ -275,10 +274,6 @@ class ProductController extends SellerBaseController
         $stocks = $this->productRepository->selectStockPaginate(
             $request->merge(['shop_id' => $this->shop->id])->all()
         );
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return StockResource::collection($stocks);
     }
