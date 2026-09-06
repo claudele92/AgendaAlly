@@ -29,7 +29,7 @@ const Filter = () => {
   return (
     <>
       <span className='booking_header'>
-        <h2 className='booking_title'>{t('Tables')}</h2>
+        <h2 className='booking_title'>{t('tables')}</h2>
         <DatePicker
           showTime
           onChange={onChange}

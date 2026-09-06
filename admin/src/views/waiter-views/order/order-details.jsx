@@ -153,7 +153,7 @@ export default function WaiterOrderDetails() {
       ),
     },
     {
-      title: t('Phone'),
+      title: t('phone'),
       dataIndex: 'origin_price',
       key: 'shop.phone',
       render: (_, row) => {

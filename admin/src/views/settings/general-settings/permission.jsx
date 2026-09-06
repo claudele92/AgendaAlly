@@ -185,7 +185,7 @@ const Permission = () => {
           <Col span={24}>
             <Row gutter={24}>
               <Col span={21}>
-                <b>{t('order.auto.deliveryMan')}</b>
+                <b>{t('order.auto.deliveryman')}</b>
                 <p className='text-overflow'>
                   {t(
                     'You.choose.the.deliveryman.yourself.when.you.create.the.order',
