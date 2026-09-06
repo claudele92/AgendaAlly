@@ -187,7 +187,7 @@ const SellerPaymentEdit = () => {
                     <Input />
                   </Form.Item>
                 </Col>
-                {activePayment?.label === 'Paystack' ? (
+                {activePayment?.label === 'paystack' ? (
                   <>
                     <Col span={12}>
                       <Form.Item
