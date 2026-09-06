@@ -1,12 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Alert, Button, Space, Table, Typography } from 'antd';
-import { DeleteOutlined, PlusOutlined, StopOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  StopOutlined,
+} from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import { Context } from '../../../context/context';
 import CustomModal from '../../../components/modal';
-import { disableRefetch } from '../../../redux/slices/menu';
+import { addMenu, disableRefetch } from '../../../redux/slices/menu';
 import { fetchStaffInvites } from '../../../redux/slices/staffInvite';
 import { fetchShopRoles } from '../../../redux/slices/shopRole';
 import { fetchSellerShopLocations } from '../../../redux/slices/shop-locations';
@@ -19,6 +25,7 @@ import tableRowClasses from '../../../assets/scss/components/table-row.module.sc
 export default function StaffList() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { setIsModalVisible } = useContext(Context);
   const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
   const { staffInvites, meta, loading, params } = useSelector(
@@ -54,6 +61,17 @@ export default function StaffList() {
     action === 'cancel'
       ? t('are.you.sure.cancel.invite')
       : t('are.you.sure.remove.staff');
+
+  const goToEdit = (row) => {
+    dispatch(
+      addMenu({
+        id: 'seller-staff-edit',
+        url: `seller/staff/edit/${row.id}`,
+        name: t('edit.staff'),
+      }),
+    );
+    navigate(`/seller/staff/edit/${row.id}`);
+  };
 
   const handleConfirm = () => {
     setLoadingBtn(true);
@@ -97,6 +115,16 @@ export default function StaffList() {
       key: 'actions',
       render: (_, row) => (
         <div className={tableRowClasses.options}>
+          {(row.status === 'new' || row.status === 'accepted') && (
+            <button
+              type='button'
+              className={`${tableRowClasses.option} ${tableRowClasses.edit}`}
+              title={t('edit.staff')}
+              onClick={() => goToEdit(row)}
+            >
+              <EditOutlined />
+            </button>
+          )}
           {row.status === 'new' && (
             <button
               type='button'

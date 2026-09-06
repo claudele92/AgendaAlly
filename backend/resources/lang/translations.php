@@ -3080,4 +3080,5 @@ return array(
   // Branch-assignment for staff invites
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'assign.to.branch','value' => 'Assign to branch'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'assign.to.branch.optional','value' => 'Assign to branch (optional)'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'edit.staff','value' => 'Edit staff member'),
 );

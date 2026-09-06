@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1\Dashboard\Seller;
 
 use App\Helpers\ResponseError;
 use App\Http\Requests\FilterParamsRequest;
+use App\Http\Requests\Invitation\InviteUpdateRequest;
 use App\Http\Requests\Invitation\SellerRequest;
 use App\Http\Requests\Invitation\StatusRequest;
 use App\Http\Resources\InviteResource;
@@ -108,6 +109,46 @@ class InviteController extends SellerBaseController
 
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
+            InviteResource::make(data_get($result, 'data'))
+        );
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function show(int $id): JsonResponse
+    {
+        $invite = $this->service->show($this->shop->id, $id);
+
+        if (!$invite) {
+            return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
+        }
+
+        return $this->successResponse(
+            __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
+            InviteResource::make($invite)
+        );
+    }
+
+    /**
+     * @param int $id
+     * @param InviteUpdateRequest $request
+     * @return JsonResponse
+     */
+    public function update(int $id, InviteUpdateRequest $request): JsonResponse
+    {
+        $data            = $request->validated();
+        $data['shop_id'] = $this->shop->id;
+
+        $result = $this->service->update($id, $data);
+
+        if (!data_get($result, 'status')) {
+            return $this->onErrorResponse($result);
+        }
+
+        return $this->successResponse(
+            __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_UPDATED, locale: $this->language),
             InviteResource::make(data_get($result, 'data'))
         );
     }

@@ -13,6 +13,10 @@ const SellerStaffRoutes = [
     path: 'seller/staff/roles/edit/:id',
     component: lazy(() => import('views/seller-views/staff/role-edit')),
   },
+  {
+    path: 'seller/staff/edit/:id',
+    component: lazy(() => import('views/seller-views/staff/staff-edit')),
+  },
 ];
 
 export default SellerStaffRoutes;

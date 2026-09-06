@@ -59,6 +59,7 @@ class ResponseError
     public const ERROR_257 = 'ERROR_257'; // 'You cant send invite as seller or admin'
     public const ERROR_258 = 'ERROR_258'; // 'Form option already attached'
     public const ERROR_259 = 'ERROR_259'; // 'All locations of this type must be in the same country'
+    public const ERROR_260 = 'ERROR_260'; // 'Can't edit a rejected or canceled invitation'
 
     public const ERROR_400 = 'ERROR_400'; // 'Bad request'
     public const ERROR_401 = 'ERROR_401'; // 'UNAUTHORIZED'

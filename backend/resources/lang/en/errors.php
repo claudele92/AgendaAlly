@@ -76,6 +76,7 @@ return [
     $e::ERROR_257 => $languages['ERROR_257'] ?? 'You cant send invite as seller or admin',
     $e::ERROR_258 => $languages['ERROR_258'] ?? 'This form option already attached',
     $e::ERROR_259 => $languages['ERROR_259'] ?? 'All locations of this type must be in the same country',
+    $e::ERROR_260 => $languages['ERROR_260'] ?? 'Can\'t edit a rejected or canceled invitation',
 
     $e::ERROR_400 => $languages['ERROR_400'] ?? 'Bad request.',
     $e::ERROR_401 => $languages['ERROR_401'] ?? 'Unauthorized.',
