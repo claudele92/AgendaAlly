@@ -320,7 +320,7 @@ const User = () => {
           onClick={goToAddClient}
           style={{ width: '100%' }}
         >
-          {t('add.customer')}
+          {t('add_customer')}
         </Button>
       </Space>
       <Divider color='var(--divider)' />

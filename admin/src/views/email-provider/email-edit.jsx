@@ -183,7 +183,7 @@ const EmailProviderEdit = () => {
                     },
                   },
                 ]}
-                label={t('from.site')}
+                label={t('from_site')}
                 name='from_site'
               >
                 <Input />

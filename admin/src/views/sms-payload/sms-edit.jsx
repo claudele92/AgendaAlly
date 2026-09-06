@@ -136,7 +136,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('api_key')}
+                      label={t('api.key')}
                       name='api_key'
                       rules={[
                         {
@@ -151,7 +151,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('app_id')}
+                      label={t('app.id')}
                       name='app_id'
                       rules={[
                         {
@@ -166,7 +166,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('auth_domain')}
+                      label={t('auth.domain')}
                       name='auth_domain'
                       rules={[
                         {
@@ -196,7 +196,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('measurement_id')}
+                      label={t('measurement.id')}
                       name='measurement_id'
                       rules={[
                         {
@@ -226,7 +226,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('project_id')}
+                      label={t('project.id')}
                       name='project_id'
                       rules={[
                         {
@@ -241,7 +241,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('server_key')}
+                      label={t('server.key')}
                       name='server_key'
                       rules={[
                         {
@@ -256,7 +256,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('storage_bucket')}
+                      label={t('storage.bucket')}
                       name='storage_bucket'
                       rules={[
                         {
@@ -271,7 +271,7 @@ export default function SmsPayloadEdit() {
 
                   <Col span={12}>
                     <Form.Item
-                      label={t('vapid_key')}
+                      label={t('vapid.key')}
                       name='vapid_key'
                       rules={[
                         {

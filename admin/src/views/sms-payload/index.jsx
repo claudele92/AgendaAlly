@@ -29,7 +29,7 @@ export default function SmsGateways() {
       width: '30%',
     },
     {
-      title: t('twilio.number'),
+      title: t('twilio_number'),
       dataIndex: 'twilio_number',
       render: (_, row) => row.payload?.twilio_number,
     },
