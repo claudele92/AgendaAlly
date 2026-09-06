@@ -312,12 +312,26 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * An 'admin'/'manager' role holder with no CountryAdmin row is an
-     * unrestricted global superadmin — see the country_admins migration.
+     * An 'admin'/'manager' role holder with no CountryAdmin row and no
+     * accepted country_role invitation is an unrestricted global
+     * superadmin — see the country_admins migration. Staff invited into a
+     * country (an accepted CountryInvitation with a country_role_id, but
+     * no CountryAdmin row of their own — see CountryContext) are also
+     * restricted, even though they typically carry 'manager' too just to
+     * pass the coarse role:admin|manager route gate; missing this check
+     * let them bypass every country-permission check as an accidental
+     * "superadmin".
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(['admin', 'manager']) && !$this->countryAdmin;
+        if (!$this->hasRole(['admin', 'manager']) || $this->countryAdmin) {
+            return false;
+        }
+
+        return !$this->countryInvitations()
+            ->where('status', CountryInvitation::ACCEPTED)
+            ->whereNotNull('country_role_id')
+            ->exists();
     }
 
     /**
