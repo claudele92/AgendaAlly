@@ -568,7 +568,7 @@ const ProductStock = ({ prev, next, isRequest }) => {
                           <Form.Item
                             label={`${t('price')} (${defaultCurrency?.symbol})`}
                             name={[index, 'price']}
-                            rules={[{ required: true, message: t('requried') }]}
+                            rules={[{ required: true, message: t('required') }]}
                           >
                             <InputNumber
                               min={0}

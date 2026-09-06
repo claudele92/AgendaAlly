@@ -104,7 +104,7 @@ const BookingTables = () => {
       render: (_, row) => row?.name,
     },
     {
-      title: t('sected.zone'),
+      title: t('selected.zone'),
       key: 'name',
       is_show: true,
       render: (_, row) => row.shop_section?.translation?.title,

@@ -121,7 +121,7 @@ const FormItems = ({ item }) => {
           );
         })}
         <Button className='mt-4' type='primary' htmlType='submit'>
-          {t('complate')}
+          {t('complete')}
         </Button>
       </Form>
     </Card>

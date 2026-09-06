@@ -39,7 +39,7 @@ export default function ParcelOptionForm({ data, onFinish, isSubmitting }) {
                 rules={[
                   {
                     required: item.locale === defaultLang,
-                    message: t('requried'),
+                    message: t('required'),
                   },
                 ]}
                 hidden={item.locale !== defaultLang}
