@@ -35,7 +35,7 @@ export default function CouponForm({ form, handleSubmit }) {
       key: 'total_price',
     },
     {
-      label: t('bookin.total.price'),
+      label: t('booking.total.price'),
       value: 'booking_total_price',
       key: 'booking_total_price',
     },
