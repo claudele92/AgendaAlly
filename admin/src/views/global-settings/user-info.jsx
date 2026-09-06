@@ -24,6 +24,8 @@ export default function UserInfo() {
           token: res.data.access_token,
           email: res.data.user.email,
           id: res.data.user.id,
+          isSuperAdmin: !!res.data.user.is_super_admin,
+          countryAdmin: res.data.user.country_admin || null,
         };
         dispatch(setUserData(user));
         localStorage.setItem('token', res.data.access_token);

@@ -103,6 +103,8 @@ const Login = () => {
           email: res.data.user.email,
           id: res.data.user.id,
           shop_id: res.data.user?.shop?.id,
+          isSuperAdmin: !!res.data.user.is_super_admin,
+          countryAdmin: res.data.user.country_admin || null,
         };
         if (user.role === 'waiter') {
           dispatch(

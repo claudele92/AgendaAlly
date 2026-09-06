@@ -11,7 +11,7 @@ import MenuList from './menu-list';
 
 const { Sider } = Layout;
 
-function filterDisabledMenus(menuData, disabledMenuNames) {
+function filterDisabledMenus(menuData, disabledMenuNames, isSuperAdmin) {
   if (!Array.isArray(menuData) || !Array.isArray(disabledMenuNames)) {
     throw new Error('Both parameters must be arrays');
   }
@@ -19,6 +19,13 @@ function filterDisabledMenus(menuData, disabledMenuNames) {
   return menuData.reduce((filteredMenus, menuItem) => {
     // Skip if this menu item is in the disabled list
     if (disabledMenuNames.includes(menuItem.name)) {
+      return filteredMenus;
+    }
+
+    // Skip superadmin-only entries for a country-scoped admin/manager —
+    // country admins and superadmins share the same 'admin'/'manager'
+    // role string, so this flag is the only thing telling them apart.
+    if (menuItem.superadminOnly && !isSuperAdmin) {
       return filteredMenus;
     }
 
@@ -30,6 +37,7 @@ function filterDisabledMenus(menuData, disabledMenuNames) {
       const filteredSubMenus = filterDisabledMenus(
         menuItem.menus,
         disabledMenuNames,
+        isSuperAdmin,
       );
 
       // Only keep the parent menu if it has remaining sub-menus after filtering
@@ -83,10 +91,10 @@ const Sidebar = () => {
       if (user?.role === 'admin' && parcelMode) {
         return data.parcel;
       }
-      return filterDisabledMenus(user.urls, disabledMenus);
+      return filterDisabledMenus(user.urls, disabledMenus, !!user?.isSuperAdmin);
     },
     // eslint-disable-next-line
-    [user?.id, parcelMode, products_enabled],
+    [user?.id, user?.isSuperAdmin, parcelMode, products_enabled],
   );
   const findActive = (item) => {
     if (item?.type === 'single' && pathname.includes(item?.url)) {
