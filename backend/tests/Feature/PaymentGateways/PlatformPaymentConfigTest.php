@@ -42,7 +42,7 @@ class PlatformPaymentConfigTest extends TestCase
             Role::findOrCreate($role, 'web');
         }
 
-        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true]);
+        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true, 'active' => true]);
     }
 
     /** @return array{0: Shop, 1: Country, 2: Payment} */

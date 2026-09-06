@@ -7,6 +7,7 @@ namespace Tests\Feature\PaymentGateways;
 use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\Payment;
+use App\Models\Region;
 use App\Models\Shop;
 use App\Models\User;
 use App\Models\UserCart;
@@ -27,10 +28,12 @@ class MultiShopCartTest extends TestCase
 
     private function makeCart(array $shopIds): Cart
     {
-        $owner = User::factory()->create();
+        $owner  = User::factory()->create();
+        $region = Region::query()->create(['active' => true]);
 
         $cart = Cart::query()->create([
             'owner_id'         => $owner->id,
+            'region_id'        => $region->id,
             'total_price'      => 100,
             'rate_total_price' => 100,
             'status'           => true,
