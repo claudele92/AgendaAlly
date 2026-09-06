@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { Button, Card, Form, Input, Spin } from 'antd';
+import { Alert, Button, Card, Form, Input, Spin } from 'antd';
 import { toast } from 'react-toastify';
 import { removeFromMenu } from '../../../redux/slices/menu';
 import { fetchShopRoles } from '../../../redux/slices/shopRole';
@@ -20,10 +20,14 @@ export default function RoleForm({ isEdit }) {
   const [catalog, setCatalog] = useState([]);
   const [permissionIds, setPermissionIds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
+    setLoadError(null);
+
     const requests = [shopRoleService.getPermissions()];
 
     if (isEdit) {
@@ -41,7 +45,14 @@ export default function RoleForm({ isEdit }) {
           );
         }
       })
+      .catch((err) =>
+        setLoadError(err.response?.data?.message || t('failed.to.load.data')),
+      )
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
     // eslint-disable-next-line
   }, [id]);
 
@@ -79,6 +90,22 @@ export default function RoleForm({ isEdit }) {
         <div className='d-flex justify-content-center p-5'>
           <Spin size='large' />
         </div>
+      </Card>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <Card title={t(isEdit ? 'edit.role' : 'add.role')}>
+        <Alert
+          type='error'
+          showIcon
+          message={t('failed.to.load.permissions.catalog')}
+          description={loadError}
+        />
+        <Button type='primary' className='mt-3' onClick={loadData}>
+          {t('retry')}
+        </Button>
       </Card>
     );
   }
