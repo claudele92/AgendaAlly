@@ -8,7 +8,6 @@ use App\Models\Unit;
 use App\Repositories\CoreRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 use Schema;
 
 class UnitRepository extends CoreRepository
@@ -23,9 +22,6 @@ class UnitRepository extends CoreRepository
      */
     public function unitsPaginate(array $filter = []): LengthAwarePaginator
     {
-       if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-           abort(403);
-       }
 
         
         $column = $filter['column'] ?? 'id';

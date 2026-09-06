@@ -12,7 +12,6 @@ use App\Repositories\ParcelOptionRepository\ParcelOptionRepository;
 use App\Services\ParcelOptionService\ParcelOptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class ParcelOptionController extends AdminBaseController
 {
@@ -68,9 +67,6 @@ class ParcelOptionController extends AdminBaseController
      */
     public function show(ParcelOption $parcelOption): JsonResponse
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
@@ -91,10 +87,6 @@ class ParcelOptionController extends AdminBaseController
 
         if (!data_get($result, 'status')) {
             return $this->onErrorResponse($result);
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         return $this->successResponse(

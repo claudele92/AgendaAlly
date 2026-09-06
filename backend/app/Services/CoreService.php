@@ -13,7 +13,6 @@ use Cache;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Psr\SimpleCache\InvalidArgumentException;
 use Throwable;
 
 abstract class CoreService
@@ -89,13 +88,7 @@ abstract class CoreService
 
         }
 
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
 
         return ['status' => true, 'code' => ResponseError::NO_ERROR];
     }
@@ -110,26 +103,14 @@ abstract class CoreService
             }
         }
 
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
     }
 
     public function delete(array $ids)
     {
         $this->destroy($ids);
 
-        $s = Cache::get('rjkcvd.ewoidfh');
-
         Cache::flush();
-
-        try {
-            Cache::set('rjkcvd.ewoidfh', $s);
-        } catch (Throwable|InvalidArgumentException) {}
     }
 
     public function remove(array $ids, string $column = 'id', ?array $when = ['column' => null, 'value' => null])

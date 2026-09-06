@@ -8,7 +8,6 @@ use App\Models\Tag;
 use App\Repositories\CoreRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 use Schema;
 
 class TagRepository extends CoreRepository
@@ -22,10 +21,6 @@ class TagRepository extends CoreRepository
     {
         /** @var Tag $tags */
         $tags = $this->model();
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         $column = data_get($data, 'column', 'id');
 

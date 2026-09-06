@@ -5,7 +5,6 @@ namespace App\Repositories\TicketRepository;
 
 use App\Models\Ticket;
 use App\Repositories\CoreRepository;
-use Illuminate\Support\Facades\Cache;
 use Schema;
 
 class TicketRepository extends CoreRepository
@@ -17,9 +16,6 @@ class TicketRepository extends CoreRepository
 
     public function paginate(array $filter)
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         $column = $filter['column'] ?? 'id';
 

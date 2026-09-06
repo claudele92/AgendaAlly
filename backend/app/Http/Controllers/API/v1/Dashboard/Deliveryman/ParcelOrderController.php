@@ -16,7 +16,6 @@ use App\Services\ParcelOrderService\ParcelOrderStatusUpdateService;
 use App\Traits\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class ParcelOrderController extends DeliverymanBaseController
 {
@@ -62,10 +61,6 @@ class ParcelOrderController extends DeliverymanBaseController
                 __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
                 ParcelOrderResource::make($parcelOrder)
             );
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         return $this->onErrorResponse([

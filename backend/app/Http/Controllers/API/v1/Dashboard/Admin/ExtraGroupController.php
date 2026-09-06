@@ -13,7 +13,6 @@ use App\Repositories\ExtraRepository\ExtraGroupRepository;
 use App\Services\ExtraGroupService\ExtraGroupService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class ExtraGroupController extends AdminBaseController
 {
@@ -32,10 +31,6 @@ class ExtraGroupController extends AdminBaseController
     public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
         $extras = $this->repository->extraGroupList($request->merge(['is_admin' => true])->all());
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return ExtraGroupResource::collection($extras);
     }

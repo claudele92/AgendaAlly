@@ -17,7 +17,6 @@ use App\Services\ParcelOrderService\ParcelOrderStatusUpdateService;
 use App\Traits\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 
 class ParcelOrderController extends UserBaseController
 {
@@ -55,10 +54,6 @@ class ParcelOrderController extends UserBaseController
 
         if ((int)Settings::where('key', 'order_auto_approved')->first()?->value === 1) {
             $validated['status'] = ParcelOrder::STATUS_ACCEPTED;
-        }
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
         }
 
         $validated['user_id'] = auth('sanctum')->id();

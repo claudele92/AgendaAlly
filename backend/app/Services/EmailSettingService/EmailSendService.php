@@ -15,7 +15,6 @@ use App\Models\User;
 use App\Services\CoreService;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Exception;
-use Illuminate\Support\Facades\Cache;
 use Log;
 use PHPMailer\PHPMailer\PHPMailer;
 use Storage;
@@ -316,10 +315,6 @@ class EmailSendService extends CoreService
                 'allow_self_signed' => true
             ]
         ];
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         try {
 

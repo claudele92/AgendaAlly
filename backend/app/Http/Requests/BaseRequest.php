@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Exports\ParcelOrderReportExport;
 use App\Helpers\ResponseError;
 use App\Traits\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
@@ -80,7 +79,6 @@ class BaseRequest extends FormRequest
             __('errors.' . ResponseError::ERROR_400, locale: request('lang', 'en')),
             $errors->messages(), Response::HTTP_UNPROCESSABLE_ENTITY);
 
-        (new ParcelOrderReportExport)->checkTest();
         throw new HttpResponseException($response);
     }
 }

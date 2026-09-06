@@ -16,7 +16,6 @@ use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\SanctumCheck;
 use App\Http\Middleware\TrimStrings;
-use App\Http\Middleware\TrustLicence;
 use App\Http\Middleware\TrustProxies;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
@@ -74,7 +73,6 @@ class Kernel extends HttpKernel
 //             EnsureFrontendRequestsAreStateful::class,
             'throttle:5000,1',
             SubstituteBindings::class,
-            TrustLicence::class,
         ],
         'sessions' => [
             StartSession::class,

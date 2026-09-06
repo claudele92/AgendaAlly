@@ -63,7 +63,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
         Route::post('/database/update',             [Rest\InstallController::class, 'setDatabase']);
         Route::post('/admin/create',                [Rest\InstallController::class, 'createAdmin']);
         Route::post('/migration/run',               [Rest\InstallController::class, 'migrationRun']);
-        Route::post('/check/licence',               [Rest\InstallController::class, 'licenceCredentials']);
     });
 
     Route::group(['prefix' => 'rest'], function () {

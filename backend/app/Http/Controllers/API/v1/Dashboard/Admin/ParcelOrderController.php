@@ -19,7 +19,6 @@ use App\Services\ParcelOrderService\ParcelOrderService;
 use App\Services\ParcelOrderService\ParcelOrderStatusUpdateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
@@ -43,10 +42,6 @@ class ParcelOrderController extends AdminBaseController
     public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
         $orders = $this->repository->ordersPaginate($request->all());
-
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return ParcelOrderResource::collection($orders);
     }
@@ -73,10 +68,6 @@ class ParcelOrderController extends AdminBaseController
             return $this->onErrorResponse($result);
         }
 
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
-
         return $this->successResponse(
             __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_CREATED, locale: $this->language),
             ParcelOrderResource::make(data_get($result, 'data')),
@@ -91,9 +82,6 @@ class ParcelOrderController extends AdminBaseController
      */
     public function show(ParcelOrder $parcelOrder): JsonResponse
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
@@ -262,9 +250,5 @@ class ParcelOrderController extends AdminBaseController
             return $this->errorResponse(statusCode: ResponseError::ERROR_508, message: $e->getMessage());
         }
     }
-
-
-
-
 
 }

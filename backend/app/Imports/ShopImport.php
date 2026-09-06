@@ -8,7 +8,6 @@ use App\Traits\Loggable;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -27,9 +26,6 @@ class ShopImport implements ToCollection, WithHeadingRow, WithBatchInserts
      */
     public function collection(Collection $collection)
     {
-        if (!Cache::get('rjkcvd.ewoidfh') || data_get(Cache::get('rjkcvd.ewoidfh'), 'active') != 1) {
-            abort(403);
-        }
 
         foreach ($collection as $row) {
 

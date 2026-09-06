@@ -1,9 +1,5 @@
 export const steps = [
   {
-    title: 'License Info',
-    content: 'First-content',
-  },
-  {
     title: 'Project Info',
     content: 'Second-content',
   },

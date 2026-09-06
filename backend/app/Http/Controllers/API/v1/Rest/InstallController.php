@@ -9,7 +9,6 @@ use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\AuthService\UserVerifyService;
-use App\Services\ProjectService\ProjectService;
 use App\Services\UserServices\UserService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -17,7 +16,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 
 class InstallController extends RestBaseController
 {
@@ -164,37 +162,6 @@ class InstallController extends RestBaseController
             'access_token'  => $token,
             'token_type'    => 'Bearer',
             'user'          => UserResource::make($admin),
-        ]);
-    }
-
-    public function licenceCredentials(FilterParamsRequest $request): JsonResponse
-    {
-        $purchaseId   = $request->input('purchase_id');
-        $purchaseCode = $request->input('purchase_code');
-
-        File::put(config_path('credential.php'),
-            "<?php\n return [
-                        \n'purchase_id' => '$purchaseId',
-                            \n'purchase_code' => '$purchaseCode',
-                        \n];"
-        );
-
-        $response = json_decode((new ProjectService)->activationKeyCheck($purchaseCode, $purchaseId));
-
-        if (
-            data_get($response, 'key') == config('credential.purchase_code') &&
-            data_get($response, 'active')
-        ) {
-            return $this->successResponse(
-                trans('errors.' .ResponseError::NO_ERROR, [], $this->language),
-                $response
-            );
-        }
-
-        return $this->onErrorResponse([
-            'code'      => ResponseError::ERROR_403,
-            'message'   => __('errors.ERROR_403'),
-            'http'      => Response::HTTP_FORBIDDEN,
         ]);
     }
 
