@@ -52,7 +52,7 @@ const Reservation = () => {
         <Row gutter={12}>
           <Col span={12}>
           <Form.Item
-            label={t('reservetion_time_durations')}
+            label={t('reservation_time_durations')}
             name='reservetion_time_durations'
           >
             <Select options={Time} />
