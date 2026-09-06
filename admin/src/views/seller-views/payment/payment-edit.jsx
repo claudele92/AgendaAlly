@@ -157,6 +157,100 @@ const SellerPaymentEdit = () => {
             {activePayment?.label === 'cash' ||
             activePayment?.label === 'wallet' ? (
               ''
+            ) : activePayment?.label === 'orange' ? (
+              <>
+                <Col span={12}>
+                  <Form.Item
+                    label={t('client.id')}
+                    name={'client_id'}
+                    rules={[
+                      {
+                        required: true,
+                        message: t('required'),
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label={t('merchant.key')}
+                    name={'merchant_key'}
+                    rules={[
+                      {
+                        required: true,
+                        message: t('required'),
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </>
+            ) : activePayment?.label === 'mtn' ? (
+              <>
+                <Col span={12}>
+                  <Form.Item
+                    label={t('subscription.key')}
+                    name={'subscription_key'}
+                    rules={[
+                      {
+                        required: true,
+                        message: t('required'),
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label={t('api.user')}
+                    name={'api_user'}
+                    rules={[
+                      {
+                        required: true,
+                        message: t('required'),
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label={t('api.key')}
+                    name={'api_key'}
+                    rules={[
+                      {
+                        required: true,
+                        message: t('required'),
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label={t('target.environment')}
+                    name={'target_environment'}
+                    rules={[
+                      {
+                        required: true,
+                        message: t('required'),
+                      },
+                      {
+                        pattern: /^[a-z]+$/,
+                        message: t('must.be.lowercase.letters.only'),
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </>
             ) : (
               <>
                 <Col span={12}>
