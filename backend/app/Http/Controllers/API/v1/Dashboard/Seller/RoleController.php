@@ -115,7 +115,7 @@ class RoleController extends SellerBaseController
             return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
         }
 
-        $result = $this->service->delete($role);
+        $result = $this->service->deleteRole($role);
 
         if (!data_get($result, 'status')) {
             return $this->onErrorResponse($result);

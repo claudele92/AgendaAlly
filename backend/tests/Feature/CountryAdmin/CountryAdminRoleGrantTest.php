@@ -59,7 +59,7 @@ class CountryAdminRoleGrantTest extends TestCase
         $this->assertTrue($user->hasRole('manager'), 'assignment must grant manager so the panel is reachable');
         $this->assertTrue($admin->manager_role_granted);
 
-        $service->delete($admin);
+        $service->deleteAdmin($admin);
 
         $user->refresh();
         $this->assertFalse($user->hasRole('manager'), 'removal must revoke the role it granted');
@@ -80,7 +80,7 @@ class CountryAdminRoleGrantTest extends TestCase
 
         $this->assertFalse($admin->manager_role_granted, 'must not claim credit for a role the user already had');
 
-        $service->delete($admin);
+        $service->deleteAdmin($admin);
 
         $user->refresh();
         $this->assertTrue($user->hasRole('manager'), 'a role held before the assignment is never ours to revoke');

@@ -88,7 +88,7 @@ class CountryAdminController extends AdminBaseController
 
     public function destroy(CountryAdmin $countryAdmin): JsonResponse
     {
-        $result = $this->service->delete($countryAdmin);
+        $result = $this->service->deleteAdmin($countryAdmin);
 
         if (!data_get($result, 'status')) {
             return $this->onErrorResponse($result);

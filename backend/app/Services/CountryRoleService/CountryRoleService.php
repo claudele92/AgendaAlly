@@ -55,7 +55,7 @@ final class CountryRoleService extends CoreService
         }
     }
 
-    public function delete(CountryRole $role): array
+    public function deleteRole(CountryRole $role): array
     {
         // Blocked, not reassigned/nulled, if any invitation still references
         // this role — matches the country_invitations.country_role_id

@@ -49,7 +49,7 @@ class CountryRoleDeletionTest extends TestCase
             'status'          => CountryInvitation::ACCEPTED,
         ]);
 
-        $result = (new CountryRoleService())->delete($role);
+        $result = (new CountryRoleService())->deleteRole($role);
 
         $this->assertFalse($result['status']);
         $this->assertNotNull(CountryRole::find($role->id), 'role must still exist');
@@ -60,7 +60,7 @@ class CountryRoleDeletionTest extends TestCase
         $country = $this->makeCountry();
         $role    = CountryRole::query()->create(['country_id' => $country->id, 'name' => 'Unused Role']);
 
-        $result = (new CountryRoleService())->delete($role);
+        $result = (new CountryRoleService())->deleteRole($role);
 
         $this->assertTrue($result['status']);
         $this->assertNull(CountryRole::find($role->id));

@@ -56,7 +56,7 @@ final class ShopRoleService extends CoreService
         }
     }
 
-    public function delete(ShopRole $role): array
+    public function deleteRole(ShopRole $role): array
     {
         // Blocked, not reassigned/nulled, if any invitation still references
         // this role — matches the invitations.shop_role_id restrictOnDelete
