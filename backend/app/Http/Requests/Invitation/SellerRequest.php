@@ -41,6 +41,14 @@ class SellerRequest extends BaseRequest
                 'integer',
                 Rule::exists('shop_roles', 'id')->where('shop_id', $shopId),
             ],
+            // Organizational/scheduling only - not wired into checkout
+            // currency resolution (see Shop::checkoutCountry()). Optional:
+            // not every staff member needs to be tied to a specific branch.
+            'shop_location_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('shop_locations', 'id')->where('shop_id', $shopId),
+            ],
         ];
     }
 }

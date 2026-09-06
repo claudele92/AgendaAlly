@@ -3076,4 +3076,8 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'sub.service.category','value' => 'Sub service category'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'successfully.changed','value' => 'Successfully changed'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'symbol_position','value' => 'Symbol position'),
+
+  // Branch-assignment for staff invites
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'assign.to.branch','value' => 'Assign to branch'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'assign.to.branch.optional','value' => 'Assign to branch (optional)'),
 );
