@@ -9,6 +9,8 @@ const countryService = {
   delete: (id) =>
     request.delete(`dashboard/admin/countries/delete?ids[0]=${id}`),
   status: (id) => request.get(`dashboard/admin/country/${id}/active`),
+  updatePayments: (id, data) =>
+    request.post(`dashboard/admin/countries/${id}/payments`, data),
 };
 
 export default countryService;
