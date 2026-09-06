@@ -3081,4 +3081,10 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'assign.to.branch','value' => 'Assign to branch'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'assign.to.branch.optional','value' => 'Assign to branch (optional)'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'edit.staff','value' => 'Edit staff member'),
+
+  // Orange Money / MTN Mobile Money fields on the seller payment-gateway form
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'api.user','value' => 'API user'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'subscription.key','value' => 'Subscription key'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'target.environment','value' => 'Target environment'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'must.be.lowercase.letters.only','value' => 'Must be lowercase letters only'),
 );
