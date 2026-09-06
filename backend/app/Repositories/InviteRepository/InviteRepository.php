@@ -32,7 +32,8 @@ class InviteRepository extends CoreRepository
             ->with([
                 'user.roles',
                 'user' => fn($q) => $q->select('id', 'firstname', 'lastname', 'img'),
-                'shop.translation' => fn ($q) => $q->where('locale', $this->language)
+                'shop.translation' => fn ($q) => $q->where('locale', $this->language),
+                'shopRole',
             ])
             ->orderBy($column, $filter['sort'] ?? 'desc')
             ->paginate($filter['perPage'] ?? 10);
@@ -47,7 +48,8 @@ class InviteRepository extends CoreRepository
         return $invitation->loadMissing([
             'user.roles',
             'user' => fn ($q) => $q->select('id', 'firstname', 'lastname', 'img'),
-            'shop.translation' => fn ($q) => $q->where('locale', $this->language)
+            'shop.translation' => fn ($q) => $q->where('locale', $this->language),
+            'shopRole',
         ]);
     }
 

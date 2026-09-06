@@ -66,6 +66,8 @@ import branch from './slices/branch';
 import deliveryStatistics from './slices/delivery-statistic';
 import addons from './slices/addons';
 import shopTag from './slices/shopTag';
+import shopRole from './slices/shopRole';
+import staffInvite from './slices/staffInvite';
 import adminPayouts from './slices/adminPayouts';
 import sellerOrders from './slices/sellerOrders';
 import deliveryboyReview from './slices/deliveryboyReview';
@@ -155,6 +157,8 @@ const rootReducer = {
   sellerOrders,
   deliveryboyReview,
   shopTag,
+  shopRole,
+  staffInvite,
   deliveryStatistics,
   addons,
   branch,

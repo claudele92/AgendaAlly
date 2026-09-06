@@ -31,6 +31,10 @@ class InviteResource extends JsonResource
             'created'    => UserResource::make($this->whenLoaded('createdBy')),
             'user'       => UserResource::make($this->whenLoaded('user')),
             'shop'       => ShopResource::make($this->whenLoaded('shop')),
+            'shop_role'  => $this->whenLoaded('shopRole', fn () => $this->shopRole ? [
+                'id'   => $this->shopRole->id,
+                'name' => $this->shopRole->name,
+            ] : null),
 
         ];
     }

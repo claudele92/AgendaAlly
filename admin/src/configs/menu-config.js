@@ -1839,6 +1839,20 @@ const sellerRoutes = [
     ],
   },
   {
+    name: 'staff.management',
+    id: 'seller.staff.management',
+    type: 'group',
+    menus: [
+      {
+        name: 'staff',
+        id: 'seller-staff',
+        icon: 'user',
+        url: 'seller/staff',
+        type: 'single',
+      },
+    ],
+  },
+  {
     name: 'order.management',
     id: 'order_management',
     type: 'group',
