@@ -74,7 +74,7 @@ class SettingController extends Controller
      */
     public function systemInformation(): JsonResponse
     {
-        $mysql  = DB::selectOne( DB::raw('SHOW VARIABLES LIKE "%innodb_version%"'));
+        $mysql  = DB::selectOne('SHOW VARIABLES LIKE "%innodb_version%"');
 
         try {
             $node       = exec('node -v');
