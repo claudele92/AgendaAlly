@@ -109,6 +109,7 @@ import SellerServiceNotificationsRoutes from './seller/service-notifications';
 import SellerServiceMasterRoutes from './seller/service-master';
 import ShopSubscriptionsRoutes from './admin/shop-subscriptions';
 import SellerMySubscriptionsRoutes from './seller/my-subscriptions';
+import SellerStaffRoutes from './seller/staff';
 
 // ** Merge Routes
 const AllRoutes = [
@@ -210,6 +211,7 @@ const AllRoutes = [
   ...SellerServiceNotificationsRoutes,
   ...SellerServiceMasterRoutes,
   ...SellerMySubscriptionsRoutes,
+  ...SellerStaffRoutes,
   // ...SellerDeliverymenRoutes,
 
   // waiter routes
