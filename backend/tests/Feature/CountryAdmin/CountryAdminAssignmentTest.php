@@ -32,7 +32,7 @@ class CountryAdminAssignmentTest extends TestCase
 
         (new \Database\Seeders\CountryPermissionSeeder())->run();
 
-        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true]);
+        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true, 'active' => true]);
     }
 
     private function makeCountry(): Country

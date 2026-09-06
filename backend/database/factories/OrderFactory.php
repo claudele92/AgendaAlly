@@ -17,7 +17,7 @@ class OrderFactory extends Factory
             'total_price'           => $this->faker->randomFloat(),
             'rate'                  => $this->faker->randomNumber(),
             'note'                  => $this->faker->word(),
-            'tax'                   => $this->faker->randomFloat(),
+            'total_tax'             => $this->faker->randomFloat(),
             'status'                => $this->faker->word(),
             'location'              => $this->faker->words(),
             'address'               => $this->faker->address(),
