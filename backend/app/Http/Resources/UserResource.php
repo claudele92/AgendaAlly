@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Helpers\CountryContext;
 use App\Helpers\Utility;
 use App\Models\User;
 use DB;
@@ -29,8 +30,17 @@ class UserResource extends JsonResource
 
         $role = $this->relationLoaded('roles') ? $this->role : null;
 
+        /** @var User $this */
+        $isSelf = $this->id && (int) auth('sanctum')->id() === (int) $this->id;
+
         return [
             'id'                => $this->when($this->id,          $this->id),
+            'is_super_admin'    => $this->when($isSelf, fn() => $this->isSuperAdmin()),
+            'country_admin'     => $this->when($isSelf, function () {
+                $countryId = CountryContext::restrictedCountryId();
+
+                return $countryId ? ['country_id' => $countryId] : null;
+            }),
             'uuid'              => $this->when($this->uuid,        $this->uuid),
             'firstname'         => $this->when($this->firstname,   $this->firstname),
             'lastname'          => $this->when($this->lastname,    $this->lastname),
