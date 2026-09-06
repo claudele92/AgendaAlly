@@ -46,7 +46,7 @@ const BookingForms = () => {
                   </Text>
 
                   <Text type='success' className='ml-2'>
-                    • {t('complated')}
+                    • {t('completed')}
                   </Text>
                   <Title level={4} className='mt-2'>
                     {item?.translation?.title}

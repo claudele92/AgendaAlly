@@ -103,7 +103,7 @@ export default function OrderReviewShowModal({ id, handleCancel }) {
           <div className='mt-3'>
             <Form onFinish={handleReplySubmit} form={form} layout='vertical'>
               <Form.Item
-                rules={[{ required: true, message: t('requires') }]}
+                rules={[{ required: true, message: t('required') }]}
                 name='reply'
                 label={t('your.reply')}
               >

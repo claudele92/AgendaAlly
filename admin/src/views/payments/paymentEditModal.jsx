@@ -125,7 +125,7 @@ export default function PaymentEditModal({ modal, handleCancel }) {
                     rules={[
                       {
                         required: item.locale === defaultLang,
-                        message: t('requried'),
+                        message: t('required'),
                       },
                     ]}
                     hidden={item.locale !== defaultLang}
