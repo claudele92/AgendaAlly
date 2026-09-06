@@ -44,10 +44,13 @@ class ProjectService extends CoreService
 
     public function checkLocal(): bool
     {
-        if ($_SERVER[base64_decode('UkVNT1RFX0FERFI=')] == base64_decode('MTI3LjAuMC4x')
-            || $_SERVER[base64_decode('SFRUUF9IT1NU')] == base64_decode('bG9jYWxob3N0')
-            || str_starts_with($_SERVER[base64_decode('SFRUUF9IT1NU')], '10.')
-            || substr($_SERVER[base64_decode('SFRUUF9IT1NU')], 0, 7) == base64_decode('MTkyLjE2OA==')) {
+        $remoteAddr = $_SERVER[base64_decode('UkVNT1RFX0FERFI=')] ?? '';
+        $httpHost   = $_SERVER[base64_decode('SFRUUF9IT1NU')] ?? '';
+
+        if ($remoteAddr == base64_decode('MTI3LjAuMC4x')
+            || $httpHost == base64_decode('bG9jYWxob3N0')
+            || str_starts_with($httpHost, '10.')
+            || substr($httpHost, 0, 7) == base64_decode('MTkyLjE2OA==')) {
             return true;
         }
         return false;

@@ -124,9 +124,21 @@ class MtnServiceTest extends TestCase
 
         $process = (new MtnService())->processTransaction(['booking_id' => $booking->id, 'phone' => '237600000000']);
 
+        // mtn_reference_id is MTN's own externalId/X-Reference-Id — a UUID
+        // generated per request, unrelated to the PaymentProcess row's own
+        // id. What "keyed by" means here: it's the value MTN's webhook will
+        // report back, so it must be the exact id sent on the outbound call.
         $this->assertInstanceOf(PaymentProcess::class, $process);
         $this->assertFalse($process->data['mtn_resolved']);
-        $this->assertSame($process->id, $process->data['mtn_reference_id']);
+        $this->assertTrue(\Illuminate\Support\Str::isUuid($process->data['mtn_reference_id']));
+
+        Http::assertSent(function ($request) use ($process) {
+            if (!str_contains($request->url(), 'requesttopay')) {
+                return false;
+            }
+
+            return $request->header('X-Reference-Id')[0] === $process->data['mtn_reference_id'];
+        });
     }
 
     public function test_it_rejects_a_shop_missing_any_required_mtn_field(): void

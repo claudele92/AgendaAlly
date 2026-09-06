@@ -37,7 +37,7 @@ class CountryScopingTest extends TestCase
             Role::findOrCreate($role, 'web');
         }
 
-        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true]);
+        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true, 'active' => true]);
     }
 
     /** @return array{0: Country, 1: Shop} */

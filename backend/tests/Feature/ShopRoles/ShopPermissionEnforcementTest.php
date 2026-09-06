@@ -37,7 +37,7 @@ class ShopPermissionEnforcementTest extends TestCase
         // Bypass the vendor license-activation gate (CheckParentSeller /
         // CheckSellerShop / TrustLicence) — test-only setup, never touches
         // shipped code. See ShopManagerRoleAccessTest for the same pattern.
-        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true]);
+        Cache::put('rjkcvd.ewoidfh', (object) ['local' => true, 'active' => true]);
     }
 
     private function makeShopWithStaff(array $permissionKeys): array
