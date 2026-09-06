@@ -22,7 +22,7 @@ export default function ParcelOptionAdd() {
       .create({ title: getTranslationFields(languages, values, 'title') })
       .then(() => {
         navigate('/options');
-        toast.success(t('created.succesfully'));
+        toast.success(t('created.successfully'));
         const nextUrl = 'options'
         dispatch(removeFromMenu({...activeMenu, nextUrl}));
       })

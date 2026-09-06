@@ -39,7 +39,7 @@ export default function OptionEdit() {
       .update(id, { title: getTranslationFields(languages, values, 'title') })
       .then(() => {
         navigate('/options');
-        toast.success(t('succesfully.updated'));
+        toast.success(t('successfully.updated'));
         const nextUrl = 'options'
         dispatch(removeFromMenu({...activeMenu, nextUrl}));
       })

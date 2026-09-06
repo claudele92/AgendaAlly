@@ -384,7 +384,7 @@ export default function DeliveryOrder() {
           <DebounceSelect
             className='w-100'
             debounceTimeout={500}
-            placeholder={t('select.deliveryman')}
+            placeholder={t('select_deliveryman')}
             fetchOptions={fetchDeliveryMan}
             allowClear={true}
             onChange={(value) => handleFilter({ deliveryman: value })}
