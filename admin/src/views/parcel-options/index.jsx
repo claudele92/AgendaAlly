@@ -54,7 +54,7 @@ export default function Units() {
       render: (translation) => translation?.title,
     },
     {
-      title: t('created_at'),
+      title: t('created.at'),
       dataIndex: 'created_at',
       is_show: true,
       render: (created_at) =>
