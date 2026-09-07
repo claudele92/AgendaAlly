@@ -44,6 +44,11 @@ class DatabaseSeeder extends Seeder
         // new countries get backfilled country_payments too.
         $this->call(DemoAfricaSeeder::class);
 
+        // Demo shop_roles/country_roles for the seeded Cameroon shop and
+        // country — needs the shop/country from DemoAfricaSeeder above and
+        // the permission catalogs from ShopPermissionSeeder/CountryPermissionSeeder.
+        $this->call(DemoStaffRolesSeeder::class);
+
         // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
         // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
         // already exist, so it can't live inside SubscriptionSeeder::run()
