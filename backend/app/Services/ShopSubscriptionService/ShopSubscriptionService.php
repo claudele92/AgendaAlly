@@ -57,6 +57,49 @@ class ShopSubscriptionService extends CoreService
     }
 
     /**
+     * Attaches a shop to a plan as a new, unpaid ShopSubscription — the
+     * seller-side "pick a plan" step, before payment. Mirrors update()'s
+     * field set except active stays false and expired_at is left unset;
+     * both get set once the actual payment goes through (see
+     * TransactionService::subscriptionTransaction()).
+     *
+     * @param int $shopId
+     * @param int $subscriptionId
+     * @return array
+     */
+    public function attach(int $shopId, int $subscriptionId): array
+    {
+        try {
+            $subscription = Subscription::find($subscriptionId);
+
+            if (empty($subscription)) {
+                return ['status' => false, 'code' => ResponseError::ERROR_404];
+            }
+
+            $shopSubscription = ShopSubscription::updateOrCreate(['shop_id' => $shopId], [
+                'subscription_id' => $subscription->id,
+                'price'           => $subscription->price,
+                'type'            => data_get($subscription, 'type', 'order'),
+                'active'          => false,
+            ]);
+
+            return [
+                'status' => true,
+                'code'   => ResponseError::NO_ERROR,
+                'data'   => $shopSubscription
+            ];
+
+        } catch (Throwable $e) {
+            $this->error($e);
+            return [
+                'status'  => false,
+                'code'    => ResponseError::ERROR_502,
+                'message' => __('errors.' . ResponseError::ERROR_502, locale: $this->language)
+            ];
+        }
+    }
+
+    /**
      * @param array|null $ids
      * @return void
      */

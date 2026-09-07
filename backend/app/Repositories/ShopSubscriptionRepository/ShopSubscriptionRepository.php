@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Repositories\ShopSubscriptionRepository;
 
 use App\Models\Language;
-use App\Models\ShopSocial;
 use App\Models\ShopSubscription;
 use App\Repositories\CoreRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -13,7 +12,7 @@ class ShopSubscriptionRepository extends CoreRepository
 {
     protected function getModelClass(): string
     {
-        return ShopSocial::class;
+        return ShopSubscription::class;
     }
 
     /**

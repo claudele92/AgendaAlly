@@ -808,6 +808,11 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
 
             Route::apiResource('shop-ads-packages', Seller\ShopAdsPackageController::class);
 
+            /* Subscription */
+            Route::get('subscriptions',                [Seller\SubscriptionController::class, 'index']);
+            Route::post('subscriptions/{subscription}/attach', [Seller\SubscriptionController::class, 'attach']);
+            Route::get('my-subscriptions',             [Seller\SubscriptionController::class, 'mySubscriptions']);
+
             /* RequestModel */
             Route::delete('request-models/delete',        [Seller\RequestModelController::class, 'destroy']);
             Route::apiResource('request-models', Seller\RequestModelController::class);
@@ -1381,6 +1386,15 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
 
             /* Shop Ads Package */
             Route::apiResource('shop-ads-packages', Admin\ShopAdsPackageController::class);
+
+            /* Subscription (plans) */
+            Route::delete('subscriptions/delete', [Admin\SubscriptionController::class, 'destroy']);
+            Route::apiResource('subscriptions', Admin\SubscriptionController::class)
+                ->only(['index', 'store', 'show', 'update']);
+
+            /* Shop Subscription (read-only monitoring) */
+            Route::apiResource('shop-subscriptions', Admin\ShopSubscriptionController::class)
+                ->only(['index', 'show']);
 
             /* RequestModel */
             Route::delete('request-models/delete',   [Admin\RequestModelController::class, 'destroy']);
