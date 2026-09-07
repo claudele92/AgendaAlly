@@ -15,8 +15,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * A country admin's own named role for their country's staff. Independent
  * of Spatie's role/permission tables — same bespoke pattern as ShopRole.
  *
+ * A null country_id marks a platform-wide role (e.g. "Main Accountant") —
+ * not scoped to any single country's staff.
+ *
  * @property int $id
- * @property int $country_id
+ * @property int|null $country_id
  * @property string $name
  */
 class CountryRole extends Model
