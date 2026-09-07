@@ -44,6 +44,11 @@ class DatabaseSeeder extends Seeder
         // new countries get backfilled country_payments too.
         $this->call(DemoAfricaSeeder::class);
 
+        // Demo shop_roles/country_roles for the seeded Cameroon shop and
+        // country — needs the shop/country from DemoAfricaSeeder above and
+        // the permission catalogs from ShopPermissionSeeder/CountryPermissionSeeder.
+        $this->call(DemoStaffRolesSeeder::class);
+
         // Re-runs the country currency/payment-gateway backfill from the
         // 2026_09_05_030000 migration now that seed data exists. On
         // `migrate:fresh --seed`, that migration ran before any of the
