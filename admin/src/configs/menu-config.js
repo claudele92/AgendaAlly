@@ -132,6 +132,14 @@ const adminRoutes = [
         type: 'single',
       },
       {
+        name: 'country.admins',
+        icon: 'delivery',
+        id: 'country.admins',
+        url: 'country-admins',
+        type: 'single',
+        superadminOnly: true,
+      },
+      {
         name: 'city',
         icon: 'delivery',
         id: 'city',
@@ -1036,6 +1044,14 @@ const managerRoutes = [
         id: 'country.staff',
         url: 'country-admin/staff',
         type: 'single',
+      },
+      {
+        name: 'country.admins',
+        icon: 'delivery',
+        id: 'country.admins',
+        url: 'country-admins',
+        type: 'single',
+        superadminOnly: true,
       },
       {
         name: 'city',
