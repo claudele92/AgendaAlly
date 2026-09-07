@@ -3100,4 +3100,11 @@ return array(
   // Also used by the already-shipped seller Staff screen, which was
   // missing this key.
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'n/a','value' => 'N/A'),
+
+  // Superadmin-only country-admin assignment screen
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'country.admins','value' => 'Country admins'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.country.admin','value' => 'Add country admin'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'manager.role.granted','value' => 'Manager role granted'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'revoke','value' => 'Revoke'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'are.you.sure.you.want.to.revoke.this.country.admin?','value' => 'Are you sure you want to revoke this country admin?'),
 );
