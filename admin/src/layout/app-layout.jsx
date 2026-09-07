@@ -43,9 +43,10 @@ const AppLayout = () => {
       fetchLanguages();
     }
     if (user?.role === 'seller' || user?.role === 'moderator') {
-      dispatch(fetchMyShop());
-    }
-    if (user?.role === 'admin' || user?.role === 'manager') {
+      dispatch(fetchMyShop()).then((action) =>
+        dispatch(fetchRestCurrencies({ shop_id: action.payload?.data?.id })),
+      );
+    } else if (user?.role === 'admin' || user?.role === 'manager') {
       dispatch(fetchAllShops(body));
       dispatch(fetchCurrencies({}));
     } else {

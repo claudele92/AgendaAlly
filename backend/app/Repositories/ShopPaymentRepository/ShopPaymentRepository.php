@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Repositories\ShopPaymentRepository;
 
 use App\Models\Payment;
+use App\Models\Shop;
+use App\Models\ShopLocation;
 use App\Models\ShopPayment;
 use App\Repositories\CoreRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -48,13 +50,23 @@ class ShopPaymentRepository extends CoreRepository
     }
 
     /**
-     * @param int $shopId
+     * Gateways the shop can still add — active platform-wide, not yet
+     * configured for this shop, AND actually offered in the shop's own
+     * country (see Country::activePaymentIds(), which always includes
+     * cash/wallet regardless of country_payments). No resolvable country
+     * means no gateways, matching the fail-closed rule used elsewhere for
+     * country-scoped shop data.
+     *
+     * @param Shop $shop
      * @return Collection
      */
-    public function shopNonExist(int $shopId): Collection
+    public function shopNonExist(Shop $shop): Collection
     {
+        $country = $shop->checkoutCountry(ShopLocation::PRODUCT) ?? $shop->checkoutCountry(ShopLocation::SERVICE);
+
         return Payment::where('active', 1)
-            ->whereDoesntHave('shopPayment', fn ($q) => $q->where('shop_id', $shopId) )
+            ->whereDoesntHave('shopPayment', fn ($q) => $q->where('shop_id', $shop->id) )
+            ->whereIn('id', $country?->activePaymentIds() ?? collect())
             ->orderByDesc('id')
             ->get();
     }

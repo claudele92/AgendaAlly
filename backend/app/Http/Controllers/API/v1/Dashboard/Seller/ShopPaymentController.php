@@ -61,7 +61,7 @@ class ShopPaymentController extends SellerBaseController
 
     public function shopNonExist(): JsonResponse
     {
-        $payment = $this->repository->shopNonExist($this->shop->id);
+        $payment = $this->repository->shopNonExist($this->shop);
 
         return $this->successResponse(
             __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_UPDATED, locale: $this->language),
