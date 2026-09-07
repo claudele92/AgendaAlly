@@ -65,6 +65,7 @@ const Locations = ({ location, setLocation }) => {
             </Form.Item>
             <AddressForm
               withLanguages={false}
+              addressRequired={false}
               setLocation={setLocation}
               value={value}
               setValue={setValue}
