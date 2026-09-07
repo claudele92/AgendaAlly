@@ -6,6 +6,8 @@ const currencyService = {
     request.get(`dashboard/admin/currencies/${id}`, { params }),
   create: (data) => request.post('dashboard/admin/currencies', data),
   update: (id, data) => request.put(`dashboard/admin/currencies/${id}`, data),
+  setDefault: (id) =>
+    request.post(`dashboard/admin/currencies/default/${id}`),
   delete: (params) =>
     request.delete(`dashboard/admin/currencies/delete`, { params }),
   dropAll: () => request.get(`dashboard/admin/currencies/drop/all`),

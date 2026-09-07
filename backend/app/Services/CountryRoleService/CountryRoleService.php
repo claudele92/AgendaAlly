@@ -30,7 +30,7 @@ final class CountryRoleService extends CoreService
     {
         foreach (DefaultCountryRoles::DEFINITIONS as $definition) {
             $permissionIds = $definition['permissions'] === 'all'
-                ? CountryPermission::pluck('id')
+                ? CountryPermission::whereNotIn('group', DefaultCountryRoles::PLATFORM_ONLY_GROUPS)->pluck('id')
                 : CountryPermission::whereIn('key', $definition['permissions'])->pluck('id');
 
             $role = CountryRole::updateOrCreate([

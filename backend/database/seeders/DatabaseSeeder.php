@@ -54,6 +54,11 @@ class DatabaseSeeder extends Seeder
         // shop_location together — needs both of the above.
         $this->call(DemoStaffInvitationSeeder::class);
 
+        // A real demo assignment of the platform-wide Main Accountant
+        // country_role — needs the Cameroon country (DemoAfricaSeeder), the
+        // role itself (DemoStaffRolesSeeder), and the demo user (UserSeeder).
+        $this->call(DemoCountryInvitationSeeder::class);
+
         // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
         // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
         // already exist, so it can't live inside SubscriptionSeeder::run()

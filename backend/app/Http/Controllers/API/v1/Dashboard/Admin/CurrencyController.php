@@ -149,7 +149,7 @@ class CurrencyController extends AdminBaseController
 
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
-            CurrencyResource::collection($currency)
+            CurrencyResource::make($currency)
         );
     }
 

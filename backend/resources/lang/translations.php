@@ -3082,6 +3082,9 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'assign.to.branch.optional','value' => 'Assign to branch (optional)'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'edit.staff','value' => 'Edit staff member'),
 
+  // Currencies "set as default" action
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'change.default.currency','value' => 'Change default currency'),
+
   // Orange Money / MTN Mobile Money fields on the seller payment-gateway form
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'api.user','value' => 'API user'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'subscription.key','value' => 'Subscription key'),

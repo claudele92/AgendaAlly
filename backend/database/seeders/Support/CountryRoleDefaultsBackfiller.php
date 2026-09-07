@@ -44,7 +44,9 @@ class CountryRoleDefaultsBackfiller
                 return;
             }
 
-            $allPermissionIds = DB::table('country_permissions')->pluck('id');
+            $allPermissionIds = DB::table('country_permissions')
+                ->whereNotIn('group', DefaultCountryRoles::PLATFORM_ONLY_GROUPS)
+                ->pluck('id');
 
             if ($allPermissionIds->isEmpty()) {
                 return;
