@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { MAP_API_KEY } from 'configs/app-global';
+import getMapApiKey from 'helpers/getMapApiKey';
 
 export default async function getAddress(
   address,
-  key = MAP_API_KEY
+  key = getMapApiKey()
 ) {
   let params = {
     address,
@@ -13,6 +13,6 @@ export default async function getAddress(
     .get(`https://maps.googleapis.com/maps/api/geocode/json`, { params })
     .then(({ data }) => data.results[0])
     .catch((error) => {
-      return 'not found';
+      return undefined;
     });
 }

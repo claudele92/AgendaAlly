@@ -7,6 +7,7 @@ import { shallowEqual } from 'react-redux';
 import { Form, Select } from 'antd';
 import { t } from 'i18next';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const options = COUNTRY_CODE
   ? { componentRestrictions: { country: COUNTRY_CODE } }
@@ -90,10 +91,15 @@ const AddressAutocompleteForm = ({
       }}
       onSelect={async (value) => {
         const address = await getAddress(value);
-        setLocation({
-          lat: address?.geometry.location.lat,
-          lng: address?.geometry.location.lng,
-        });
+        const lat = address?.geometry?.location?.lat;
+        const lng = address?.geometry?.location?.lng;
+
+        if (typeof lat !== 'number' || typeof lng !== 'number') {
+          toast.warning(t('no.address'));
+          return;
+        }
+
+        setLocation({ lat, lng });
       }}
       getPopupContainer={(trigger) => trigger.parentNode}
     />

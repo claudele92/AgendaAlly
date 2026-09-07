@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { MAP_API_KEY } from 'configs/app-global';
+import getMapApiKey from 'helpers/getMapApiKey';
 
 export default async function getAddressFromLocation(
   location,
-  key = MAP_API_KEY
+  key = getMapApiKey()
 ) {
   let params = {
     latlng: `${location?.lat},${location?.lng}`,
