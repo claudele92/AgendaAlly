@@ -990,6 +990,45 @@ const PaymentPayloadEdit = () => {
                       </Form.Item>
                     </Col>
                   </>
+                ) : activePayment?.label === 'payu' ? (
+                  <>
+                    <Col span={12}>
+                      <Form.Item
+                        label={t('client.id')}
+                        name='client_id'
+                        rules={[{ required: true, message: t('required') }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        label={t('client.secret')}
+                        name='client_secret'
+                        rules={[{ required: true, message: t('required') }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        label={t('merchant.id')}
+                        name='merchant_id'
+                        rules={[{ required: true, message: t('required') }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        label={t('sandbox')}
+                        name='sandbox'
+                        valuePropName='checked'
+                      >
+                        <Switch />
+                      </Form.Item>
+                    </Col>
+                  </>
                 ) : null}
               </>
             )}
