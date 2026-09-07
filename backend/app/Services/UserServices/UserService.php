@@ -64,14 +64,15 @@ class UserService extends CoreService
                 if ($user->hasRole(['moderator', 'deliveryman', 'master', 'shop_manager']) && isset($data['shop_id'])) {
 
                     foreach ($data['shop_id'] as $shopId) {
-                        $user->invitations()->create([
-                            'shop_id'          => $shopId,
-                            'role'             => $data['role'],
-                            'shop_role_id'     => $data['shop_role_id'] ?? null,
-                            'shop_location_id' => $data['shop_location_id'] ?? null,
-                            'created_by'       => $user->id,
-                            'status'           => Invitation::ACCEPTED,
+                        $invitation = $user->invitations()->create([
+                            'shop_id'      => $shopId,
+                            'role'         => $data['role'],
+                            'shop_role_id' => $data['shop_role_id'] ?? null,
+                            'created_by'   => $user->id,
+                            'status'       => Invitation::ACCEPTED,
                         ]);
+
+                        $invitation->shopLocations()->sync($data['shop_location_ids'] ?? []);
                     }
 
                 }

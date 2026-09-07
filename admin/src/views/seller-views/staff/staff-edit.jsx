@@ -11,7 +11,7 @@ import shopRoleService from '../../../services/seller/shopRole';
 import sellerShopLocationService from '../../../services/seller/shop-locations';
 import { BranchSelect, RoleSelect } from './role-branch-selects';
 
-// Only shop_role_id and shop_location_id are editable here - user_id and
+// Only shop_role_id and shop_location_ids are editable here - user_id and
 // the platform role aren't part of this form (see
 // Invitation\InviteUpdateRequest on the backend). Loads its own data
 // independently rather than relying on staff-list.jsx's redux state having
@@ -26,7 +26,7 @@ export default function StaffEdit() {
   const [shopRoles, setShopRoles] = useState([]);
   const [shopLocations, setShopLocations] = useState([]);
   const [roleId, setRoleId] = useState(null);
-  const [locationId, setLocationId] = useState(null);
+  const [locationIds, setLocationIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -44,7 +44,9 @@ export default function StaffEdit() {
         setShopRoles(rolesRes.data || []);
         setShopLocations(locationsRes.data || []);
         setRoleId(inviteRes.data?.shop_role?.id ?? null);
-        setLocationId(inviteRes.data?.shop_location?.id ?? null);
+        setLocationIds(
+          (inviteRes.data?.shop_locations || []).map((l) => l.id),
+        );
       })
       .catch((err) =>
         setLoadError(err.response?.data?.message || t('failed.to.load.data')),
@@ -64,7 +66,7 @@ export default function StaffEdit() {
     staffInviteService
       .update(id, {
         shop_role_id: roleId,
-        shop_location_id: locationId,
+        shop_location_ids: locationIds,
       })
       .then(() => {
         toast.success(t('successfully.updated'));
@@ -107,8 +109,8 @@ export default function StaffEdit() {
         <RoleSelect shopRoles={shopRoles} value={roleId} onChange={setRoleId} />
         <BranchSelect
           shopLocations={shopLocations}
-          value={locationId}
-          onChange={setLocationId}
+          value={locationIds}
+          onChange={setLocationIds}
         />
         <Button
           type='primary'

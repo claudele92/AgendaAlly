@@ -37,9 +37,11 @@ class UserCreateRequest extends BaseRequest
             // Same optional, organizational-only branch assignment as
             // Invitation\SellerRequest — this request creates the master's
             // invitation inline too (see UserService::create()), so it
-            // needs the identical rule to actually persist one.
-            'shop_location_id'                => [
-                'nullable',
+            // needs the identical rule to actually persist one. An array
+            // since one invitation can hold more than one branch (e.g. the
+            // PRODUCT and SERVICE ShopLocation for the same city).
+            'shop_location_ids'                => ['nullable', 'array'],
+            'shop_location_ids.*'              => [
                 'integer',
                 Rule::exists('shop_locations', 'id')->where(
                     'shop_id',

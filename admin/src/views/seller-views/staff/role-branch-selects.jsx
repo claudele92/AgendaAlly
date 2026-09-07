@@ -33,6 +33,10 @@ export function RoleSelect({ shopRoles, value, onChange }) {
   );
 }
 
+// A single invitation can hold more than one branch — e.g. both the
+// PRODUCT and SERVICE ShopLocation for the same city, structurally
+// separate rows even though they represent "the same place" — so this is
+// a multi-select; value/onChange are arrays of shop_location ids.
 export function BranchSelect({ shopLocations, value, onChange }) {
   const { t } = useTranslation();
 
@@ -43,6 +47,7 @@ export function BranchSelect({ shopLocations, value, onChange }) {
   return (
     <Form.Item label={t('assign.to.branch')}>
       <Select
+        mode='multiple'
         allowClear
         placeholder={t('assign.to.branch.optional')}
         value={value}

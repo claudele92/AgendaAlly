@@ -273,38 +273,40 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Whether this user's view of $shopId's bookings is restricted to a
-     * single branch, and if so, which one — see Seller\BookingController.
+     * set of branches, and if so, which ones — see Seller\BookingController.
      *
      * Unrestricted (['unrestricted' => true]) for the shop owner (the same
      * structural exception hasShopPermission() uses) or anyone whose
      * accepted invitation's shopRole grants bookings.view_all_branches.
      *
-     * Otherwise restricted to this user's own shop_location_id — which can
-     * itself be null (no branch assigned yet). That's intentional, not a
-     * bug: fail-closed, not fail-open. A viewer with no branch and no
-     * all-branches permission sees no bookings at all, rather than
-     * silently seeing every branch's.
+     * Otherwise restricted to this user's own assigned branches (an
+     * invitation can hold more than one — e.g. both the PRODUCT and
+     * SERVICE ShopLocation for the same city, see
+     * invitation_shop_locations), which can itself be empty (no branch
+     * assigned yet). That's intentional, not a bug: fail-closed, not
+     * fail-open. A viewer with no branch and no all-branches permission
+     * sees no bookings at all, rather than silently seeing every branch's.
      *
-     * @return array{unrestricted: bool, location_id: int|null}
+     * @return array{unrestricted: bool, location_ids: int[]}
      */
     public function bookingBranchScope(int $shopId): array
     {
         if ($this->shop?->id === $shopId) {
-            return ['unrestricted' => true, 'location_id' => null];
+            return ['unrestricted' => true, 'location_ids' => []];
         }
 
         $invitation = $this->invitations()
             ->where('shop_id', $shopId)
             ->where('status', Invitation::ACCEPTED)
             ->whereNotNull('shop_role_id')
-            ->with('shopRole.permissions')
+            ->with(['shopRole.permissions', 'shopLocations'])
             ->first();
 
         if ($invitation?->shopRole?->hasPermission('bookings.view_all_branches')) {
-            return ['unrestricted' => true, 'location_id' => null];
+            return ['unrestricted' => true, 'location_ids' => []];
         }
 
-        return ['unrestricted' => false, 'location_id' => $invitation?->shop_location_id];
+        return ['unrestricted' => false, 'location_ids' => $invitation?->shopLocations->pluck('id')->all() ?? []];
     }
 
     public function wallet(): HasOne

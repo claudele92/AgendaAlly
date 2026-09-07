@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -20,13 +21,12 @@ use Illuminate\Support\Carbon;
  * @property int $created_by
  * @property string|null $role
  * @property int $status
- * @property int|null $shop_location_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Shop $shop
  * @property-read User $user
  * @property-read User $createdBy
- * @property-read ShopLocation|null $shopLocation
+ * @property-read \Illuminate\Database\Eloquent\Collection|ShopLocation[] $shopLocations
  * @method static InvitationFactory factory(...$parameters)
  * @method static Builder|self filter($filter)
  * @method static Builder|self newModelQuery()
@@ -87,9 +87,9 @@ class Invitation extends Model
         return $this->belongsTo(ShopRole::class);
     }
 
-    public function shopLocation(): BelongsTo
+    public function shopLocations(): BelongsToMany
     {
-        return $this->belongsTo(ShopLocation::class);
+        return $this->belongsToMany(ShopLocation::class, 'invitation_shop_locations');
     }
 
     public static function getStatusKey($value)

@@ -35,16 +35,16 @@ class InviteResource extends JsonResource
                 'id'   => $this->shopRole->id,
                 'name' => $this->shopRole->name,
             ] : null),
-            'shop_location' => $this->whenLoaded('shopLocation', fn () => $this->shopLocation ? [
-                'id'      => $this->shopLocation->id,
-                'type'    => $this->shopLocation->type,
-                'country' => $this->shopLocation->relationLoaded('country')
-                    ? $this->shopLocation->country?->translation?->title
+            'shop_locations' => $this->whenLoaded('shopLocations', fn () => $this->shopLocations->map(fn ($location) => [
+                'id'      => $location->id,
+                'type'    => $location->type,
+                'country' => $location->relationLoaded('country')
+                    ? $location->country?->translation?->title
                     : null,
-                'city'    => $this->shopLocation->relationLoaded('city')
-                    ? $this->shopLocation->city?->translation?->title
+                'city'    => $location->relationLoaded('city')
+                    ? $location->city?->translation?->title
                     : null,
-            ] : null),
+            ])),
 
         ];
     }

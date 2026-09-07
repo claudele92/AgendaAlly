@@ -95,11 +95,19 @@ final class InviteService extends CoreService
                 $data['role'] = 'shop_manager';
             }
 
+            // Not an invitations column — a pivot relation synced below,
+            // once $invite exists. Left in $data, updateOrCreate() would
+            // try to write it as a plain column and fail.
+            $shopLocationIds = data_get($data, 'shop_location_ids', []);
+            unset($data['shop_location_ids']);
+
             $invite = $this->model()
                 ->updateOrCreate([
                     'user_id'    => $user->id,
                     'created_by' => auth('sanctum')->id()
                 ], $data);
+
+            $invite->shopLocations()->sync($shopLocationIds);
 
             $this->sendNotification(
                 $invite,
@@ -221,7 +229,7 @@ final class InviteService extends CoreService
     public function show(int $shopId, int $id): ?Invitation
     {
         return $this->model()
-            ->with(['user.roles', 'shopRole', 'shopLocation.country.translation', 'shopLocation.city.translation'])
+            ->with(['user.roles', 'shopRole', 'shopLocations.country.translation', 'shopLocations.city.translation'])
             ->firstWhere(['id' => $id, 'shop_id' => $shopId]);
     }
 
@@ -264,8 +272,7 @@ final class InviteService extends CoreService
             }
 
             $updateData = [
-                'shop_role_id'     => data_get($data, 'shop_role_id'),
-                'shop_location_id' => data_get($data, 'shop_location_id'),
+                'shop_role_id' => data_get($data, 'shop_role_id'),
             ];
 
             if (!empty($updateData['shop_role_id'])) {
@@ -273,6 +280,7 @@ final class InviteService extends CoreService
             }
 
             $invite->update($updateData);
+            $invite->shopLocations()->sync(data_get($data, 'shop_location_ids', []));
 
             return [
                 'status' => true,

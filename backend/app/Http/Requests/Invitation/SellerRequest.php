@@ -44,8 +44,10 @@ class SellerRequest extends BaseRequest
             // Organizational/scheduling only - not wired into checkout
             // currency resolution (see Shop::checkoutCountry()). Optional:
             // not every staff member needs to be tied to a specific branch.
-            'shop_location_id' => [
-                'nullable',
+            // An array since one invitation can hold more than one branch
+            // (e.g. the PRODUCT and SERVICE ShopLocation for the same city).
+            'shop_location_ids'   => ['nullable', 'array'],
+            'shop_location_ids.*' => [
                 'integer',
                 Rule::exists('shop_locations', 'id')->where('shop_id', $shopId),
             ],

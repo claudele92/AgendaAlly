@@ -15,12 +15,15 @@ use Throwable;
 
 /**
  * A real demo staff member for shop 501 (Cameroon) — a Branch Manager
- * (see DemoStaffRolesSeeder) explicitly assigned to the Douala branch
- * (see DemoAfricaSeeder), so the Staff screen and branch-assignment
- * dropdown have real data beyond just the role/location option lists.
+ * (see DemoStaffRolesSeeder) explicitly assigned to BOTH Douala
+ * ShopLocation rows (PRODUCT and SERVICE — see DemoAfricaSeeder,
+ * structurally separate rows even at the same city), so the Staff screen
+ * and branch-assignment dropdown have real data beyond just the
+ * role/location option lists, and demonstrate a single invitation holding
+ * more than one branch (see invitation_shop_locations).
  *
  * Runs after DemoStaffRolesSeeder (needs the shop_role) and DemoAfricaSeeder
- * (needs the shop_location and the user 114 from UserSeeder). Keyed by
+ * (needs the shop_locations and the user 114 from UserSeeder). Keyed by
  * updateOrCreate(user_id, shop_id), so safe to run more than once.
  */
 class DemoStaffInvitationSeeder extends Seeder
@@ -44,11 +47,11 @@ class DemoStaffInvitationSeeder extends Seeder
 
             $shopRole = ShopRole::where('shop_id', $shop->id)->where('name', 'Branch Manager')->first();
 
-            $douala = ShopLocation::where('shop_id', $shop->id)
+            $doualaLocationIds = ShopLocation::where('shop_id', $shop->id)
                 ->whereHas('city.translation', fn($q) => $q->where('title', 'Douala'))
-                ->first();
+                ->pluck('id');
 
-            if (!$shopRole || !$douala) {
+            if (!$shopRole || $doualaLocationIds->isEmpty()) {
                 return;
             }
 
@@ -56,12 +59,13 @@ class DemoStaffInvitationSeeder extends Seeder
                 'user_id' => $user->id,
                 'shop_id' => $shop->id,
             ], [
-                'created_by'        => $shop->user_id,
-                'role'              => 'shop_manager',
-                'shop_role_id'      => $shopRole->id,
-                'shop_location_id'  => $douala->id,
-                'status'            => Invitation::ACCEPTED,
+                'created_by'   => $shop->user_id,
+                'role'         => 'shop_manager',
+                'shop_role_id' => $shopRole->id,
+                'status'       => Invitation::ACCEPTED,
             ]);
+
+            $invitation->shopLocations()->sync($doualaLocationIds);
 
             // Mirrors what InviteService::changeStatus() does on a real
             // acceptance — the invite's role becomes an actual platform

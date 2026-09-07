@@ -34,8 +34,8 @@ class InviteRepository extends CoreRepository
                 'user' => fn($q) => $q->select('id', 'firstname', 'lastname', 'img'),
                 'shop.translation' => fn ($q) => $q->where('locale', $this->language),
                 'shopRole',
-                'shopLocation.country.translation' => fn ($q) => $q->where('locale', $this->language),
-                'shopLocation.city.translation' => fn ($q) => $q->where('locale', $this->language),
+                'shopLocations.country.translation' => fn ($q) => $q->where('locale', $this->language),
+                'shopLocations.city.translation' => fn ($q) => $q->where('locale', $this->language),
             ])
             ->orderBy($column, $filter['sort'] ?? 'desc')
             ->paginate($filter['perPage'] ?? 10);
@@ -52,8 +52,8 @@ class InviteRepository extends CoreRepository
             'user' => fn ($q) => $q->select('id', 'firstname', 'lastname', 'img'),
             'shop.translation' => fn ($q) => $q->where('locale', $this->language),
             'shopRole',
-            'shopLocation.country.translation' => fn ($q) => $q->where('locale', $this->language),
-            'shopLocation.city.translation' => fn ($q) => $q->where('locale', $this->language),
+            'shopLocations.country.translation' => fn ($q) => $q->where('locale', $this->language),
+            'shopLocations.city.translation' => fn ($q) => $q->where('locale', $this->language),
         ]);
     }
 

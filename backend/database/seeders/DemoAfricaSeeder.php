@@ -60,14 +60,22 @@ class DemoAfricaSeeder extends Seeder
             $cameroonShop = Shop::where('user_id', self::CAMEROON_SELLER_USER_ID)->first();
 
             if ($cameroonShop) {
-                $this->shopLocation($cameroonShop, $africa, $cameroon, $yaounde);
-                $this->shopLocation($cameroonShop, $africa, $cameroon, $douala);
+                $this->shopLocation($cameroonShop, $africa, $cameroon, $yaounde, ShopLocation::PRODUCT);
+                $this->shopLocation($cameroonShop, $africa, $cameroon, $douala, ShopLocation::PRODUCT);
+
+                // Same two cities, but as SERVICE-type locations — a
+                // structurally separate ShopLocation row per type even at
+                // the same city (see shopLocation()'s match key below), so
+                // a master/staff member managing "the Douala branch"
+                // end-to-end can be assigned to both.
+                $this->shopLocation($cameroonShop, $africa, $cameroon, $yaounde, ShopLocation::SERVICE);
+                $this->shopLocation($cameroonShop, $africa, $cameroon, $douala, ShopLocation::SERVICE);
             }
 
             $burkinaShop = Shop::where('user_id', self::BURKINA_FASO_SELLER_USER_ID)->first();
 
             if ($burkinaShop) {
-                $this->shopLocation($burkinaShop, $africa, $burkinaFaso, $ouagadougou);
+                $this->shopLocation($burkinaShop, $africa, $burkinaFaso, $ouagadougou, ShopLocation::PRODUCT);
             }
 
             // Bobo-Dioulasso is seeded per the spec (a second Burkina Faso
@@ -132,15 +140,20 @@ class DemoAfricaSeeder extends Seeder
         return $city;
     }
 
-    private function shopLocation(Shop $shop, Region $region, Country $country, City $city): void
+    private function shopLocation(Shop $shop, Region $region, Country $country, City $city, int $type): void
     {
+        // 'type' is part of the match key deliberately — without it, a
+        // second call for the same shop_id/city_id but a different type
+        // (e.g. seeding SERVICE after PRODUCT already exists) would
+        // silently flip the existing row's type instead of creating a
+        // second one, corrupting the first location it seeded.
         ShopLocation::updateOrCreate([
             'shop_id' => $shop->id,
             'city_id' => $city->id,
+            'type'    => $type,
         ], [
             'region_id'  => $region->id,
             'country_id' => $country->id,
-            'type'       => ShopLocation::PRODUCT,
         ]);
     }
 }

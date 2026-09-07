@@ -10,8 +10,8 @@ class InviteUpdateRequest extends BaseRequest
 {
     /**
      * Editing an existing invitation only ever changes which shop_role or
-     * branch (shop_location) it's tied to - user_id and the platform role
-     * are not editable here. See Seller\InviteController::update().
+     * branch(es) (shop_locations) it's tied to - user_id and the platform
+     * role are not editable here. See Seller\InviteController::update().
      *
      * @return array
      */
@@ -26,8 +26,10 @@ class InviteUpdateRequest extends BaseRequest
                 'integer',
                 Rule::exists('shop_roles', 'id')->where('shop_id', $shopId),
             ],
-            'shop_location_id' => [
-                'nullable',
+            // An array since one invitation can hold more than one branch
+            // (e.g. the PRODUCT and SERVICE ShopLocation for the same city).
+            'shop_location_ids'   => ['nullable', 'array'],
+            'shop_location_ids.*' => [
                 'integer',
                 Rule::exists('shop_locations', 'id')->where('shop_id', $shopId),
             ],
