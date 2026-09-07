@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Col, Image, Modal, Space, Table } from 'antd';
 import { useContext, useEffect, useState } from 'react';
 import { fetchSellerShopLocations } from 'redux/slices/shop-locations';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import LocationSelect from './location-select';
 import shopLocationsService from 'services/seller/shop-locations';
 import { toast } from 'react-toastify';
@@ -24,6 +24,7 @@ const ShopLocations = ({ next, prev, locationType }) => {
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [isLocationSelectModalOpen, setIsLocationSelectModalOpen] =
     useState(false);
+  const [editingLocation, setEditingLocation] = useState(null);
   const { setIsModalVisible } = useContext(Context);
 
   const columns = [
@@ -37,6 +38,11 @@ const ShopLocations = ({ next, prev, locationType }) => {
           {row?.city ? ',' : ''} {row?.city?.translation?.title}
         </span>
       ),
+    },
+    {
+      title: t('address'),
+      dataIndex: 'address',
+      key: 'address',
     },
     {
       title: t('image'),
@@ -58,6 +64,13 @@ const ShopLocations = ({ next, prev, locationType }) => {
       key: 'options',
       render: (_, row) => (
         <Space>
+          <Button
+            onClick={() => {
+              setEditingLocation(row);
+              setIsLocationSelectModalOpen(true);
+            }}
+            icon={<EditOutlined />}
+          />
           <Button
             onClick={() => {
               setIds([row.id]);
@@ -100,25 +113,54 @@ const ShopLocations = ({ next, prev, locationType }) => {
       });
   };
 
+  const closeLocationSelectModal = () => {
+    setIsLocationSelectModalOpen(false);
+    setEditingLocation(null);
+  };
+
+  // Builds the {value, label} shape InfiniteSelect (labelInValue) needs to
+  // display country/city without re-fetching them first, from the row's
+  // already-loaded ShopLocationResource relations.
+  const buildInitialValues = (row) => ({
+    country: row?.country
+      ? {
+          value: `${row.country.id},${row.country.region_id}`,
+          label: row.country?.translation?.title,
+          key: row.country.id,
+        }
+      : undefined,
+    city: row?.city
+      ? { value: row.city.id, label: row.city?.translation?.title }
+      : { value: 'all', label: t('whole.country') },
+    address: row?.address,
+    latitude: row?.latitude,
+    longitude: row?.longitude,
+  });
+
   const handleAddLocation = (values) => {
     const country = values.country.value.split(',')[0];
     const region = values.country.value.split(',')[1];
     const body = {
       country_id: country,
       region_id: region,
+      city_id: values.city?.value,
+      address: values.address,
+      latitude: values.latitude,
+      longitude: values.longitude,
       shop_id: activeMenu?.data?.id,
       type: locationType?.value,
     };
-    if (values.city.value !== 'all') {
-      body.city_id = values.city?.value;
-    }
     setLoadingBtn(true);
-    shopLocationsService
-      .create(body)
+    const request = editingLocation
+      ? shopLocationsService.update(editingLocation.id, body)
+      : shopLocationsService.create(body);
+    request
       .then(() => {
-        toast.success(t('successfully.added'));
+        toast.success(
+          editingLocation ? t('successfully.updated') : t('successfully.added'),
+        );
         dispatch(fetchSellerShopLocations(params));
-        setIsLocationSelectModalOpen(false);
+        closeLocationSelectModal();
       })
       .finally(() => {
         setLoadingBtn(false);
@@ -152,12 +194,13 @@ const ShopLocations = ({ next, prev, locationType }) => {
         footer={null}
         visible={isLocationSelectModalOpen}
         destroyOnClose
-        onCancel={() => setIsLocationSelectModalOpen(false)}
+        onCancel={closeLocationSelectModal}
       >
         <LocationSelect
-          onClose={() => setIsLocationSelectModalOpen(false)}
+          onClose={closeLocationSelectModal}
           onSubmit={handleAddLocation}
           isButtonLoading={loadingBtn}
+          initialValues={editingLocation ? buildInitialValues(editingLocation) : undefined}
         />
       </Modal>
       <CustomModal

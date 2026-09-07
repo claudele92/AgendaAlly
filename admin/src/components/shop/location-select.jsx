@@ -2,12 +2,36 @@ import { Button, Form, Space } from 'antd';
 import { InfiniteSelect } from 'components/infinite-select';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { shallowEqual, useSelector } from 'react-redux';
 import addressService from 'services/rest/address';
+import AddressForm from 'components/forms/address-form';
+import Map from 'components/map';
+import getDefaultLocation from 'helpers/getDefaultLocation';
 
-const LocationSelect = ({ onClose, onSubmit, isButtonLoading }) => {
+// initialValues (edit mode only) is { country, city, address, latitude,
+// longitude } — country/city already in the {value, label} shape
+// fetchCountries/fetchCities produce, so InfiniteSelect (labelInValue) can
+// display them without needing to re-fetch the option first.
+const LocationSelect = ({ onClose, onSubmit, isButtonLoading, initialValues }) => {
   const { t } = useTranslation();
+  const [form] = Form.useForm();
+  const { settings } = useSelector(
+    (state) => state.globalSettings,
+    shallowEqual,
+  );
   const [links, setLinks] = useState(null);
-  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(
+    initialValues?.country || null,
+  );
+  const [addressValue, setAddressValue] = useState(
+    initialValues?.address || '',
+  );
+  const [location, setLocation] = useState(
+    initialValues?.latitude && initialValues?.longitude
+      ? { lat: initialValues.latitude, lng: initialValues.longitude }
+      : getDefaultLocation(settings),
+  );
+
   const fetchCountries = ({ search, page }) => {
     const params = { search, page };
 
@@ -51,8 +75,21 @@ const LocationSelect = ({ onClose, onSubmit, isButtonLoading }) => {
     });
   };
 
+  const handleFinish = (values) => {
+    onSubmit({
+      ...values,
+      latitude: location?.lat,
+      longitude: location?.lng,
+    });
+  };
+
   return (
-    <Form layout='vertical' onFinish={onSubmit}>
+    <Form
+      layout='vertical'
+      form={form}
+      onFinish={handleFinish}
+      initialValues={initialValues}
+    >
       <Form.Item
         name='country'
         label={t('country')}
@@ -61,7 +98,10 @@ const LocationSelect = ({ onClose, onSubmit, isButtonLoading }) => {
         <InfiniteSelect
           hasMore={links?.next}
           fetchOptions={fetchCountries}
-          onChange={(value) => setSelectedCountry(value)}
+          onChange={(value) => {
+            setSelectedCountry(value);
+            form.setFieldsValue({ city: null });
+          }}
         />
       </Form.Item>
       {selectedCountry && (
@@ -73,6 +113,21 @@ const LocationSelect = ({ onClose, onSubmit, isButtonLoading }) => {
           >
             <InfiniteSelect hasMore={links?.next} fetchOptions={fetchCities} />
           </Form.Item>
+          <AddressForm
+            withLanguages={false}
+            addressRequired={false}
+            value={addressValue}
+            setValue={setAddressValue}
+            setLocation={setLocation}
+          />
+          <Map
+            location={location}
+            setLocation={setLocation}
+            setAddress={(value) => {
+              setAddressValue(value);
+              form.setFieldsValue({ address: value });
+            }}
+          />
         </>
       )}
       <Space className='justify-content-end w-100'>
@@ -80,7 +135,7 @@ const LocationSelect = ({ onClose, onSubmit, isButtonLoading }) => {
           {t('cancel')}
         </Button>
         <Button loading={isButtonLoading} htmlType='submit' type='primary'>
-          {t('add')}
+          {initialValues ? t('save') : t('add')}
         </Button>
       </Space>
     </Form>
