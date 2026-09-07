@@ -1,7 +1,8 @@
 import React from 'react';
 import useGoogle from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
 import getAddress from 'helpers/getAddress';
-import { COUNTRY_CODE, MAP_API_KEY } from 'configs/app-global';
+import { COUNTRY_CODE } from 'configs/app-global';
+import getMapApiKey from 'helpers/getMapApiKey';
 import { shallowEqual } from 'react-redux';
 import { Form, Select } from 'antd';
 import { t } from 'i18next';
@@ -16,10 +17,11 @@ const AddressForm = ({
   setValue,
   setLocation,
   withLanguages = true,
+  addressRequired = true,
 }) => {
   const { placePredictions, getPlacePredictions, isPlacePredictionsLoading } =
     useGoogle({
-      apiKey: MAP_API_KEY,
+      apiKey: getMapApiKey(),
       libraries: ['places', 'geocode'],
       options,
     });
@@ -64,7 +66,7 @@ const AddressForm = ({
       <Form.Item
         label={t('address')}
         name='address'
-        rules={[{ required: true, message: t('required') }]}
+        rules={[{ required: addressRequired, message: t('required') }]}
       >
         {renderSelect()}
       </Form.Item>

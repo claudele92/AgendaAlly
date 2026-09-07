@@ -6,7 +6,6 @@ import { BiCurrentLocation } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import getMapApiKey from 'helpers/getMapApiKey';
-import { MAP_API_KEY } from '../configs/app-global';
 
 const mapApiKey = getMapApiKey();
 
@@ -104,6 +103,6 @@ function GoogleMap(props) {
 }
 
 export default GoogleApiWrapper({
-  apiKey: MAP_API_KEY,
+  apiKey: mapApiKey,
   libraries: ['places', 'geometry'],
 })(GoogleMap);
