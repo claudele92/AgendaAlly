@@ -26,6 +26,31 @@ import currencyService from 'services/currency';
 import i18n from 'configs/i18next';
 import MediaUpload from 'components/upload';
 
+// Gateways this form actually has a field set for below — matches the
+// PaymentPayload-backed services (RazorPayService, FlutterWaveService,
+// IyzicoService, MaksekeskusService, MercadoPagoService, MollieService,
+// MoyasarService, PayFastService, PayPalService, PayStackService,
+// PayTabsService, StripeService, ZainCashService). Orange/MTN don't use
+// PaymentPayload at all (their config is ShopPayment/PlatformPaymentConfig
+// — see the seller/platform payment screens), and PayU does read
+// PaymentPayload but has no field set here yet — both excluded so picking
+// them can't land on a screen with nothing to fill in.
+const SUPPORTED_TAGS = [
+  'paystack',
+  'paypal',
+  'stripe',
+  'razorpay',
+  'flutter-wave',
+  'mollie',
+  'moya-sar',
+  'paytabs',
+  'zain-cash',
+  'mercado-pago',
+  'maksekeskus',
+  'iyzico',
+  'pay-fast',
+];
+
 export default function PaymentPayloadAdd() {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -93,8 +118,7 @@ export default function PaymentPayloadAdd() {
       .getAll()
       .then(({ data }) => {
         const body = data
-          .filter((item) => item.tag !== 'wallet')
-          .filter((item) => item.tag !== 'cash')
+          .filter((item) => SUPPORTED_TAGS.includes(item.tag))
           .map((item) => ({
             label: item.tag[0].toUpperCase() + item.tag.substring(1),
             value: item.id,
