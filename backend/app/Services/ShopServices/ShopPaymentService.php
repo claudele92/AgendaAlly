@@ -74,16 +74,22 @@ class ShopPaymentService extends CoreService
     }
 
     /**
-     * For Orange/MTN specifically: rejects a shop whose country doesn't
-     * offer the gateway (per country_payments), and fills in a default
-     * currency from that country when the shop didn't explicitly
-     * override it. A no-op for every other gateway.
+     * Rejects a shop configuring a gateway its country doesn't offer (per
+     * Country::activePaymentIds(), which already always allows cash/
+     * wallet regardless of country_payments) — enforced here for every
+     * gateway, not just Orange/MTN, so this matches shopNonExist()'s
+     * listing: a gateway excluded from the list can't be added by a
+     * direct request either. For Orange/MTN specifically, additionally
+     * fills in a default currency from that country when the shop didn't
+     * explicitly override it — those gateways store their own currency
+     * per shop_payments row; no other gateway has a currency column to
+     * fill.
      */
     private function prepareGatewayConfig(array $data): array
     {
         $payment = Payment::query()->find(data_get($data, 'payment_id'));
 
-        if (!$payment || !in_array($payment->tag, self::SHOP_CREDENTIAL_TAGS, true)) {
+        if (!$payment) {
             return ['status' => true, 'data' => $data];
         }
 
@@ -98,6 +104,10 @@ class ShopPaymentService extends CoreService
                 'code'    => ResponseError::ERROR_400,
                 'message' => __('errors.' . ResponseError::ERROR_400, locale: $this->language),
             ];
+        }
+
+        if (!in_array($payment->tag, self::SHOP_CREDENTIAL_TAGS, true)) {
+            return ['status' => true, 'data' => $data];
         }
 
         if (empty($data['currency'])) {

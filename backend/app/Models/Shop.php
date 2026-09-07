@@ -349,6 +349,19 @@ class Shop extends Model
         return $country?->currency ? $country : null;
     }
 
+    /**
+     * The currency this shop's storefront should display, resolved from
+     * its own country (PRODUCT preferred, falling back to SERVICE) —
+     * never the platform-wide default currency. Null under the same
+     * conditions as checkoutCountry().
+     */
+    public function displayCurrency(): ?Currency
+    {
+        $country = $this->checkoutCountry(ShopLocation::PRODUCT) ?? $this->checkoutCountry(ShopLocation::SERVICE);
+
+        return $country?->currency;
+    }
+
     public function socials(): HasMany
     {
         return $this->hasMany(ShopSocial::class);
