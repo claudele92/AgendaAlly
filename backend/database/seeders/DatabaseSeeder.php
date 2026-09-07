@@ -49,6 +49,12 @@ class DatabaseSeeder extends Seeder
         // the permission catalogs from ShopPermissionSeeder/CountryPermissionSeeder.
         $this->call(DemoStaffRolesSeeder::class);
 
+        // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
+        // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
+        // already exist, so it can't live inside SubscriptionSeeder::run()
+        // itself (that runs before UserSeeder/DemoAfricaSeeder create the shop).
+        SubscriptionSeeder::subscribeCameroonSeller();
+
         // Re-runs the country currency/payment-gateway backfill from the
         // 2026_09_05_030000 migration now that seed data exists. On
         // `migrate:fresh --seed`, that migration ran before any of the

@@ -2,14 +2,21 @@
 
 namespace Database\Seeders;
 
+use App\Models\Shop;
+use App\Models\ShopSubscription;
 use App\Models\Subscription;
 use App\Traits\Loggable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SubscriptionSeeder extends Seeder
 {
     use Loggable;
+
+    // See DemoAfricaSeeder / UserSeeder — the Cameroon demo seller's shop.
+    private const CAMEROON_SELLER_USER_ID = 107;
+
     /**
      * Run the database seeds.
      *
@@ -20,7 +27,7 @@ class SubscriptionSeeder extends Seeder
         $data =  [
             [
                 'id'            => 97,
-                'title'         => 'title1',
+                'title'         => 'Starter',
                 'type'          => 'orders',
                 'price'         => 100.00,
                 'product_limit' => 1000,
@@ -34,7 +41,7 @@ class SubscriptionSeeder extends Seeder
             ],
             [
                 'id'            => 98,
-                'title'         => 'title3',
+                'title'         => 'Growth',
                 'type'          => 'orders',
                 'price'         => 250.00,
                 'product_limit' => 3000,
@@ -48,7 +55,7 @@ class SubscriptionSeeder extends Seeder
             ],
             [
                 'id'            => 99,
-                'title'         => 'title6',
+                'title'         => 'Pro',
                 'type'          => 'orders',
                 'product_limit' => 6000,
                 'order_limit'   => 6000,
@@ -62,7 +69,7 @@ class SubscriptionSeeder extends Seeder
             ],
             [
                 'id'            => 100,
-                'title'         => 'title12',
+                'title'         => 'Enterprise',
                 'product_limit' => 12000,
                 'order_limit'   => 12000,
                 'booking_limit' => 12000,
@@ -82,6 +89,37 @@ class SubscriptionSeeder extends Seeder
             } catch (Throwable $e) {
                 $this->error($e);
             }
+        }
+    }
+
+    /**
+     * Puts the Cameroon demo seller (shop 501, see DemoAfricaSeeder) on the
+     * Growth plan, mirroring the exact fields ShopSubscriptionService::update()
+     * sets for a real subscribe action rather than inventing a parallel shape.
+     *
+     * Called separately from DatabaseSeeder, after UserSeeder/DemoAfricaSeeder
+     * have created the shop — SubscriptionSeeder itself runs before both, so
+     * doing this from run() would silently no-op on a fresh migrate:fresh --seed.
+     */
+    public static function subscribeCameroonSeller(): void
+    {
+        $shop = Shop::where('user_id', self::CAMEROON_SELLER_USER_ID)->first();
+        $growth = Subscription::find(98);
+
+        if (!$shop || !$growth) {
+            return;
+        }
+
+        try {
+            ShopSubscription::updateOrCreate(['shop_id' => $shop->id], [
+                'subscription_id' => $growth->id,
+                'expired_at'      => now()->addMonths($growth->month),
+                'price'           => $growth->price,
+                'type'            => $growth->type,
+                'active'          => true,
+            ]);
+        } catch (Throwable $e) {
+            Log::error($e->getMessage(), ['code' => $e->getCode(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
     }
 }
