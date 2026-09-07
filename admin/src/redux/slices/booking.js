@@ -102,6 +102,7 @@ const bookingSlice = createSlice({
         id: item.id,
         pause: item.service_master?.pause,
         title: item.service_master?.service?.translation?.title,
+        status: item.status,
         start: new Date(
           new Date(moment(item.start_date, 'YYYY-MM-DD HH:mm:ss'))
         ),

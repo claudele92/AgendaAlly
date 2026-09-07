@@ -123,11 +123,15 @@ const CalendarView = () => {
   );
 
   const eventStyleGetter = (event, start, end, isSelected) => {
-    if (event.disabled)
+    if (event.disabled) {
       return {
         className: 'disabled-slot',
       };
-    else return '';
+    }
+
+    return {
+      className: event.status ? `status-${event.status}` : '',
+    };
   };
 
   useEffect(() => {
@@ -136,7 +140,10 @@ const CalendarView = () => {
 
   return (
     <Spin spinning={loading}>
-      <div style={{ height: 'max(1000px, 80vh)' }}>
+      <div
+        className='seller-booking-calendar'
+        style={{ height: 'max(1000px, 80vh)' }}
+      >
         <Calendar
           localizer={localizer}
           startAccessor='start'

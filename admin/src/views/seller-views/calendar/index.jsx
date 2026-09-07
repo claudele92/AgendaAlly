@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import ActionTypeSelection from './components/action-type-selection';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'assets/scss/components/seller-booking-calendar.scss';
 import BookingContextProvider from './provider';
 import { useDispatch } from 'react-redux';
 import { fetchSellerBookingList } from 'redux/slices/booking';
