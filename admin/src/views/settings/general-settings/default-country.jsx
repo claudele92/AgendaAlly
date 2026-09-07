@@ -89,6 +89,7 @@ const GeneralSettingsDefaultCountry = () => {
                 fetchOptions={fetchCountries}
                 labelInValue={true}
                 allowClear={false}
+                placeholder={t('select.country')}
                 onSelect={(value) => {
                   setSelectedCountry(value);
                   form.setFieldsValue({ city: null });
@@ -102,6 +103,7 @@ const GeneralSettingsDefaultCountry = () => {
                 fetchOptions={fetchCities}
                 labelInValue={true}
                 allowClear={false}
+                placeholder={t('select.city')}
                 disabled={!selectedCountry?.value}
                 refetchOptions={true}
               />
