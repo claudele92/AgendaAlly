@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Card, Space, Table } from 'antd';
 import {
+  CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusCircleOutlined,
@@ -25,6 +26,11 @@ const Currencies = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [text, setText] = useState(null);
+  // The row awaiting a "set as default" confirmation — separate from `id`
+  // (which the delete flow already uses, and shapes as an array). Non-null
+  // here is also what tells the shared CustomModal which confirm action
+  // ("set default" vs "delete") to run.
+  const [defaultId, setDefaultId] = useState(null);
   const [loadingBtn, setLoadingBtn] = useState(false);
   const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
   const { currencies, loading } = useSelector(
@@ -79,6 +85,19 @@ const Currencies = () => {
             {row.default ? (
               ''
             ) : (
+              <Button
+                icon={<CheckCircleOutlined />}
+                onClick={() => {
+                  setDefaultId(row.id);
+                  setIsModalVisible(true);
+                }}
+                title={t('change.default.currency')}
+              />
+            )}
+
+            {row.default ? (
+              ''
+            ) : (
               <DeleteButton
                 icon={<DeleteOutlined />}
                 onClick={() => {
@@ -93,6 +112,21 @@ const Currencies = () => {
       },
     },
   ]);
+
+  const setDefaultCurrency = () => {
+    setLoadingBtn(true);
+    currencyService
+      .setDefault(defaultId)
+      .then(() => {
+        toast.success(t('successfully.updated'));
+        setIsModalVisible(false);
+        dispatch(fetchCurrencies());
+      })
+      .finally(() => {
+        setDefaultId(null);
+        setLoadingBtn(false);
+      });
+  };
 
   const deleteCurrency = () => {
     setLoadingBtn(true);
@@ -195,9 +229,20 @@ const Currencies = () => {
         pagination={false}
       />
       <CustomModal
-        click={deleteCurrency}
-        text={text ? t('delete') : t('all.delete')}
-        setText={setId}
+        click={defaultId ? setDefaultCurrency : deleteCurrency}
+        text={
+          defaultId
+            ? t('change.default.currency')
+            : text
+              ? t('delete')
+              : t('all.delete')
+        }
+        setText={() => {
+          setId([]);
+          setDefaultId(null);
+        }}
+        setActive={() => {}}
+        setVerify={() => {}}
         loading={loadingBtn}
       />
     </Card>

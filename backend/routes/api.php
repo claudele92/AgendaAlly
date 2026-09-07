@@ -970,13 +970,22 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::apiResource('languages',   Admin\LanguageController::class);
             Route::get('languages/drop/all',            [Admin\LanguageController::class, 'dropAll']);
 
-            /* Currencies */
-            Route::get('currencies/default',            [Admin\CurrencyController::class, 'getDefaultCurrency']);
-            Route::post('currencies/default/{id}',      [Admin\CurrencyController::class, 'setDefaultCurrency']);
-            Route::get('currencies/active',             [Admin\CurrencyController::class, 'getActiveCurrencies']);
-            Route::delete('currencies/delete',          [Admin\CurrencyController::class, 'destroy']);
-            Route::apiResource('currencies',  Admin\CurrencyController::class);
-            Route::get('currencies/drop/all',           [Admin\CurrencyController::class, 'dropAll']);
+            /* Currencies — not actually country-scoped data (Currency has
+               no country_id), but reuses country.permission/country_roles
+               rather than a parallel platform-permission system; only a
+               platform-wide role (e.g. Main Accountant) or the superadmin
+               bypass can pass these checks. See CountryPermissionSeeder. */
+            Route::group(['middleware' => 'country.permission:currency.view'], function () {
+                Route::get('currencies/default',        [Admin\CurrencyController::class, 'getDefaultCurrency']);
+                Route::get('currencies/active',         [Admin\CurrencyController::class, 'getActiveCurrencies']);
+                Route::apiResource('currencies',        Admin\CurrencyController::class)->only(['index', 'show']);
+            });
+            Route::group(['middleware' => 'country.permission:currency.manage'], function () {
+                Route::post('currencies/default/{id}',  [Admin\CurrencyController::class, 'setDefaultCurrency']);
+                Route::delete('currencies/delete',      [Admin\CurrencyController::class, 'destroy']);
+                Route::apiResource('currencies',        Admin\CurrencyController::class)->only(['store', 'update', 'destroy']);
+                Route::get('currencies/drop/all',       [Admin\CurrencyController::class, 'dropAll']);
+            });
 
             /* Categories */
             Route::get('categories/export',                 [Admin\CategoryController::class, 'fileExport']);

@@ -158,6 +158,25 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            // Demo platform-wide finance staff — see DemoCountryInvitationSeeder,
+            // which assigns this user the "Main Accountant" country_role
+            // (country_id = NULL on the role itself) via a Cameroon-scoped
+            // CountryInvitation, since every actual grant still needs a
+            // real country_id on the invitation row.
+            [
+                'id' => 115,
+                'uuid' => Str::uuid(),
+                'firstname' => 'Main',
+                'lastname' => 'Accountant',
+                'email' => 'main-accountant@githubit.com',
+                'phone' => '998911902697',
+                'birthday' => '1990-12-31',
+                'gender' => 'female',
+                'email_verified_at' => now(),
+                'password' => bcrypt('accountant'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         foreach ($users as $user) {

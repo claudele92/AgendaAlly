@@ -26,6 +26,17 @@ namespace App\Support;
  */
 final class DefaultCountryRoles
 {
+    /**
+     * Permission groups that exist in the country_permissions catalog but
+     * aren't actually country-scoped data (e.g. currency.* — Currency has
+     * no country_id at all; it reuses this catalog/middleware rather than
+     * a parallel platform-permission system). Excluded from the 'all'
+     * sentinel below so a country's own "everything" role (Country
+     * Manager) never inherits a platform-wide capability just because a
+     * new key was added to the catalog for something else entirely.
+     */
+    public const PLATFORM_ONLY_GROUPS = ['currency'];
+
     public const DEFINITIONS = [
         [
             'name'        => 'Country Manager',

@@ -47,6 +47,58 @@ class CurrencySeeder extends Seeder
                 'default' => 0,
                 'active' => 1,
             ],
+            // Additional demo currencies — rates are approximate demo
+            // values against USD (the default), not live/maintained FX
+            // rates, same caveat as XAF/XOF above.
+            [
+                'symbol' => '€',
+                'title' => 'EUR',
+                'rate' => 0.92,
+                'default' => 0,
+                'active' => 1,
+            ],
+            [
+                'symbol' => '₦',
+                'title' => 'NGN',
+                'rate' => 1550.0,
+                'default' => 0,
+                'active' => 1,
+            ],
+            [
+                'symbol' => 'GH₵',
+                'title' => 'GHS',
+                'rate' => 15.0,
+                'default' => 0,
+                'active' => 1,
+            ],
+            [
+                'symbol' => 'CA$',
+                'title' => 'CAD',
+                'rate' => 1.37,
+                'default' => 0,
+                'active' => 1,
+            ],
+            [
+                'symbol' => '£',
+                'title' => 'GBP',
+                'rate' => 0.79,
+                'default' => 0,
+                'active' => 1,
+            ],
+            [
+                'symbol' => 'FC',
+                'title' => 'CDF',
+                'rate' => 2870.0,
+                'default' => 0,
+                'active' => 1,
+            ],
+            [
+                'symbol' => 'KSh',
+                'title' => 'KES',
+                'rate' => 129.0,
+                'default' => 0,
+                'active' => 1,
+            ],
         ];
 
         foreach ($currencies as $currency) {

@@ -55,6 +55,15 @@ class CountryPermissionSeeder extends Seeder
             // Marketing (coupons, bonuses, memberships, ads) within the country
             ['key' => 'marketing.view',   'group' => 'marketing', 'label' => 'View marketing campaigns'],
             ['key' => 'marketing.manage', 'group' => 'marketing', 'label' => 'Manage coupons, bonuses, memberships, ads'],
+
+            // Platform currency catalog — not actually country-scoped data
+            // (Currency has no country_id), but reuses this same catalog/
+            // middleware rather than building a parallel platform-permission
+            // system for one feature area. Only ever granted to a
+            // platform-wide role (country_id = NULL, e.g. Main Accountant —
+            // see DemoStaffRolesSeeder) or held via the superadmin bypass.
+            ['key' => 'currency.view',   'group' => 'currency', 'label' => 'View currencies'],
+            ['key' => 'currency.manage', 'group' => 'currency', 'label' => 'Create, edit, and set default/rate for currencies'],
         ];
 
         foreach ($permissions as $permission) {

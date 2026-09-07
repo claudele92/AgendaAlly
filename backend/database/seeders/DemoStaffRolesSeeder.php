@@ -68,6 +68,7 @@ class DemoStaffRolesSeeder extends Seeder
             // 2026_09_07_030000 migration making country_id nullable.
             $this->seedCountryRole(null, 'Main Accountant', [
                 'transactions.view', 'transactions.manage', 'reports.view',
+                'currency.view', 'currency.manage',
             ]);
         } catch (Throwable $e) {
             $this->error($e);
