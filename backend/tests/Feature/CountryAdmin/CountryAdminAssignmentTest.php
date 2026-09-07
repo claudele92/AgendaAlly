@@ -79,11 +79,19 @@ class CountryAdminAssignmentTest extends TestCase
 
         // Naming countryB explicitly must not matter — the acting admin is
         // locked to their own country regardless of any country_id input.
+        // Asserting an empty response would be a false positive: every
+        // country (countryA included) auto-seeds its own 3 default roles
+        // on creation (see CountryObserver::created()), so the correctly-
+        // scoped response is non-empty — it's just never countryB's data.
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson('/api/v1/dashboard/admin/country-roles/paginate?country_id=' . $countryB->id);
 
         $response->assertStatus(200);
-        $this->assertSame(0, count($response->json('data')));
+
+        $returnedCountryIds = collect($response->json('data'))->pluck('country_id')->unique();
+
+        $this->assertFalse($returnedCountryIds->contains($countryB->id), "B's Role (or any other countryB role) must never appear in the response");
+        $this->assertSame([$countryA->id], $returnedCountryIds->values()->all(), 'every returned role must belong to the acting admin\'s own country');
     }
 
     public function test_country_admin_creating_a_role_ignores_a_foreign_country_id_in_the_body(): void
