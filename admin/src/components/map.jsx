@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleApiWrapper, Map, Marker } from 'google-maps-react';
+import { Map, Marker } from 'google-maps-react';
+import { Spin } from 'antd';
 import pinIcon from 'assets/images/pin.png';
 import getAddressFromLocation from 'helpers/getAddressFromLocation';
 import { BiCurrentLocation } from 'react-icons/bi';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import getMapApiKey from 'helpers/getMapApiKey';
+import useGoogleMapsReady from 'helpers/googleMapsLoader';
 
 const mapApiKey = getMapApiKey();
 
@@ -102,7 +104,19 @@ function GoogleMap(props) {
   );
 }
 
-export default GoogleApiWrapper({
-  apiKey: mapApiKey,
-  libraries: ['places', 'geometry'],
-})(GoogleMap);
+export default function GoogleMapLoader(props) {
+  const ready = useGoogleMapsReady();
+
+  if (!ready) {
+    return (
+      <div
+        className='map-container d-flex align-items-center justify-content-center'
+        style={{ height: 400, width: '100%' }}
+      >
+        <Spin />
+      </div>
+    );
+  }
+
+  return <GoogleMap {...props} google={window.google} />;
+}

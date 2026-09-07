@@ -5,9 +5,28 @@ import { useTranslation } from 'react-i18next';
 import Map from '../../components/map';
 import getDefaultLocation from '../../helpers/getDefaultLocation';
 import { usePlacesWidget } from 'react-google-autocomplete';
-import { MAP_API_KEY } from '../../configs/app-global';
+import useGoogleMapsReady from '../../helpers/googleMapsLoader';
 import { setMenuData } from '../../redux/slices/menu';
 import { setOrderData } from '../../redux/slices/order';
+
+// Only ever mounted once the shared Google Maps script has loaded (see
+// UserAddress below) — usePlacesWidget's own script-loading effect runs
+// once, on mount, so it must not mount before then.
+function AddressAutocompleteInput({ setLocation, ...rest }) {
+  const { ref } = usePlacesWidget({
+    onPlaceSelected: (place) => {
+      const location = {
+        lat: place?.geometry.location.lat(),
+        lng: place?.geometry.location.lng(),
+      };
+      setLocation(location);
+    },
+  });
+
+  return (
+    <input className='address-input' ref={ref} placeholder={''} {...rest} />
+  );
+}
 
 export default function UserAddress({ uuid, handleCancel }) {
   const { t } = useTranslation();
@@ -18,22 +37,8 @@ export default function UserAddress({ uuid, handleCancel }) {
     (state) => state.globalSettings,
     shallowEqual
   );
-  const { google_map_key } = useSelector(
-    (state) => state.globalSettings.settings,
-    shallowEqual
-  );
+  const ready = useGoogleMapsReady();
   const { data } = useSelector((state) => state.order, shallowEqual);
-
-  const { ref } = usePlacesWidget({
-    apiKey: google_map_key || MAP_API_KEY,
-    onPlaceSelected: (place) => {
-      const location = {
-        lat: place?.geometry.location.lat(),
-        lng: place?.geometry.location.lng(),
-      };
-      setLocation(location);
-    },
-  });
 
   const [location, setLocation] = useState(
     data.address
@@ -87,7 +92,11 @@ export default function UserAddress({ uuid, handleCancel }) {
           label={t('address')}
           rules={[{ required: true, message: t('required') }]}
         >
-          <input className='address-input' ref={ref} placeholder={''} />
+          {ready ? (
+            <AddressAutocompleteInput setLocation={setLocation} />
+          ) : (
+            <input className='address-input' disabled placeholder={''} />
+          )}
         </Form.Item>
         <Form.Item label={t('map')}>
           <Map

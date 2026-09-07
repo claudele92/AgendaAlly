@@ -8,6 +8,7 @@
     "@chatscope/chat-ui-kit-react": "^2.1.1",
     "@ckeditor/ckeditor5-build-classic": "^34.2.0",
     "@ckeditor/ckeditor5-react": "^5.0.2",
+    "@googlemaps/js-api-loader": "^2.1.1",
     "@reduxjs/toolkit": "^1.8.3",
     "@rive-app/react-canvas": "^3.0.35",
     "antd": "4.20.6",

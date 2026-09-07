@@ -2,7 +2,7 @@ import React from 'react';
 import useGoogle from 'react-google-autocomplete/lib/usePlacesAutocompleteService';
 import getAddress from 'helpers/getAddress';
 import { COUNTRY_CODE } from 'configs/app-global';
-import getMapApiKey from 'helpers/getMapApiKey';
+import useGoogleMapsReady from 'helpers/googleMapsLoader';
 import { shallowEqual } from 'react-redux';
 import { Form, Select } from 'antd';
 import { t } from 'i18next';
@@ -12,54 +12,16 @@ const options = COUNTRY_CODE
   ? { componentRestrictions: { country: COUNTRY_CODE } }
   : {};
 
-const AddressForm = ({
-  value,
-  setValue,
-  setLocation,
-  withLanguages = true,
-  addressRequired = true,
-}) => {
-  const { placePredictions, getPlacePredictions, isPlacePredictionsLoading } =
-    useGoogle({
-      apiKey: getMapApiKey(),
-      libraries: ['places', 'geocode'],
-      options,
-    });
-
+// Renders the address Form.Item(s) — one per language, or a single one —
+// with whatever control renderControl() returns. Shared between the live,
+// autocomplete-backed control and the disabled placeholder shown before the
+// Google Maps script has loaded, so the form's fields (name/rules) register
+// identically either way.
+const AddressFormFields = ({ withLanguages, addressRequired, renderControl }) => {
   const { defaultLang, languages } = useSelector(
     (state) => state.formLang,
     shallowEqual,
   );
-
-  const renderSelect = () => {
-    return (
-      <Select
-        allowClear
-        searchValue={value}
-        showSearch
-        autoClearSearchValue
-        loading={isPlacePredictionsLoading}
-        options={placePredictions?.map((prediction) => ({
-          label: prediction.description,
-          value: prediction.description,
-        }))}
-        onSearch={(searchValue) => {
-          setValue(searchValue);
-          if (searchValue.length > 0) {
-            getPlacePredictions({ input: searchValue });
-          }
-        }}
-        onSelect={async (value) => {
-          const address = await getAddress(value);
-          setLocation({
-            lat: address?.geometry.location.lat,
-            lng: address?.geometry.location.lng,
-          });
-        }}
-        getPopupContainer={(trigger) => trigger.parentNode}
-      />
-    );
-  };
 
   if (!withLanguages) {
     return (
@@ -68,7 +30,7 @@ const AddressForm = ({
         name='address'
         rules={[{ required: addressRequired, message: t('required') }]}
       >
-        {renderSelect()}
+        {renderControl()}
       </Form.Item>
     );
   }
@@ -88,10 +50,90 @@ const AddressForm = ({
           ]}
           hidden={item.locale !== defaultLang}
         >
-          {renderSelect()}
+          {renderControl()}
         </Form.Item>
       ))}
     </>
+  );
+};
+
+// Only ever mounted once the shared Google Maps script has loaded (see
+// AddressForm below) — usePlacesAutocompleteService's own script-loading
+// effect runs once, on mount, so it must not mount before then.
+const AddressAutocompleteForm = ({
+  value,
+  setValue,
+  setLocation,
+  withLanguages,
+  addressRequired,
+}) => {
+  const { placePredictions, getPlacePredictions, isPlacePredictionsLoading } =
+    useGoogle({ options });
+
+  const renderSelect = () => (
+    <Select
+      allowClear
+      searchValue={value}
+      showSearch
+      autoClearSearchValue
+      loading={isPlacePredictionsLoading}
+      options={placePredictions?.map((prediction) => ({
+        label: prediction.description,
+        value: prediction.description,
+      }))}
+      onSearch={(searchValue) => {
+        setValue(searchValue);
+        if (searchValue.length > 0) {
+          getPlacePredictions({ input: searchValue });
+        }
+      }}
+      onSelect={async (value) => {
+        const address = await getAddress(value);
+        setLocation({
+          lat: address?.geometry.location.lat,
+          lng: address?.geometry.location.lng,
+        });
+      }}
+      getPopupContainer={(trigger) => trigger.parentNode}
+    />
+  );
+
+  return (
+    <AddressFormFields
+      withLanguages={withLanguages}
+      addressRequired={addressRequired}
+      renderControl={renderSelect}
+    />
+  );
+};
+
+const AddressForm = ({
+  value,
+  setValue,
+  setLocation,
+  withLanguages = true,
+  addressRequired = true,
+}) => {
+  const ready = useGoogleMapsReady();
+
+  if (!ready) {
+    return (
+      <AddressFormFields
+        withLanguages={withLanguages}
+        addressRequired={addressRequired}
+        renderControl={() => <Select disabled loading />}
+      />
+    );
+  }
+
+  return (
+    <AddressAutocompleteForm
+      value={value}
+      setValue={setValue}
+      setLocation={setLocation}
+      withLanguages={withLanguages}
+      addressRequired={addressRequired}
+    />
   );
 };
 
