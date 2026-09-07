@@ -101,16 +101,25 @@ export default function GeneralSettings() {
         data.logo = createImage(data.logo);
         data.favicon = createImage(data.favicon);
         data.admin_favicon = createImage(data.admin_favicon);
-        data.country = {
-          label: data?.default_country_title,
-          value: data?.default_country_id,
-          key: `${data?.default_country_id},${data?.default_region_id}`,
-        };
-        data.city = {
-          label: data?.default_city_title,
-          value: data?.default_city_id,
-          key: data?.default_city_id,
-        };
+        // Only build these when a default has actually been set —
+        // otherwise `country`/`city` end up as {label: undefined,
+        // value: undefined, key: "undefined,undefined"}, a non-null value
+        // Select happily renders (as the literal text "undefined,undefined")
+        // instead of falling back to its placeholder.
+        data.country = data?.default_country_id
+          ? {
+              label: data?.default_country_title,
+              value: data?.default_country_id,
+              key: `${data?.default_country_id},${data?.default_region_id}`,
+            }
+          : undefined;
+        data.city = data?.default_city_id
+          ? {
+              label: data?.default_city_title,
+              value: data?.default_city_id,
+              key: data?.default_city_id,
+            }
+          : undefined;
         setLogo(data.logo);
         setFavicon(data.favicon);
         setAdminFavicon(data.admin_favicon);
