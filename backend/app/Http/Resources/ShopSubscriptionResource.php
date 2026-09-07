@@ -29,6 +29,11 @@ class ShopSubscriptionResource extends JsonResource
             'created_at'        => $this->when($this->created_at, $this->created_at?->format('Y-m-d H:i:s') . 'Z'),
             'updated_at'        => $this->when($this->updated_at, $this->updated_at?->format('Y-m-d H:i:s') . 'Z'),
 
+            // The admin ShopSubscriptions table (shop-subscriptions/index.jsx)
+            // reads this as a flat column, separately from the nested
+            // 'subscription' relation below.
+            'subscriptionTitle' => $this->when($this->relationLoaded('subscription'), fn() => $this->subscription?->title),
+
             // Relations
             'subscription'      => SubscriptionResource::make($this->whenLoaded('subscription')),
             'transaction'       => TransactionResource::make($this->whenLoaded('transaction')),
