@@ -280,8 +280,8 @@ class BookingController extends SellerBaseController
             return $filter;
         }
 
-        $filter['branch_scope_active']      = true;
-        $filter['branch_scope_location_id'] = $scope['location_id'];
+        $filter['branch_scope_active']       = true;
+        $filter['branch_scope_location_ids'] = $scope['location_ids'];
 
         return $filter;
     }
@@ -304,7 +304,7 @@ class BookingController extends SellerBaseController
             return false;
         }
 
-        if ($scope['location_id'] === null) {
+        if (empty($scope['location_ids'])) {
             return true;
         }
 
@@ -312,7 +312,7 @@ class BookingController extends SellerBaseController
             ?->invitations()
             ->where('shop_id', $this->shop->id)
             ->where('status', Invitation::ACCEPTED)
-            ->where('shop_location_id', $scope['location_id'])
+            ->whereHas('shopLocations', fn ($q) => $q->whereIn('shop_locations.id', $scope['location_ids']))
             ->exists();
     }
 

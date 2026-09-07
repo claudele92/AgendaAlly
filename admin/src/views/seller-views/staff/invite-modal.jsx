@@ -28,7 +28,7 @@ export default function InviteModal({
   const [searchError, setSearchError] = useState(null);
   const [resolvedUser, setResolvedUser] = useState(null);
   const [roleId, setRoleId] = useState(null);
-  const [locationId, setLocationId] = useState(null);
+  const [locationIds, setLocationIds] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
   const goCreateRole = () => {
@@ -71,7 +71,7 @@ export default function InviteModal({
       .create({
         user_id: resolvedUser.id,
         shop_role_id: roleId,
-        ...(locationId ? { shop_location_id: locationId } : {}),
+        ...(locationIds.length ? { shop_location_ids: locationIds } : {}),
       })
       .then(() => {
         toast.success(t('invite.sent'));
@@ -151,8 +151,8 @@ export default function InviteModal({
             <RoleSelect shopRoles={shopRoles} value={roleId} onChange={setRoleId} />
             <BranchSelect
               shopLocations={shopLocations}
-              value={locationId}
-              onChange={setLocationId}
+              value={locationIds}
+              onChange={setLocationIds}
             />
             <Button
               type='primary'

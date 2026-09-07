@@ -314,9 +314,9 @@ class Booking extends Model
             // Seller\BookingController) — never accepted as raw client
             // input, so a branch-scoped viewer can't spoof another branch.
             ->when(data_get($filter, 'branch_scope_active'), function ($q) use ($filter) {
-                $locationId = data_get($filter, 'branch_scope_location_id');
+                $locationIds = data_get($filter, 'branch_scope_location_ids', []);
 
-                if ($locationId === null) {
+                if (empty($locationIds)) {
                     // Fail-closed: the viewer has no branch assigned and no
                     // all-branches permission, so they see nothing rather
                     // than everything.
@@ -327,7 +327,7 @@ class Booking extends Model
                 $q->whereHas('master.invitations', fn ($q2) => $q2
                     ->where('shop_id', data_get($filter, 'shop_id'))
                     ->where('status', Invitation::ACCEPTED)
-                    ->where('shop_location_id', $locationId)
+                    ->whereHas('shopLocations', fn ($q3) => $q3->whereIn('shop_locations.id', $locationIds))
                 );
             })
             ->when(data_get($filter, 'search'), fn($q, $search) => $q->where(function ($query) use ($search) {

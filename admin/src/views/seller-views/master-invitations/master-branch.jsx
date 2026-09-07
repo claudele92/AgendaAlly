@@ -7,7 +7,7 @@ import staffInviteService from '../../../services/seller/staffInvite';
 import sellerShopLocationService from '../../../services/seller/shop-locations';
 import { BranchSelect } from '../staff/role-branch-selects';
 
-// A master's branch lives on the same invitations.shop_location_id column
+// A master's branches live in the same invitation_shop_locations pivot
 // used by staff (see staff-edit.jsx) - master creation already creates an
 // inline Invitation row (see UserService::create()), so this tab just
 // needs to find that invitation by user_id before it can update it, since
@@ -19,7 +19,7 @@ export default function MasterBranch() {
 
   const [invitationId, setInvitationId] = useState(null);
   const [shopLocations, setShopLocations] = useState([]);
-  const [locationId, setLocationId] = useState(null);
+  const [locationIds, setLocationIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -40,7 +40,7 @@ export default function MasterBranch() {
         const invitation = invitesRes.data?.data?.[0];
         setInvitationId(invitation?.id ?? null);
         setShopLocations(locationsRes.data || []);
-        setLocationId(invitation?.shop_location?.id ?? null);
+        setLocationIds((invitation?.shop_locations || []).map((l) => l.id));
       })
       .catch((err) =>
         setLoadError(err.response?.data?.message || t('failed.to.load.data')),
@@ -57,7 +57,7 @@ export default function MasterBranch() {
     setSubmitting(true);
 
     staffInviteService
-      .update(invitationId, { shop_location_id: locationId })
+      .update(invitationId, { shop_location_ids: locationIds })
       .then(() => toast.success(t('successfully.updated')))
       .finally(() => setSubmitting(false));
   };
@@ -88,8 +88,8 @@ export default function MasterBranch() {
       <Form layout='vertical' onFinish={onFinish}>
         <BranchSelect
           shopLocations={shopLocations}
-          value={locationId}
-          onChange={setLocationId}
+          value={locationIds}
+          onChange={setLocationIds}
         />
         <Button type='primary' htmlType='submit' loading={submitting}>
           {t('submit')}
