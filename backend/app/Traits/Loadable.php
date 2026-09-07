@@ -18,9 +18,30 @@ trait Loadable
 {
     public function uploads($files, ?string $type = ''): void
     {
+        // $files is routinely null (callers almost always pass
+        // data_get($data, 'images') with no default, and that key is
+        // absent whenever a create/update request has no image at all) —
+        // that's "no image provided", not an error, so it's a no-op here
+        // rather than a foreach-on-null warning.
+        if (!is_iterable($files)) {
+            return;
+        }
+
+        // config('app.img_host') (env('IMG_HOST')) is optional and unset
+        // by default (not in .env.example) — with strict_types declared
+        // above, passing that null straight into str_replace()'s $search
+        // parameter is a fatal TypeError, not a graceful "no host prefix".
+        $imgHost = (string) config('app.img_host');
+
         foreach ($files as $key => $file) {
 
-            $file = str_replace(config('app.img_host'), '', $file);
+            // An individual entry can be blank too (e.g. images: [null]),
+            // which is likewise "no image for this slot", not an error.
+            if (empty($file)) {
+                continue;
+            }
+
+            $file = str_replace($imgHost, '', $file);
             $fileName = str_replace(['storage/images', 'public/images'], '', $file);
 
             $title = Str::of($fileName)->afterLast('/');
@@ -29,7 +50,7 @@ trait Loadable
 
             $image          = new Gallery;
             $image->title   = $title;
-            $image->path    = config('app.img_host') . $file;
+            $image->path    = $imgHost . $file;
             $image->type    = $type;
             $image->size    = data_get($file, 'size');
             $image->mime    = data_get($file, 'mimeType');
