@@ -729,17 +729,24 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('shop-tags/paginate',    [Seller\TagController::class, 'shopTagsPaginate']);
 
             /* Payments */
-            Route::middleware('shop.permission:payments.view')->group(function () {
-                Route::get('shop-payments',            [Seller\ShopPaymentController::class, 'index']);
-                Route::get('shop-payments/{shopPayment}', [Seller\ShopPaymentController::class, 'show']);
-                Route::get('shop-payments/shop-non-exist', [Seller\ShopPaymentController::class, 'shopNonExist']);
-            });
+            // Laravel matches routes in registration order, not by
+            // specificity — every static shop-payments/{word} route below
+            // must be registered before the shop-payments/{shopPayment}
+            // wildcard, or it gets shadowed: a request for e.g.
+            // shop-payments/shop-non-exist would instead bind {shopPayment}
+            // to the literal string "shop-non-exist", fail to resolve a
+            // model, and 404 before ever reaching the intended route.
             Route::middleware('shop.permission:payments.gateways.manage')->group(function () {
                 Route::post('shop-payments/{id}/active/status', [Seller\ShopPaymentController::class, 'setActive']);
                 Route::get('shop-payments/delete',      [Seller\ShopPaymentController::class, 'destroy']);
                 Route::post('shop-payments',            [Seller\ShopPaymentController::class, 'store']);
                 Route::put('shop-payments/{shopPayment}', [Seller\ShopPaymentController::class, 'update']);
                 Route::delete('shop-payments/{shopPayment}', [Seller\ShopPaymentController::class, 'destroy']);
+            });
+            Route::middleware('shop.permission:payments.view')->group(function () {
+                Route::get('shop-payments',            [Seller\ShopPaymentController::class, 'index']);
+                Route::get('shop-payments/shop-non-exist', [Seller\ShopPaymentController::class, 'shopNonExist']);
+                Route::get('shop-payments/{shopPayment}', [Seller\ShopPaymentController::class, 'show']);
             });
 
             /* Order Refunds */
