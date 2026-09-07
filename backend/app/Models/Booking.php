@@ -310,6 +310,26 @@ class Booking extends Model
         $query
             ->when(data_get($filter, 'shop_id'),  fn ($query, $shopId)  => $query->where('shop_id', $shopId))
             ->when(data_get($filter, 'shop_ids'), fn ($query, $shopIds) => $query->whereIn('shop_id', $shopIds))
+            // Server-computed only (see User::bookingBranchScope() /
+            // Seller\BookingController) — never accepted as raw client
+            // input, so a branch-scoped viewer can't spoof another branch.
+            ->when(data_get($filter, 'branch_scope_active'), function ($q) use ($filter) {
+                $locationId = data_get($filter, 'branch_scope_location_id');
+
+                if ($locationId === null) {
+                    // Fail-closed: the viewer has no branch assigned and no
+                    // all-branches permission, so they see nothing rather
+                    // than everything.
+                    $q->whereRaw('1 = 0');
+                    return;
+                }
+
+                $q->whereHas('master.invitations', fn ($q2) => $q2
+                    ->where('shop_id', data_get($filter, 'shop_id'))
+                    ->where('status', Invitation::ACCEPTED)
+                    ->where('shop_location_id', $locationId)
+                );
+            })
             ->when(data_get($filter, 'search'), fn($q, $search) => $q->where(function ($query) use ($search) {
                 $query
                     ->whereHas('service.translation',  fn($q) => $q->where(fn($q) => $q->where('title', 'like', "%$search%")))

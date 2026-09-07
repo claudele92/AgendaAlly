@@ -65,11 +65,12 @@ class UserService extends CoreService
 
                     foreach ($data['shop_id'] as $shopId) {
                         $user->invitations()->create([
-                            'shop_id'      => $shopId,
-                            'role'         => $data['role'],
-                            'shop_role_id' => $data['shop_role_id'] ?? null,
-                            'created_by'   => $user->id,
-                            'status'       => Invitation::ACCEPTED,
+                            'shop_id'          => $shopId,
+                            'role'             => $data['role'],
+                            'shop_role_id'     => $data['shop_role_id'] ?? null,
+                            'shop_location_id' => $data['shop_location_id'] ?? null,
+                            'created_by'       => $user->id,
+                            'status'           => Invitation::ACCEPTED,
                         ]);
                     }
 

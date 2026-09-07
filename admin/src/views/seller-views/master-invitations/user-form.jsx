@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Row,
   Col,
@@ -19,6 +19,8 @@ import { removeFromMenu } from 'redux/slices/menu';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchSellerMasterInvitations } from 'redux/slices/invitations';
 import { useParams } from 'react-router-dom';
+import sellerShopLocationService from 'services/seller/shop-locations';
+import { BranchSelect } from '../staff/role-branch-selects';
 
 const UserForm = ({ form, handleSubmit }) => {
   const { t } = useTranslation();
@@ -35,6 +37,20 @@ const UserForm = ({ form, handleSubmit }) => {
     activeMenu.data?.img?.length ? [{ name: activeMenu.data?.img }] : [],
   );
   const [error, setError] = useState(null);
+  const [shopLocations, setShopLocations] = useState([]);
+  const [locationId, setLocationId] = useState(null);
+
+  // Only relevant on create — an existing master's branch is edited
+  // separately, via the "Branch" tab (see form.jsx), since this form's
+  // own submit goes through the user update endpoint, which doesn't touch
+  // shop_location_id (see Seller\InviteController::update() instead).
+  useEffect(() => {
+    if (!uuid) {
+      sellerShopLocationService
+        .getAll()
+        .then((res) => setShopLocations(res.data || []));
+    }
+  }, [uuid]);
 
   const onFinish = (values) => {
     const body = {
@@ -43,6 +59,7 @@ const UserForm = ({ form, handleSubmit }) => {
       images: [image?.[0]?.name],
       shop_id: [myShop?.id],
       role: 'master',
+      ...(!uuid && locationId ? { shop_location_id: locationId } : {}),
     };
     const nextUrl = 'seller/invitations/masters';
 
@@ -221,6 +238,15 @@ const UserForm = ({ form, handleSubmit }) => {
               </Form.Item>
             </Col>
           </>
+        )}
+        {!uuid && shopLocations?.length > 0 && (
+          <Col span={12}>
+            <BranchSelect
+              shopLocations={shopLocations}
+              value={locationId}
+              onChange={setLocationId}
+            />
+          </Col>
         )}
       </Row>
       <Space wrap>
