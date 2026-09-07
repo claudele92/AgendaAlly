@@ -195,8 +195,12 @@ class UserSeeder extends Seeder
             'longitude'         => 69.3453324,
             'phone'             => '+1234566',
             'open'              => 1,
-            'background_img'    => 'url.webp',
-            'logo_img'          => 'url.webp',
+            // Placeholder demo imagery (placehold.co, brand teal) — the
+            // old 'url.webp' value wasn't a resolvable path at all, so it
+            // rendered as a broken image everywhere background_img/logo_img
+            // are shown (My Shop, seller header, superadmin Shops list).
+            'background_img'    => 'https://placehold.co/1200x400/1d9e75/ffffff?text=Demo+Shop+Banner',
+            'logo_img'          => 'https://placehold.co/400x400/1d9e75/ffffff?text=Demo+Shop+Logo',
             'status'            => 'approved',
             'status_note'       => 'approved',
             'delivery_time'     => [
