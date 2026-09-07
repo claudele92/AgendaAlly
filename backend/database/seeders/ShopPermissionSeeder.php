@@ -18,6 +18,7 @@ class ShopPermissionSeeder extends Seeder
             ['key' => 'bookings.manage',        'group' => 'bookings', 'label' => 'Create and edit bookings'],
             ['key' => 'bookings.status',        'group' => 'bookings', 'label' => 'Change booking status (accept/cancel)'],
             ['key' => 'bookings.availability',  'group' => 'bookings', 'label' => 'Manage master availability and working hours'],
+            ['key' => 'bookings.view_all_branches', 'group' => 'bookings', 'label' => 'View bookings across all branches, not just an assigned one'],
 
             // Payments — payouts, gateway credentials, transactions, refunds
             ['key' => 'payments.view',              'group' => 'payments', 'label' => 'View transactions and payout history'],

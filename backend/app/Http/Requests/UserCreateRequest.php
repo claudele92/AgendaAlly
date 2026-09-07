@@ -34,6 +34,18 @@ class UserCreateRequest extends BaseRequest
                     auth('sanctum')->user()?->shop?->id ?? auth('sanctum')->user()?->moderatorShop?->id
                 ),
             ],
+            // Same optional, organizational-only branch assignment as
+            // Invitation\SellerRequest — this request creates the master's
+            // invitation inline too (see UserService::create()), so it
+            // needs the identical rule to actually persist one.
+            'shop_location_id'                => [
+                'nullable',
+                'integer',
+                Rule::exists('shop_locations', 'id')->where(
+                    'shop_id',
+                    auth('sanctum')->user()?->shop?->id ?? auth('sanctum')->user()?->moderatorShop?->id
+                ),
+            ],
             'lastname'                        => ['string'],
             'birthday'                        => ['date_format:Y-m-d'],
             'firebase_token'                  => ['string'],

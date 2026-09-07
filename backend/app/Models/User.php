@@ -271,6 +271,42 @@ class User extends Authenticatable implements MustVerifyEmail
         return (bool) $invitation?->shopRole?->hasPermission($permissionKey);
     }
 
+    /**
+     * Whether this user's view of $shopId's bookings is restricted to a
+     * single branch, and if so, which one — see Seller\BookingController.
+     *
+     * Unrestricted (['unrestricted' => true]) for the shop owner (the same
+     * structural exception hasShopPermission() uses) or anyone whose
+     * accepted invitation's shopRole grants bookings.view_all_branches.
+     *
+     * Otherwise restricted to this user's own shop_location_id — which can
+     * itself be null (no branch assigned yet). That's intentional, not a
+     * bug: fail-closed, not fail-open. A viewer with no branch and no
+     * all-branches permission sees no bookings at all, rather than
+     * silently seeing every branch's.
+     *
+     * @return array{unrestricted: bool, location_id: int|null}
+     */
+    public function bookingBranchScope(int $shopId): array
+    {
+        if ($this->shop?->id === $shopId) {
+            return ['unrestricted' => true, 'location_id' => null];
+        }
+
+        $invitation = $this->invitations()
+            ->where('shop_id', $shopId)
+            ->where('status', Invitation::ACCEPTED)
+            ->whereNotNull('shop_role_id')
+            ->with('shopRole.permissions')
+            ->first();
+
+        if ($invitation?->shopRole?->hasPermission('bookings.view_all_branches')) {
+            return ['unrestricted' => true, 'location_id' => null];
+        }
+
+        return ['unrestricted' => false, 'location_id' => $invitation?->shop_location_id];
+    }
+
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class, 'user_id');

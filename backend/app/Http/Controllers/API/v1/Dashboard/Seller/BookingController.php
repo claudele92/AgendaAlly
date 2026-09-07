@@ -13,6 +13,7 @@ use App\Http\Requests\FilterParamsRequest;
 use App\Http\Requests\Booking\AdminStoreRequest;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
+use App\Models\Invitation;
 use App\Repositories\BookingRepository\BookingRepository;
 use App\Services\BookingService\BookingService;
 use App\Traits\Notification;
@@ -37,7 +38,9 @@ class BookingController extends SellerBaseController
      */
     public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
-        $models = $this->repository->paginate($request->merge(['shop_id' => $this->shop->id])->all());
+        $filter = $this->applyBranchScope($request->merge(['shop_id' => $this->shop->id])->all());
+
+        $models = $this->repository->paginate($filter);
 
         return BookingResource::collection($models);
     }
@@ -93,7 +96,7 @@ class BookingController extends SellerBaseController
      */
     public function show(Booking $booking): JsonResponse
     {
-        if ($booking->shop_id !== $this->shop->id) {
+        if ($booking->shop_id !== $this->shop->id || $this->bookingOutsideBranchScope($booking)) {
             return $this->onErrorResponse([
                 'status'  => false,
                 'message' => __('errors.' . ResponseError::ERROR_404, locale: $this->language),
@@ -116,7 +119,7 @@ class BookingController extends SellerBaseController
      */
     public function update(Booking $booking, AdminUpdateRequest $request): JsonResponse
     {
-        if ($booking->shop_id !== $this->shop->id) {
+        if ($booking->shop_id !== $this->shop->id || $this->bookingOutsideBranchScope($booking)) {
             return $this->onErrorResponse([
                 'status'  => false,
                 'message' => __('errors.' . ResponseError::ERROR_404, locale: $this->language),
@@ -145,6 +148,10 @@ class BookingController extends SellerBaseController
     public function bookingsByParent(int $id): JsonResponse
     {
         $bookings = $this->repository->bookingsByParentId($id, shopId: $this->shop->id);
+
+        $bookings = $bookings
+            ?->reject(fn (Booking $booking) => $this->bookingOutsideBranchScope($booking))
+            ?->values();
 
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
@@ -254,6 +261,59 @@ class BookingController extends SellerBaseController
             __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_DELETED, locale: $this->language),
             []
         );
+    }
+
+    /**
+     * Merges the viewing user's branch-visibility scope (see
+     * User::bookingBranchScope()) into a booking filter array, for the
+     * paginated index() listing. Unrestricted viewers get the filter back
+     * unchanged.
+     *
+     * @param array $filter
+     * @return array
+     */
+    private function applyBranchScope(array $filter): array
+    {
+        $scope = auth('sanctum')->user()->bookingBranchScope($this->shop->id);
+
+        if ($scope['unrestricted']) {
+            return $filter;
+        }
+
+        $filter['branch_scope_active']      = true;
+        $filter['branch_scope_location_id'] = $scope['location_id'];
+
+        return $filter;
+    }
+
+    /**
+     * Same restriction as applyBranchScope(), enforced against a single,
+     * already-resolved Booking — for show()/update()/bookingsByParent(),
+     * where the branch-scoped filter above never runs. Stops a branch-
+     * scoped viewer reaching a booking outside their branch by id, not
+     * just by listing.
+     *
+     * @param Booking $booking
+     * @return bool
+     */
+    private function bookingOutsideBranchScope(Booking $booking): bool
+    {
+        $scope = auth('sanctum')->user()->bookingBranchScope($this->shop->id);
+
+        if ($scope['unrestricted']) {
+            return false;
+        }
+
+        if ($scope['location_id'] === null) {
+            return true;
+        }
+
+        return !$booking->master
+            ?->invitations()
+            ->where('shop_id', $this->shop->id)
+            ->where('status', Invitation::ACCEPTED)
+            ->where('shop_location_id', $scope['location_id'])
+            ->exists();
     }
 
 }

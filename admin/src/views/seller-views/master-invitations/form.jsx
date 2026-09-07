@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import MastersWorkingAndClosedDays from './working-and-closed-days';
 import DisabledTimes from './disabled-times';
+import MasterBranch from './master-branch';
 
 const { TabPane } = Tabs;
 
@@ -24,6 +25,9 @@ const FormDeliveryman = ({ form, handleSubmit }) => {
           </TabPane>
           <TabPane key='disabled_times' tab={t('disabled.times')}>
             <DisabledTimes />
+          </TabPane>
+          <TabPane key='branch' tab={t('assign.to.branch')}>
+            <MasterBranch />
           </TabPane>
         </Tabs>
       )}
