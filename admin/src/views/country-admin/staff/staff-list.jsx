@@ -1,58 +1,65 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Alert, Button, Space, Table, Typography } from 'antd';
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  StopOutlined,
-} from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, StopOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
-import { Context } from '../../../context/context';
-import CustomModal from '../../../components/modal';
-import { addMenu, disableRefetch } from '../../../redux/slices/menu';
-import { fetchStaffInvites } from '../../../redux/slices/staffInvite';
-import { fetchShopRoles } from '../../../redux/slices/shopRole';
-import { fetchSellerShopLocations } from '../../../redux/slices/shop-locations';
-import staffInviteService from '../../../services/seller/staffInvite';
-import useDidUpdate from '../../../helpers/useDidUpdate';
-import { RoleBadge, StatusBadge } from '../../../components/staff/badges';
+import { Context } from 'context/context';
+import CustomModal from 'components/modal';
+import { disableRefetch } from 'redux/slices/menu';
+import countryInviteService from 'services/countryInvite';
+import countryRoleService from 'services/countryRole';
+import useDidUpdate from 'helpers/useDidUpdate';
+import { RoleBadge, StatusBadge } from 'components/staff/badges';
 import InviteModal from './invite-modal';
-import tableRowClasses from '../../../assets/scss/components/table-row.module.scss';
+import tableRowClasses from 'assets/scss/components/table-row.module.scss';
 
-export default function StaffList() {
+// countryId is only ever set for a superadmin (see index.jsx) — a
+// restricted country-admin's requests are auto-scoped server-side.
+// There is no "edit staff" action here (unlike the seller side): the
+// backend has no endpoint to change an existing invite's role, only
+// create/list/change-status/delete — see CountryInviteController.
+export default function StaffList({ countryId }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { setIsModalVisible } = useContext(Context);
   const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
-  const { staffInvites, meta, loading, params } = useSelector(
-    (state) => state.staffInvite,
-    shallowEqual,
-  );
-  const { shopRoles } = useSelector((state) => state.shopRole, shallowEqual);
-  const { locations: shopLocations } = useSelector(
-    (state) => state.shopLocations,
-    shallowEqual,
-  );
 
+  const [invites, setInvites] = useState([]);
+  const [meta, setMeta] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [countryRoles, setCountryRoles] = useState([]);
   const [id, setId] = useState(null);
   const [action, setAction] = useState(null); // 'cancel' | 'remove'
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
 
+  const fetchInvites = () => {
+    setLoading(true);
+    countryInviteService
+      .getAll(countryId ? { country_id: countryId } : {})
+      .then((res) => {
+        setInvites(res.data);
+        setMeta(res.meta || {});
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const fetchRoles = () => {
+    countryRoleService
+      .getAll(countryId ? { country_id: countryId } : {})
+      .then((res) => setCountryRoles(res.data));
+  };
+
   useEffect(() => {
-    dispatch(fetchStaffInvites());
-    dispatch(fetchShopRoles());
-    dispatch(fetchSellerShopLocations());
+    fetchInvites();
+    fetchRoles();
     // eslint-disable-next-line
-  }, []);
+  }, [countryId]);
 
   useDidUpdate(() => {
     if (activeMenu.refetch) {
-      dispatch(fetchStaffInvites());
+      fetchInvites();
       dispatch(disableRefetch(activeMenu));
     }
   }, [activeMenu.refetch]);
@@ -62,29 +69,25 @@ export default function StaffList() {
       ? t('are.you.sure.cancel.invite')
       : t('are.you.sure.remove.staff');
 
-  const goToEdit = (row) => {
-    dispatch(
-      addMenu({
-        id: 'seller-staff-edit',
-        url: `seller/staff/edit/${row.id}`,
-        name: t('edit.staff'),
-      }),
-    );
-    navigate(`/seller/staff/edit/${row.id}`);
-  };
-
   const handleConfirm = () => {
     setLoadingBtn(true);
 
     const request =
       action === 'cancel'
-        ? staffInviteService.changeStatus(id, 'canceled')
-        : staffInviteService.delete({ 'ids[0]': id });
+        ? countryInviteService.changeStatus(
+            id,
+            'canceled',
+            countryId ? { country_id: countryId } : {},
+          )
+        : countryInviteService.delete({
+            'ids[0]': id,
+            ...(countryId ? { country_id: countryId } : {}),
+          });
 
     request
       .then(() => {
         toast.success(t('successfully.updated'));
-        dispatch(fetchStaffInvites());
+        fetchInvites();
         setIsModalVisible(false);
       })
       .finally(() => setLoadingBtn(false));
@@ -102,7 +105,7 @@ export default function StaffList() {
       title: t('role'),
       key: 'role',
       render: (_, row) =>
-        row.shop_role ? <RoleBadge name={row.shop_role.name} /> : '—',
+        row.country_role ? <RoleBadge name={row.country_role.name} /> : '—',
     },
     {
       title: t('status'),
@@ -115,16 +118,6 @@ export default function StaffList() {
       key: 'actions',
       render: (_, row) => (
         <div className={tableRowClasses.options}>
-          {(row.status === 'new' || row.status === 'accepted') && (
-            <button
-              type='button'
-              className={`${tableRowClasses.option} ${tableRowClasses.edit}`}
-              title={t('edit.staff')}
-              onClick={() => goToEdit(row)}
-            >
-              <EditOutlined />
-            </button>
-          )}
           {row.status === 'new' && (
             <button
               type='button'
@@ -169,23 +162,23 @@ export default function StaffList() {
         </Button>
       </Space>
 
-      {!shopRoles.length && (
+      {!countryRoles.length && (
         <Alert
           className='mb-3'
           type='info'
           showIcon
-          message={t('no.shop.roles.yet')}
+          message={t('no.country.roles.yet')}
           description={t('create.a.role.before.inviting.staff')}
         />
       )}
 
       <Table
         columns={columns}
-        dataSource={staffInvites}
+        dataSource={invites}
         loading={loading}
         rowKey={(record) => record.id}
         pagination={{
-          pageSize: params.perPage,
+          pageSize: meta.per_page,
           total: meta.total,
           current: meta.current_page,
         }}
@@ -202,10 +195,10 @@ export default function StaffList() {
 
       {inviteModalVisible && (
         <InviteModal
-          shopRoles={shopRoles}
-          shopLocations={shopLocations}
+          countryRoles={countryRoles}
+          countryId={countryId}
           handleCancel={() => setInviteModalVisible(false)}
-          onInvited={() => dispatch(fetchStaffInvites())}
+          onInvited={() => fetchInvites()}
         />
       )}
     </>

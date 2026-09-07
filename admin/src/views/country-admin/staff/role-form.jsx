@@ -4,12 +4,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Alert, Button, Card, Form, Input, Spin } from 'antd';
 import { toast } from 'react-toastify';
-import { removeFromMenu } from '../../../redux/slices/menu';
-import { fetchShopRoles } from '../../../redux/slices/shopRole';
-import shopRoleService from '../../../services/seller/shopRole';
-import PermissionPicker from '../../../components/staff/permission-picker';
+import { removeFromMenu } from 'redux/slices/menu';
+import countryRoleService from 'services/countryRole';
+import PermissionPicker from 'components/staff/permission-picker';
 
-export default function RoleForm({ isEdit }) {
+export default function RoleForm({ isEdit, countryId }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,10 +27,15 @@ export default function RoleForm({ isEdit }) {
     setLoading(true);
     setLoadError(null);
 
-    const requests = [shopRoleService.getPermissions()];
+    const requests = [countryRoleService.getPermissions()];
 
     if (isEdit) {
-      requests.push(shopRoleService.getById(id));
+      requests.push(
+        countryRoleService.getById(
+          id,
+          countryId ? { country_id: countryId } : {},
+        ),
+      );
     }
 
     Promise.all(requests)
@@ -62,14 +66,18 @@ export default function RoleForm({ isEdit }) {
       return;
     }
 
-    const body = { name: values.name, permission_ids: permissionIds };
-    const nextUrl = 'seller/staff';
+    const body = {
+      name: values.name,
+      permission_ids: permissionIds,
+      ...(countryId ? { country_id: countryId } : {}),
+    };
+    const nextUrl = 'country-admin/staff';
     setLoadingBtn(true);
     setError(null);
 
     const request = isEdit
-      ? shopRoleService.update(id, body)
-      : shopRoleService.create(body);
+      ? countryRoleService.update(id, body)
+      : countryRoleService.create(body);
 
     request
       .then(() => {
@@ -77,7 +85,6 @@ export default function RoleForm({ isEdit }) {
           t(isEdit ? 'successfully.updated' : 'successfully.created'),
         );
         dispatch(removeFromMenu({ ...activeMenu, nextUrl }));
-        dispatch(fetchShopRoles());
         navigate(`/${nextUrl}`);
       })
       .catch((err) => setError(err.response?.data?.params))

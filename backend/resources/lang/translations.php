@@ -3092,4 +3092,12 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'platform.payment.configs','value' => 'Platform payment configs'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.platform.payment.config','value' => 'Add platform payment config'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'edit.platform.payment.config','value' => 'Edit platform payment config'),
+
+  // Country-admin Staff screen (mirrors the seller Staff/Roles tabs)
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'country.roles.description','value' => 'Roles control what country staff can see and do.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.country.roles.yet','value' => 'No country roles yet'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'select.a.country.to.manage.its.staff','value' => 'Select a country to manage its staff'),
+  // Also used by the already-shipped seller Staff screen, which was
+  // missing this key.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'n/a','value' => 'N/A'),
 );

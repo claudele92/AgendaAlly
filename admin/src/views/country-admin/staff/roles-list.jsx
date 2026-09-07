@@ -5,36 +5,49 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Space, Table, Typography } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
-import { Context } from '../../../context/context';
-import CustomModal from '../../../components/modal';
-import { addMenu, disableRefetch } from '../../../redux/slices/menu';
-import { fetchShopRoles } from '../../../redux/slices/shopRole';
-import shopRoleService from '../../../services/seller/shopRole';
-import useDidUpdate from '../../../helpers/useDidUpdate';
-import { RoleBadge } from '../../../components/staff/badges';
-import tableRowClasses from '../../../assets/scss/components/table-row.module.scss';
+import { Context } from 'context/context';
+import CustomModal from 'components/modal';
+import { addMenu, disableRefetch } from 'redux/slices/menu';
+import countryRoleService from 'services/countryRole';
+import useDidUpdate from 'helpers/useDidUpdate';
+import { RoleBadge } from 'components/staff/badges';
+import tableRowClasses from 'assets/scss/components/table-row.module.scss';
 
-export default function RolesList() {
+// countryId is only ever set for a superadmin (picked via the country
+// selector on the parent Staff screen) — a restricted country-admin's
+// requests are auto-scoped server-side, so it stays undefined for them
+// and is simply omitted below.
+export default function RolesList({ countryId }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { setIsModalVisible } = useContext(Context);
   const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
-  const { shopRoles, meta, loading, params } = useSelector(
-    (state) => state.shopRole,
-    shallowEqual,
-  );
+  const [roles, setRoles] = useState([]);
+  const [meta, setMeta] = useState({});
+  const [loading, setLoading] = useState(false);
   const [id, setId] = useState(null);
   const [loadingBtn, setLoadingBtn] = useState(false);
 
+  const fetchRoles = () => {
+    setLoading(true);
+    countryRoleService
+      .getAll(countryId ? { country_id: countryId } : {})
+      .then((res) => {
+        setRoles(res.data);
+        setMeta(res.meta || {});
+      })
+      .finally(() => setLoading(false));
+  };
+
   useEffect(() => {
-    dispatch(fetchShopRoles());
+    fetchRoles();
     // eslint-disable-next-line
-  }, []);
+  }, [countryId]);
 
   useDidUpdate(() => {
     if (activeMenu.refetch) {
-      dispatch(fetchShopRoles());
+      fetchRoles();
       dispatch(disableRefetch(activeMenu));
     }
   }, [activeMenu.refetch]);
@@ -42,32 +55,34 @@ export default function RolesList() {
   const goToAdd = () => {
     dispatch(
       addMenu({
-        id: 'seller-staff-role-add',
-        url: 'seller/staff/roles/add',
+        id: 'country-staff-role-add',
+        url: 'country-admin/staff/roles/add',
         name: t('add.role'),
+        data: { country_id: countryId },
       }),
     );
-    navigate('/seller/staff/roles/add');
+    navigate('/country-admin/staff/roles/add');
   };
 
   const goToEdit = (row) => {
     dispatch(
       addMenu({
-        id: 'seller-staff-role-edit',
-        url: `seller/staff/roles/edit/${row.id}`,
+        id: 'country-staff-role-edit',
+        url: `country-admin/staff/roles/edit/${row.id}`,
         name: t('edit.role'),
+        data: { country_id: countryId },
       }),
     );
-    navigate(`/seller/staff/roles/edit/${row.id}`);
+    navigate(`/country-admin/staff/roles/edit/${row.id}`);
   };
 
   const handleDelete = () => {
     setLoadingBtn(true);
-    shopRoleService
-      .delete(id)
+    countryRoleService
+      .delete(id, countryId ? { country_id: countryId } : {})
       .then(() => {
         toast.success(t('successfully.deleted'));
-        dispatch(fetchShopRoles());
+        fetchRoles();
         setIsModalVisible(false);
       })
       .finally(() => setLoadingBtn(false));
@@ -122,18 +137,18 @@ export default function RolesList() {
   return (
     <>
       <Space className='align-items-center justify-content-between w-100 mb-3'>
-        <Typography.Text>{t('shop.roles.description')}</Typography.Text>
+        <Typography.Text>{t('country.roles.description')}</Typography.Text>
         <Button type='primary' icon={<PlusOutlined />} onClick={goToAdd}>
           {t('add.role')}
         </Button>
       </Space>
       <Table
         columns={columns}
-        dataSource={shopRoles}
+        dataSource={roles}
         loading={loading}
         rowKey={(record) => record.id}
         pagination={{
-          pageSize: params.perPage,
+          pageSize: meta.per_page,
           total: meta.total,
           current: meta.current_page,
         }}
@@ -143,10 +158,6 @@ export default function RolesList() {
         text={t('are.you.sure.delete.role')}
         loading={loadingBtn}
         setText={setId}
-        // CustomModal's Cancel button unconditionally calls setActive(null)
-        // and setVerify(null) even when unused by the caller — pass no-ops
-        // so cancelling this modal doesn't throw. Pre-existing behavior in
-        // the shared component, not something to fix here.
         setActive={() => {}}
         setVerify={() => {}}
       />
