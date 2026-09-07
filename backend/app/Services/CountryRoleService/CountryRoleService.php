@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Services\CountryRoleService;
 
 use App\Helpers\ResponseError;
+use App\Models\Country;
+use App\Models\CountryPermission;
 use App\Models\CountryRole;
 use App\Services\CoreService;
+use App\Support\DefaultCountryRoles;
 use Throwable;
 
 final class CountryRoleService extends CoreService
@@ -14,6 +17,29 @@ final class CountryRoleService extends CoreService
     protected function getModelClass(): string
     {
         return CountryRole::class;
+    }
+
+    /**
+     * Gives a country the standard set of country_roles every country gets
+     * (see DefaultCountryRoles) — called from CountryObserver::created()
+     * for new countries, and from CountryRoleDefaultsBackfiller for
+     * existing ones. updateOrCreate + sync, so safe to call more than once
+     * against the same country.
+     */
+    public function seedDefaultRoles(Country $country): void
+    {
+        foreach (DefaultCountryRoles::DEFINITIONS as $definition) {
+            $permissionIds = $definition['permissions'] === 'all'
+                ? CountryPermission::pluck('id')
+                : CountryPermission::whereIn('key', $definition['permissions'])->pluck('id');
+
+            $role = CountryRole::updateOrCreate([
+                'country_id' => $country->id,
+                'name'       => $definition['name'],
+            ]);
+
+            $role->permissions()->sync($permissionIds);
+        }
     }
 
     public function create(int $countryId, array $data): array

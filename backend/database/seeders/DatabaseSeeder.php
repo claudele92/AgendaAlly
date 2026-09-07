@@ -9,6 +9,7 @@ use App\Models\CountryTranslation;
 use App\Models\Region;
 use App\Models\RegionTranslation;
 use Database\Seeders\Support\CountryDefaultsBackfiller;
+use Database\Seeders\Support\CountryRoleDefaultsBackfiller;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -49,6 +50,10 @@ class DatabaseSeeder extends Seeder
         // the permission catalogs from ShopPermissionSeeder/CountryPermissionSeeder.
         $this->call(DemoStaffRolesSeeder::class);
 
+        // A real demo staff member (Invitation) exercising a shop_role +
+        // shop_location together — needs both of the above.
+        $this->call(DemoStaffInvitationSeeder::class);
+
         // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
         // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
         // already exist, so it can't live inside SubscriptionSeeder::run()
@@ -64,6 +69,13 @@ class DatabaseSeeder extends Seeder
         // no-op against anything already backfilled (e.g. a real deploy's
         // `php artisan migrate`, where the migration already found data).
         CountryDefaultsBackfiller::run();
+
+        // Same reasoning, for the default country_roles backfill — a no-op
+        // in practice here since DemoAfricaSeeder's Country::create() calls
+        // already triggered CountryObserver::created() for both demo
+        // countries; kept for symmetry and as a safety net (see
+        // CountryRoleDefaultsBackfiller's own docblock).
+        CountryRoleDefaultsBackfiller::run();
 
 //        if (app()->environment() == 'local') {
 //            Category::factory()->hasTranslations(1)->count(10)->create();

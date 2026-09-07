@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Country;
 use App\Models\CountryPermission;
 use App\Models\CountryRole;
 use App\Models\Shop;
@@ -15,14 +14,15 @@ use Illuminate\Database\Seeder;
 use Throwable;
 
 /**
- * Demo staff roles for the seeded Cameroon shop (see DemoAfricaSeeder/
- * UserSeeder) and for Cameroon itself, covering common seller- and
- * country-side job functions on top of the custom shop_roles/country_roles
- * systems (see ShopPermissionSeeder/CountryPermissionSeeder for the full
- * permission catalogs these draw from).
+ * Demo shop_roles for the seeded Cameroon shop (see DemoAfricaSeeder/
+ * UserSeeder), covering common seller-side job functions, plus the one
+ * country_role that isn't per-country (Main Accountant — see below). The
+ * 3 per-country default roles (Country Manager, Country Accountant,
+ * Support/Customer Service) are NOT seeded here; CountryObserver::created()
+ * already gives every country those automatically (see DefaultCountryRoles).
  *
- * Runs after DemoAfricaSeeder (needs the shop and Cameroon to exist) and
- * after ShopPermissionSeeder/CountryPermissionSeeder (needs the permission
+ * Runs after DemoAfricaSeeder (needs the shop to exist) and after
+ * ShopPermissionSeeder/CountryPermissionSeeder (needs the permission
  * catalogs seeded). Every write is an updateOrCreate/sync, so this is safe
  * to run more than once.
  */
@@ -55,17 +55,14 @@ class DemoStaffRolesSeeder extends Seeder
                 ]);
             }
 
-            $cameroon = Country::whereHas('translation', fn($q) => $q->where('title', 'Cameroon'))->first();
-
-            if ($cameroon) {
-                $this->seedCountryRole($cameroon->id, 'Country Manager', CountryPermission::pluck('key')->all());
-                $this->seedCountryRole($cameroon->id, 'Country Accountant', [
-                    'transactions.view', 'reports.view',
-                ]);
-                $this->seedCountryRole($cameroon->id, 'Support/Customer Service', [
-                    'bookings.view', 'orders.view', 'tickets.view', 'tickets.manage', 'vendors.view',
-                ]);
-            }
+            // Country Manager/Country Accountant/Support/Customer Service
+            // are NOT seeded here for Cameroon — CountryObserver::created()
+            // already gives every new country those 3 roles automatically
+            // (see DefaultCountryRoles), and DemoAfricaSeeder creates
+            // Cameroon via Country::create() earlier in DatabaseSeeder, so
+            // they already exist by the time this seeder runs. Seeding them
+            // again here would just be a second, driftable copy of the same
+            // definitions.
 
             // Platform-wide, not scoped to any one country — see the
             // 2026_09_07_030000 migration making country_id nullable.
