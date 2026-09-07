@@ -30,11 +30,10 @@ import MediaUpload from 'components/upload';
 // PaymentPayload-backed services (RazorPayService, FlutterWaveService,
 // IyzicoService, MaksekeskusService, MercadoPagoService, MollieService,
 // MoyasarService, PayFastService, PayPalService, PayStackService,
-// PayTabsService, StripeService, ZainCashService). Orange/MTN don't use
-// PaymentPayload at all (their config is ShopPayment/PlatformPaymentConfig
-// — see the seller/platform payment screens), and PayU does read
-// PaymentPayload but has no field set here yet — both excluded so picking
-// them can't land on a screen with nothing to fill in.
+// PayTabsService, PayuService, StripeService, ZainCashService). Orange/MTN
+// don't use PaymentPayload at all (their config is
+// ShopPayment/PlatformPaymentConfig — see the seller/platform payment
+// screens), so they're excluded here.
 const SUPPORTED_TAGS = [
   'paystack',
   'paypal',
@@ -49,6 +48,7 @@ const SUPPORTED_TAGS = [
   'maksekeskus',
   'iyzico',
   'pay-fast',
+  'payu',
 ];
 
 export default function PaymentPayloadAdd() {
@@ -234,6 +234,12 @@ export default function PaymentPayloadAdd() {
         break;
       }
       case 'Pay-fast': {
+        form.setFieldsValue({
+          sandbox: true,
+        });
+        break;
+      }
+      case 'Payu': {
         form.setFieldsValue({
           sandbox: true,
         });
@@ -1071,6 +1077,45 @@ export default function PaymentPayloadAdd() {
                     <Form.Item
                       label={t('pass.phrase')}
                       name='pass_phrase'
+                      rules={[{ required: true, message: t('required') }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label={t('sandbox')}
+                      name='sandbox'
+                      valuePropName='checked'
+                    >
+                      <Switch />
+                    </Form.Item>
+                  </Col>
+                </>
+              ) : activePayment?.label === 'Payu' ? (
+                <>
+                  <Col span={12}>
+                    <Form.Item
+                      label={t('client.id')}
+                      name='client_id'
+                      rules={[{ required: true, message: t('required') }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label={t('client.secret')}
+                      name='client_secret'
+                      rules={[{ required: true, message: t('required') }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label={t('merchant.id')}
+                      name='merchant_id'
                       rules={[{ required: true, message: t('required') }]}
                     >
                       <Input />

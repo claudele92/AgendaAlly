@@ -3110,4 +3110,7 @@ return array(
 
   // Credential re-entry-on-edit UX pass (ShopPayment + PlatformPaymentConfig)
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'leave.blank.to.keep.current.value','value' => 'Leave blank to keep the current value'),
+
+  // PayU field set on the Payment Payloads screen
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'client.secret','value' => 'Client secret'),
 );
