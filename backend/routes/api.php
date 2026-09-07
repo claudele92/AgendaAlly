@@ -301,10 +301,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
         Route::apiResource('likes',   LikeController::class);
 
         // Notifications
+        Route::delete('notifications/delete-all',   [PushNotificationController::class, 'deleteAll']);
         Route::apiResource('notifications', PushNotificationController::class)->only(['index', 'show', 'destroy']);
         Route::post('notifications/{id}/read-at',   [PushNotificationController::class, 'readAt']);
         Route::post('notifications/read-all',       [PushNotificationController::class, 'readAll']);
-        Route::delete('notifications/delete-all',   [PushNotificationController::class, 'deleteAll']);
 
         // USER BLOCK
         Route::group(['prefix' => 'user', 'middleware' => ['sanctum.check'], 'as' => 'user.'], function () {
@@ -451,22 +451,23 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::apiResource('services', Master\ServiceController::class)->only(['index', 'show']);
 
             /* Service Master */
-            Route::apiResource('service-masters', Master\ServiceMasterController::class);
             Route::delete('service-masters/delete', [Master\ServiceMasterController::class, 'destroy']);
+            Route::apiResource('service-masters', Master\ServiceMasterController::class);
 
             /* Service Master Notifications */
-            Route::apiResource('service-master-notifications', Master\ServiceMasterNotificationController::class);
             Route::delete('service-master-notifications/delete', [Master\ServiceMasterNotificationController::class, 'destroy']);
+            Route::apiResource('service-master-notifications', Master\ServiceMasterNotificationController::class);
 
             /* Master Closed Days */
-            Route::apiResource('master-closed-dates', Master\MasterClosedDateController::class);
             Route::delete('master-closed-dates/delete', [Master\MasterClosedDateController::class, 'destroy']);
+            Route::apiResource('master-closed-dates', Master\MasterClosedDateController::class);
 
             /* Master Disabled Times */
-            Route::apiResource('master-disabled-times', Master\MasterDisabledTimeController::class);
             Route::delete('master-disabled-times/delete', [Master\MasterDisabledTimeController::class, 'destroy']);
+            Route::apiResource('master-disabled-times', Master\MasterDisabledTimeController::class);
 
             /* Bookings */
+            Route::delete('bookings/delete',            [Master\BookingController::class, 'destroy']);
             Route::apiResource('bookings',    Master\BookingController::class);
             Route::get('bookings/{id}/get-all',         [Master\BookingController::class, 'bookingsByParent']);
             Route::post('bookings/{id}/status/update',  [Master\BookingController::class, 'statusUpdate']);
@@ -474,7 +475,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('bookings/{id}/times/update',   [Master\BookingController::class, 'timesUpdate']);
             Route::post('bookings/{id}/extra-time',     [Master\BookingController::class, 'extraTime']);
             Route::post('bookings/calculate',           [Master\BookingController::class, 'calculate']);
-            Route::delete('bookings/delete',            [Master\BookingController::class, 'destroy']);
 
             /* Bookings report */
             Route::apiResource('users',       Master\UserController::class)->only(['index', 'show']);
@@ -484,12 +484,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('galleries', [Master\GalleryController::class, 'store']);
 
             /* User Working Days */
-            Route::apiResource('user-working-days', Master\UserWorkingDayController::class);
             Route::delete('user-working-days/delete', [Master\UserWorkingDayController::class, 'destroy']);
+            Route::apiResource('user-working-days', Master\UserWorkingDayController::class);
 
             /* Form-option */
-            Route::apiResource('form-options', Master\FormOptionController::class);
             Route::delete('form-options/delete', [Master\FormOptionController::class, 'destroy']);
+            Route::apiResource('form-options', Master\FormOptionController::class);
 
             Route::apiResource('auctions', User\AuctionController::class);
             Route::get('auction/{id}/questions', [User\AuctionController::class, 'questions']);
@@ -512,9 +512,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('order/{id}/attach/me',     [Deliveryman\OrderController::class, 'orderDeliverymanUpdate']);
 
             /* Payouts */
+            Route::delete('payouts/delete', [Deliveryman\PayoutsController::class, 'destroy']);
             Route::apiResource('payouts', Deliveryman\PayoutsController::class);
 
-            Route::delete('payouts/delete', [Deliveryman\PayoutsController::class, 'destroy']);
 
             /* Report Orders */
             Route::get('order/report', [Deliveryman\OrderReportController::class, 'report']);
@@ -561,20 +561,20 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             /* Extras Group & Value */
             Route::get('extra/groups/types',        [Seller\ExtraGroupController::class, 'typesList']);
 
-            Route::apiResource('extra/groups', Seller\ExtraGroupController::class);
             Route::delete('extra/groups/delete',    [Seller\ExtraGroupController::class, 'destroy']);
+            Route::apiResource('extra/groups', Seller\ExtraGroupController::class);
 
-            Route::apiResource('extra/values', Seller\ExtraValueController::class);
             Route::delete('extra/values/delete',    [Seller\ExtraValueController::class, 'destroy']);
+            Route::apiResource('extra/values', Seller\ExtraValueController::class);
 
             /* Property Group & Value */
             Route::get('property/groups/types',     [Seller\PropertyGroupController::class, 'typeList']);
 
-            Route::apiResource('property/groups', Seller\PropertyGroupController::class);
             Route::delete('property/groups/delete', [Seller\PropertyGroupController::class, 'destroy']);
+            Route::apiResource('property/groups', Seller\PropertyGroupController::class);
 
-            Route::apiResource('property/values', Seller\PropertyValueController::class);
             Route::delete('property/values/delete', [Seller\PropertyValueController::class, 'destroy']);
+            Route::apiResource('property/values', Seller\PropertyValueController::class);
 
             /* Units */
             Route::get('units/paginate',            [Seller\UnitController::class, 'paginate']);
@@ -586,12 +586,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('shops/working/status',     [Seller\ShopController::class, 'setWorkingStatus']);
 
             /* Shop Socials */
-            Route::apiResource('shop-socials',Seller\ShopSocialController::class);
             Route::delete('shop-socials/delete',    [Seller\ShopSocialController::class, 'destroy']);
+            Route::apiResource('shop-socials',Seller\ShopSocialController::class);
 
             /* Shop Locations */
-            Route::apiResource('shop-locations', Seller\ShopLocationController::class);
             Route::delete('shop-locations/delete',  [Seller\ShopLocationController::class, 'destroy']);
+            Route::apiResource('shop-locations', Seller\ShopLocationController::class);
 
             /* Categories */
             Route::get('categories/export',                 [Seller\CategoryController::class, 'fileExport']);
@@ -601,8 +601,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('categories/select-paginate',        [Seller\CategoryController::class, 'selectPaginate']);
             Route::get('my-categories/select-paginate',     [Seller\CategoryController::class, 'mySelectPaginate']);
             Route::post('categories/import',                [Seller\CategoryController::class, 'fileImport']);
-            Route::apiResource('categories',       Seller\CategoryController::class);
             Route::delete('categories/delete',              [Seller\CategoryController::class, 'destroy']);
+            Route::apiResource('categories',       Seller\CategoryController::class);
             Route::post('categories/{uuid}/active',         [Seller\CategoryController::class, 'changeActive']);
 
             Route::get('brands/export',                     [Seller\BrandController::class, 'fileExport']);
@@ -647,8 +647,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
 
             /* User Working Days */
             Route::middleware('shop.permission:bookings.availability')->group(function () {
-                Route::apiResource('user-working-days', Seller\UserWorkingDayController::class);
                 Route::delete('user-working-days/delete',   [Seller\UserWorkingDayController::class, 'destroy']);
+                Route::apiResource('user-working-days', Seller\UserWorkingDayController::class);
             });
 
             /* Seller Invite */
@@ -696,8 +696,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('order/{id}/deliveryman',     [Seller\OrderController::class, 'orderDeliverymanUpdate']);
             Route::post('order/{id}/status',          [Seller\OrderController::class, 'orderStatusUpdate']);
             Route::post('order/{id}/tracking',        [Seller\OrderController::class, 'orderTrackingUpdate']);
-            Route::apiResource('orders',    Seller\OrderController::class)->except('index');
             Route::delete('orders/delete',            [Seller\OrderController::class, 'destroy']);
+            Route::apiResource('orders',    Seller\OrderController::class)->except('index');
 
             /* Transaction */
             Route::middleware('shop.permission:payments.view')->group(function () {
@@ -713,19 +713,19 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('ai-translation/chart', [Seller\AITranslationController::class, 'chart']);
 
             /* Bonuses */
+            Route::delete('bonuses/delete',     [Seller\BonusController::class, 'destroy']);
             Route::apiResource('bonuses',     Seller\BonusController::class);
             Route::post('bonuses/status/{id}',  [Seller\BonusController::class, 'statusChange']);
-            Route::delete('bonuses/delete',     [Seller\BonusController::class, 'destroy']);
 
             /* Stories */
             Route::post('stories/upload',       [Seller\StoryController::class, 'uploadFiles']);
 
-            Route::apiResource('stories',     Seller\StoryController::class);
             Route::delete('stories/delete',     [Seller\StoryController::class, 'destroy']);
+            Route::apiResource('stories',     Seller\StoryController::class);
 
             /* Tags */
-            Route::apiResource('tags',        Seller\TagController::class);
             Route::delete('tags/delete',        [Seller\TagController::class, 'destroy']);
+            Route::apiResource('tags',        Seller\TagController::class);
             Route::get('shop-tags/paginate',    [Seller\TagController::class, 'shopTagsPaginate']);
 
             /* Payments */
@@ -760,14 +760,14 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             });
 
             /* Shop Working Days */
+            Route::delete('shop-working-days/delete', [Seller\ShopWorkingDayController::class, 'destroy']);
             Route::apiResource('shop-working-days', Seller\ShopWorkingDayController::class)
                 ->except('store');
-            Route::delete('shop-working-days/delete', [Seller\ShopWorkingDayController::class, 'destroy']);
 
             /* Shop Closed Days */
+            Route::delete('shop-closed-dates/delete', [Seller\ShopClosedDateController::class, 'destroy']);
             Route::apiResource('shop-closed-dates', Seller\ShopClosedDateController::class)
                 ->except('store');
-            Route::delete('shop-closed-dates/delete', [Seller\ShopClosedDateController::class, 'destroy']);
 
             /* Payouts */
             Route::middleware('shop.permission:payments.view')->group(function () {
@@ -777,8 +777,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::middleware('shop.permission:payments.payouts.manage')->group(function () {
                 Route::post('payouts',           [Seller\PayoutsController::class, 'store']);
                 Route::put('payouts/{payout}',   [Seller\PayoutsController::class, 'update']);
-                Route::delete('payouts/{payout}', [Seller\PayoutsController::class, 'destroy']);
                 Route::delete('payouts/delete',  [Seller\PayoutsController::class, 'destroy']);
+                Route::delete('payouts/{payout}', [Seller\PayoutsController::class, 'destroy']);
             });
 
             /* Report Orders */
@@ -794,13 +794,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::apiResource('galleries',Seller\ShopGalleriesController::class)->except('show');
 
             /* Shop Deliveryman Setting */
-            Route::apiResource('shop-deliveryman-settings',Seller\ShopDeliverymanSettingController::class);
             Route::delete('shop-deliveryman-settings/delete',        [Seller\ShopDeliverymanSettingController::class, 'destroy']);
+            Route::apiResource('shop-deliveryman-settings',Seller\ShopDeliverymanSettingController::class);
 
             /* Digital File */
+            Route::delete('digital-files/delete',  [Seller\DigitalFileController::class, 'destroy']);
             Route::apiResource('digital-files',   Seller\DigitalFileController::class);
             Route::get('digital-file/{id}/active', [Seller\DigitalFileController::class, 'changeActive']);
-            Route::delete('digital-files/delete',  [Seller\DigitalFileController::class, 'destroy']);
 
             /* AdsPackage */
             Route::apiResource('ads-packages', Seller\AdsPackageController::class)
@@ -809,38 +809,38 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::apiResource('shop-ads-packages', Seller\ShopAdsPackageController::class);
 
             /* RequestModel */
-            Route::apiResource('request-models', Seller\RequestModelController::class);
             Route::delete('request-models/delete',        [Seller\RequestModelController::class, 'destroy']);
+            Route::apiResource('request-models', Seller\RequestModelController::class);
 
             Route::apiResource('payment-to-partners', Seller\PaymentToPartnerController::class)
                 ->only(['index', 'show']);
 
             /* Service */
+            Route::delete('services/delete',    [Seller\ServiceController::class, 'destroy']);
             Route::apiResource('services',    Seller\ServiceController::class);
             Route::post('services/{id}/extras',   [Seller\ServiceController::class, 'extrasUpdate']);
             Route::post('services/{id}/faqs',     [Seller\ServiceController::class, 'faqsUpdate']);
-            Route::delete('services/delete',    [Seller\ServiceController::class, 'destroy']);
 
             /* Service FAQ */
             Route::post('service-faqs/{id}/active/status',  [Seller\ServiceFaqController::class, 'setActiveStatus']);
-            Route::apiResource('service-faqs',          Seller\ServiceFaqController::class);
             Route::delete('service-faqs/delete',            [Seller\ServiceController::class, 'destroy']);
+            Route::apiResource('service-faqs',          Seller\ServiceFaqController::class);
 
             /* Service Master */
-            Route::apiResource('service-masters', Seller\ServiceMasterController::class);
             Route::delete('service-masters/delete', [Seller\ServiceMasterController::class, 'destroy']);
+            Route::apiResource('service-masters', Seller\ServiceMasterController::class);
 
             /* Service Master Notifications */
-            Route::apiResource('service-master-notifications', Seller\ServiceMasterNotificationController::class);
             Route::delete('service-master-notifications/delete', [Seller\ServiceMasterNotificationController::class, 'destroy']);
+            Route::apiResource('service-master-notifications', Seller\ServiceMasterNotificationController::class);
 
             /* Master Disabled Times */
-            Route::apiResource('master-closed-dates', Seller\MasterClosedDateController::class);
             Route::delete('master-closed-dates/delete', [Seller\MasterClosedDateController::class, 'destroy']);
+            Route::apiResource('master-closed-dates', Seller\MasterClosedDateController::class);
 
             /* Master Disabled Times */
-            Route::apiResource('master-disabled-times', Seller\MasterDisabledTimeController::class);
             Route::delete('master-disabled-times/delete', [Seller\MasterDisabledTimeController::class, 'destroy']);
+            Route::apiResource('master-disabled-times', Seller\MasterDisabledTimeController::class);
 
             /* Bookings */
             Route::middleware('shop.permission:bookings.view')->group(function () {
@@ -855,8 +855,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
                 Route::post('bookings/{id}/notes/update', [Seller\BookingController::class, 'notesUpdate']);
                 Route::post('bookings/{id}/times/update', [Seller\BookingController::class, 'timesUpdate']);
                 Route::post('bookings/{id}/extra-time',   [Seller\BookingController::class, 'extraTime']);
-                Route::delete('bookings/{booking}',       [Seller\BookingController::class, 'destroy']);
                 Route::delete('bookings/delete',          [Seller\BookingController::class, 'destroy']);
+                Route::delete('bookings/{booking}',       [Seller\BookingController::class, 'destroy']);
             });
             Route::middleware('shop.permission:bookings.status')->group(function () {
                 Route::post('bookings/{id}/status/update', [Seller\BookingController::class, 'statusUpdate']);
@@ -868,19 +868,19 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::apiResource('coupons', Seller\CouponController::class);
 
             /* Delivery prices */
-            Route::apiResource('delivery-prices', Seller\DeliveryPriceController::class);
             Route::delete('delivery-prices/delete', [Seller\DeliveryPriceController::class, 'destroy']);
+            Route::apiResource('delivery-prices', Seller\DeliveryPriceController::class);
 
             /* GiftCart */
-            Route::apiResource('gift-carts', Seller\GiftCartController::class);
             Route::delete('gift-carts/delete', [Seller\GiftCartController::class, 'destroy']);
+            Route::apiResource('gift-carts', Seller\GiftCartController::class);
 
             /* UserGiftCart */
             Route::apiResource('user-gift-carts', Seller\UserGiftCartController::class)->only(['index', 'show']);
 
             /* Memberships */
-            Route::apiResource('memberships', Seller\MemberShipController::class);
             Route::delete('memberships/delete', [Seller\MemberShipController::class, 'destroy']);
+            Route::apiResource('memberships', Seller\MemberShipController::class);
 
             /*User Membership */
             Route::apiResource('user-memberships', Seller\UserMemberShipController::class)->only(['index', 'show']);
@@ -890,22 +890,22 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::delete('service-extras/delete', [Seller\ServiceExtraController::class, 'destroy']);
 
             /* Form-option */
-            Route::apiResource('form-options', Seller\FormOptionController::class);
             Route::delete('form-options/delete', [Seller\FormOptionController::class, 'destroy']);
+            Route::apiResource('form-options', Seller\FormOptionController::class);
 
-            Route::apiResource('deliveryman-settings', Seller\DeliveryManSettingController::class);
             Route::delete('deliveryman-settings/delete',  [Seller\DeliveryManSettingController::class, 'destroy']);
+            Route::apiResource('deliveryman-settings', Seller\DeliveryManSettingController::class);
 
             /* User address */
             Route::apiResource('user-addresses', Seller\UserAddressController::class)->only(['index', 'store', 'show']);
 
             /* Auctions */
-            Route::apiResource('auctions', Seller\AuctionController::class);
             Route::delete('auctions/delete', [Seller\AuctionController::class, 'destroy']);
+            Route::apiResource('auctions', Seller\AuctionController::class);
 
             /* Auctions */
-            Route::apiResource('auction-questions', Seller\AuctionQuestionController::class);
             Route::delete('auction-questions/delete', [Seller\AuctionQuestionController::class, 'destroy']);
+            Route::apiResource('auction-questions', Seller\AuctionQuestionController::class);
         });
 
         // ADMIN BLOCK
@@ -949,8 +949,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
 
             /* Reviews */
             Route::get('reviews/paginate',          [Admin\ReviewController::class, 'paginate']);
-            Route::apiResource('reviews', Admin\ReviewController::class);
             Route::delete('reviews/delete',         [Admin\ReviewController::class, 'destroy']);
+            Route::apiResource('reviews', Admin\ReviewController::class);
             Route::get('reviews/drop/all',          [Admin\ReviewController::class, 'dropAll']);
 
             /* Galleries */
@@ -961,16 +961,16 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('languages/default/{id}',       [Admin\LanguageController::class, 'setDefaultLanguage']);
             Route::get('languages/active',              [Admin\LanguageController::class, 'getActiveLanguages']);
             Route::post('languages/{id}/image/delete',  [Admin\LanguageController::class, 'imageDelete']);
-            Route::apiResource('languages',   Admin\LanguageController::class);
             Route::delete('languages/delete',           [Admin\LanguageController::class, 'destroy']);
+            Route::apiResource('languages',   Admin\LanguageController::class);
             Route::get('languages/drop/all',            [Admin\LanguageController::class, 'dropAll']);
 
             /* Currencies */
             Route::get('currencies/default',            [Admin\CurrencyController::class, 'getDefaultCurrency']);
             Route::post('currencies/default/{id}',      [Admin\CurrencyController::class, 'setDefaultCurrency']);
             Route::get('currencies/active',             [Admin\CurrencyController::class, 'getActiveCurrencies']);
-            Route::apiResource('currencies',  Admin\CurrencyController::class);
             Route::delete('currencies/delete',          [Admin\CurrencyController::class, 'destroy']);
+            Route::apiResource('currencies',  Admin\CurrencyController::class);
             Route::get('currencies/drop/all',           [Admin\CurrencyController::class, 'dropAll']);
 
             /* Categories */
@@ -980,11 +980,11 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('categories/paginate',               [Admin\CategoryController::class, 'paginate']);
             Route::get('categories/select-paginate',        [Admin\CategoryController::class, 'selectPaginate']);
             Route::post('categories/import',                [Admin\CategoryController::class, 'fileImport']);
+            Route::delete('categories/delete',              [Admin\CategoryController::class, 'destroy']);
             Route::apiResource('categories',      Admin\CategoryController::class);
             Route::post('category-input/{uuid}',            [Admin\CategoryController::class, 'changeInput']);
             Route::post('categories/{uuid}/active',         [Admin\CategoryController::class, 'changeActive']);
             Route::post('categories/{uuid}/status',         [Admin\CategoryController::class, 'changeStatus']);
-            Route::delete('categories/delete',              [Admin\CategoryController::class, 'destroy']);
             Route::get('categories/drop/all',               [Admin\CategoryController::class, 'dropAll']);
 
             /* Brands */
@@ -992,20 +992,20 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('brands/import',            [Admin\BrandController::class, 'fileImport']);
             Route::get('brands/paginate',           [Admin\BrandController::class, 'paginate']);
             Route::get('brands/search',             [Admin\BrandController::class, 'brandsSearch']);
-            Route::apiResource('brands',  Admin\BrandController::class);
             Route::delete('brands/delete',          [Admin\BrandController::class, 'destroy']);
+            Route::apiResource('brands',  Admin\BrandController::class);
             Route::get('brands/drop/all',           [Admin\BrandController::class, 'dropAll']);
 
             /* Banner */
             Route::get('banners/paginate',          [Admin\BannerController::class, 'paginate']);
             Route::post('banners/active/{id}',      [Admin\BannerController::class, 'setActiveBanner']);
-            Route::apiResource('banners', Admin\BannerController::class);
             Route::delete('banners/delete',         [Admin\BannerController::class, 'destroy']);
+            Route::apiResource('banners', Admin\BannerController::class);
             Route::get('banners/drop/all',          [Admin\BannerController::class, 'dropAll']);
 
             /* LandingPage */
-            Route::apiResource('landing-pages',  Admin\LandingPageController::class);
             Route::delete('landing-pages/delete',   [Admin\LandingPageController::class, 'destroy']);
+            Route::apiResource('landing-pages',  Admin\LandingPageController::class);
             Route::get('landing-pages/drop/all',    [Admin\LandingPageController::class, 'dropAll']);
 
             /* Units */
@@ -1024,41 +1024,41 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             });
             Route::post('shops/{uuid}/image/delete',    [Admin\ShopController::class, 'imageDelete']);
             Route::post('shops/{uuid}/status/change',   [Admin\ShopController::class, 'statusChange']);
-            Route::apiResource('shops',       Admin\ShopController::class);
             Route::delete('shops/delete',               [Admin\ShopController::class, 'destroy']);
+            Route::apiResource('shops',       Admin\ShopController::class);
             Route::get('shops/drop/all',                [Admin\ShopController::class, 'dropAll']);
             Route::post('shops/working/status',         [Admin\ShopController::class, 'setWorkingStatus']);
             Route::post('shops/{uuid}/verify',          [Admin\ShopController::class, 'setVerify']);
 
             /* Shop Socials*/
-            Route::apiResource('shop-socials',Admin\ShopSocialController::class);
             Route::delete('shop-socials/delete',        [Admin\ShopSocialController::class, 'destroy']);
+            Route::apiResource('shop-socials',Admin\ShopSocialController::class);
             Route::get('shop-socials/drop/all',         [Admin\ShopSocialController::class, 'dropAll']);
 
             /* Shop Locations */
-            Route::apiResource('shop-locations', Admin\ShopLocationController::class);
             Route::delete('shop-locations/delete',          [Admin\ShopLocationController::class, 'destroy']);
+            Route::apiResource('shop-locations', Admin\ShopLocationController::class);
             Route::get('shop-locations/drop/all',           [Admin\ShopLocationController::class, 'dropAll']);
 
             /* Extras Group & Value */
             Route::get('extra/groups/types',            [Admin\ExtraGroupController::class, 'typesList']);
 
-            Route::apiResource('extra/groups', Admin\ExtraGroupController::class);
             Route::delete('extra/groups/delete',        [Admin\ExtraGroupController::class, 'destroy']);
+            Route::apiResource('extra/groups', Admin\ExtraGroupController::class);
             Route::get('extra/groups/drop/all',         [Admin\ExtraGroupController::class, 'dropAll']);
 
-            Route::apiResource('extra/values', Admin\ExtraValueController::class);
             Route::delete('extra/values/delete',        [Admin\ExtraValueController::class, 'destroy']);
+            Route::apiResource('extra/values', Admin\ExtraValueController::class);
             Route::get('extra/values/drop/all',         [Admin\ExtraValueController::class, 'dropAll']);
 
             /* Property Group & Value */
             Route::get('property/groups/types',         [Admin\PropertyGroupController::class, 'typeList']);
-            Route::apiResource('property/groups', Admin\PropertyGroupController::class);
             Route::delete('property/groups/delete',     [Admin\PropertyGroupController::class, 'destroy']);
+            Route::apiResource('property/groups', Admin\PropertyGroupController::class);
             Route::post('property/groups/{id}/active',  [Admin\PropertyGroupController::class, 'changeActive']);
 
-            Route::apiResource('property/values', Admin\PropertyValueController::class);
             Route::delete('property/values/delete',     [Admin\PropertyValueController::class, 'destroy']);
+            Route::apiResource('property/values', Admin\PropertyValueController::class);
             Route::post('property/values/{id}/active',  [Admin\PropertyValueController::class, 'changeActive']);
 
             /* Products */
@@ -1072,8 +1072,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('stocks/galleries',              [Admin\ProductController::class, 'stockGalleryUpdate']);
             Route::post('products/{uuid}/active',        [Admin\ProductController::class, 'setActive']);
             Route::post('products/{uuid}/status/change', [Admin\ProductController::class, 'setStatus']);
-            Route::apiResource('products',     Admin\ProductController::class);
             Route::delete('products/delete',             [Admin\ProductController::class, 'destroy']);
+            Route::apiResource('products',     Admin\ProductController::class);
             Route::get('products/drop/all',              [Admin\ProductController::class, 'dropAll']);
             Route::get('stocks/drop/all',                [Admin\ProductController::class, 'dropAllStocks']);
             Route::get('stocks/select-paginate',         [Admin\ProductController::class, 'selectStockPaginate']);
@@ -1087,8 +1087,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('order/products/calculate',       [Admin\OrderReportController::class, 'orderStocksCalculate']);
             Route::post('order/{id}/deliveryman',        [Admin\OrderController::class, 'orderDeliverymanUpdate']);
             Route::post('order/{id}/status',             [Admin\OrderController::class, 'orderStatusUpdate']);
-            Route::apiResource('orders',       Admin\OrderController::class);
             Route::delete('orders/delete',               [Admin\OrderController::class, 'destroy']);
+            Route::apiResource('orders',       Admin\OrderController::class);
             Route::get('orders/drop/all',                [Admin\OrderController::class, 'dropAll']);
             Route::get('user-orders/{id}',               [Admin\OrderController::class, 'userOrder']);
             Route::get('user-orders/{id}/paginate',      [Admin\OrderController::class, 'userOrders']);
@@ -1099,18 +1099,18 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('parcel-order/import',           [Admin\ParcelOrderController::class, 'fileImport']);
             Route::post('parcel-order/{id}/deliveryman', [Admin\ParcelOrderController::class, 'orderDeliverymanUpdate']);
             Route::post('parcel-order/{id}/status',      [Admin\ParcelOrderController::class, 'orderStatusUpdate']);
-            Route::apiResource('parcel-orders',       Admin\ParcelOrderController::class);
             Route::delete('parcel-orders/delete',        [Admin\ParcelOrderController::class, 'destroy']);
+            Route::apiResource('parcel-orders',       Admin\ParcelOrderController::class);
             Route::get('parcel-orders/drop/all',         [Admin\ParcelOrderController::class, 'dropAll']);
 
             /* Parcel Options */
-            Route::apiResource('parcel-options',    Admin\ParcelOptionController::class);
             Route::delete('parcel-options/delete',           [Admin\ParcelOptionController::class, 'destroy']);
+            Route::apiResource('parcel-options',    Admin\ParcelOptionController::class);
             Route::get('parcel-options/drop/all',            [Admin\ParcelOptionController::class, 'dropAll']);
 
             /* Parcel Order Setting */
-            Route::apiResource('parcel-order-settings',    Admin\ParcelOrderSettingController::class);
             Route::delete('parcel-order-settings/delete',    [Admin\ParcelOrderSettingController::class, 'destroy']);
+            Route::apiResource('parcel-order-settings',    Admin\ParcelOrderSettingController::class);
             Route::get('parcel-order-settings/drop/all',     [Admin\ParcelOrderSettingController::class, 'dropAll']);
 
             /* Users */
@@ -1123,12 +1123,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('users/{uuid}/active',          [Admin\UserController::class, 'setActive']);
             Route::post('users/{uuid}/password',        [Admin\UserController::class, 'passwordUpdate']);
             Route::get('users/{uuid}/login-as',         [Admin\UserController::class, 'loginAsUser']);
-            Route::apiResource('users',       Admin\UserController::class)->except(['index']);
             Route::delete('users/delete',               [Admin\UserController::class, 'destroy']);
+            Route::apiResource('users',       Admin\UserController::class)->except(['index']);
 
             /* User Working Days */
-            Route::apiResource('user-working-days', Admin\UserWorkingDayController::class);
             Route::delete('user-working-days/delete',   [Admin\UserWorkingDayController::class, 'destroy']);
+            Route::apiResource('user-working-days', Admin\UserWorkingDayController::class);
 
             Route::get('roles', Admin\RoleController::class);
 
@@ -1141,8 +1141,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             /* Point */
             Route::get('points/paginate',           [Admin\PointController::class, 'paginate']);
             Route::post('points/{id}/active',       [Admin\PointController::class, 'setActive']);
-            Route::apiResource('points',  Admin\PointController::class);
             Route::delete('points/delete',          [Admin\PointController::class, 'destroy']);
+            Route::apiResource('points',  Admin\PointController::class);
             Route::get('points/drop/all',           [Admin\PointController::class, 'dropAll']);
 
             /* Payments */
@@ -1154,8 +1154,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('translations/paginate',         [Admin\TranslationController::class, 'paginate']);
             Route::post('translations/import',          [Admin\TranslationController::class, 'import']);
             Route::get('translations/export',           [Admin\TranslationController::class, 'export']);
-            Route::apiResource('translations',Admin\TranslationController::class);
             Route::delete('translations/delete',        [Admin\TranslationController::class, 'destroy']);
+            Route::apiResource('translations',Admin\TranslationController::class);
             Route::get('translations/drop/all',         [Admin\TranslationController::class, 'dropAll']);
 
             /* Transaction */
@@ -1184,16 +1184,16 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             /* FAQS */
             Route::get('faqs/paginate',                 [Admin\FAQController::class, 'paginate']);
             Route::post('faqs/{uuid}/active/status',    [Admin\FAQController::class, 'setActiveStatus']);
-            Route::apiResource('faqs',                Admin\FAQController::class)->except('index');
             Route::delete('faqs/delete',                [Admin\FAQController::class, 'destroy']);
+            Route::apiResource('faqs',                Admin\FAQController::class)->except('index');
             Route::get('faqs/drop/all',                 [Admin\FAQController::class, 'dropAll']);
 
             /* Blogs */
             Route::get('blogs/paginate',                [Admin\BlogController::class, 'paginate']);
             Route::post('blogs/{uuid}/publish',         [Admin\BlogController::class, 'blogPublish']);
             Route::post('blogs/{uuid}/active/status',   [Admin\BlogController::class, 'setActiveStatus']);
-            Route::apiResource('blogs',               Admin\BlogController::class)->except('index');
             Route::delete('blogs/delete',               [Admin\BlogController::class, 'destroy']);
+            Route::apiResource('blogs',               Admin\BlogController::class)->except('index');
             Route::get('blogs/drop/all',                [Admin\BlogController::class, 'dropAll']);
 
             /* Settings */
@@ -1221,13 +1221,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('order-statuses/drop/all',       [Admin\OrderStatusController::class, 'dropAll']);
 
             /* Tags */
-            Route::apiResource('tags',                Admin\TagController::class);
             Route::delete('tags/delete',                [Admin\TagController::class, 'destroy']);
+            Route::apiResource('tags',                Admin\TagController::class);
             Route::get('tags/drop/all',                 [Admin\TagController::class, 'dropAll']);
 
             /* Email Setting */
-            Route::apiResource('email-settings',  Admin\EmailSettingController::class);
             Route::delete('email-settings/delete',          [Admin\EmailSettingController::class, 'destroy']);
+            Route::apiResource('email-settings',  Admin\EmailSettingController::class);
             Route::get('email-settings/set-active/{id}',    [Admin\EmailSettingController::class, 'setActive']);
             Route::get('email-settings/drop/all',           [Admin\EmailSettingController::class, 'dropAll']);
 
@@ -1246,8 +1246,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
 
             /* Email Templates */
             Route::get('email-templates/types',            [Admin\EmailTemplateController::class, 'types']);
-            Route::apiResource('email-templates',        Admin\EmailTemplateController::class);
             Route::delete('email-templates/delete',        [Admin\EmailTemplateController::class, 'destroy']);
+            Route::apiResource('email-templates',        Admin\EmailTemplateController::class);
             Route::get('email-templates/drop/all',         [Admin\EmailTemplateController::class, 'dropAll']);
 
             /* Order Refunds */
@@ -1258,41 +1258,41 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
 
             /* Shop Working Days */
             Route::get('shop-working-days/paginate',    [Admin\ShopWorkingDayController::class, 'paginate']);
-            Route::apiResource('shop-working-days',   Admin\ShopWorkingDayController::class)->except('index', 'store');
             Route::delete('shop-working-days/delete',   [Admin\ShopWorkingDayController::class, 'destroy']);
+            Route::apiResource('shop-working-days',   Admin\ShopWorkingDayController::class)->except('index', 'store');
 
             /* Shop Closed Days */
             Route::get('shop-closed-dates/paginate',    [Admin\ShopClosedDateController::class, 'paginate']);
 
+            Route::delete('shop-closed-dates/delete',   [Admin\ShopClosedDateController::class, 'destroy']);
             Route::apiResource('shop-closed-dates',   Admin\ShopClosedDateController::class)
                 ->except('index', 'store');
-            Route::delete('shop-closed-dates/delete',   [Admin\ShopClosedDateController::class, 'destroy']);
             Route::get('shop-closed-dates/drop/all',    [Admin\ShopClosedDateController::class, 'dropAll']);
 
             /* Notifications */
-            Route::apiResource('notifications',   Admin\NotificationController::class);
             Route::delete('notifications/delete',   [Admin\NotificationController::class, 'destroy']);
+            Route::apiResource('notifications',   Admin\NotificationController::class);
             Route::get('notifications/drop/all',    [Admin\NotificationController::class, 'dropAll']);
 
             /* Payouts */
+            Route::delete('payouts/delete',         [Admin\PayoutsController::class, 'destroy']);
             Route::apiResource('payouts',         Admin\PayoutsController::class);
             Route::post('payouts/{id}/status',      [Admin\PayoutsController::class, 'statusChange']);
-            Route::delete('payouts/delete',         [Admin\PayoutsController::class, 'destroy']);
             Route::get('payouts/drop/all',          [Admin\PayoutsController::class, 'dropAll']);
 
             /* Shop tags */
-            Route::apiResource('shop-tags',        Admin\ShopTagController::class);
             Route::delete('shop-tags/delete',        [Admin\ShopTagController::class, 'destroy']);
+            Route::apiResource('shop-tags',        Admin\ShopTagController::class);
             Route::get('shop-tags/drop/all',         [Admin\ShopTagController::class, 'dropAll']);
 
             /* PaymentPayload tags */
-            Route::apiResource('payment-payloads', Admin\PaymentPayloadController::class);
             Route::delete('payment-payloads/delete', [Admin\PaymentPayloadController::class, 'destroy']);
+            Route::apiResource('payment-payloads', Admin\PaymentPayloadController::class);
             Route::get('payment-payloads/drop/all',  [Admin\PaymentPayloadController::class, 'dropAll']);
 
             /* SmsPayload tags */
-            Route::apiResource('sms-payloads',     Admin\SmsPayloadController::class);
             Route::delete('sms-payloads/delete',     [Admin\SmsPayloadController::class, 'destroy']);
+            Route::apiResource('sms-payloads',     Admin\SmsPayloadController::class);
             Route::get('sms-payloads/drop/all',      [Admin\SmsPayloadController::class, 'dropAll']);
 
             /* Bonuses*/
@@ -1325,122 +1325,122 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('overview/categories', [Admin\OrderReportController::class, 'overviewCategories']);
 
             /* Shop Deliveryman Setting */
-            Route::apiResource('shop-deliveryman-settings', Admin\ShopDeliverymanSettingController::class);
             Route::delete('shop-deliveryman-settings/delete', [Admin\ShopDeliverymanSettingController::class, 'destroy']);
+            Route::apiResource('shop-deliveryman-settings', Admin\ShopDeliverymanSettingController::class);
             Route::get('shop-deliveryman-settings/drop/all',  [Admin\ShopDeliverymanSettingController::class, 'dropAll']);
 
             /* Career */
-            Route::apiResource('careers', Admin\CareerController::class);
             Route::delete('careers/delete', [Admin\CareerController::class, 'destroy']);
+            Route::apiResource('careers', Admin\CareerController::class);
             Route::get('careers/drop/all',  [Admin\CareerController::class, 'dropAll']);
 
             /* Pages */
-            Route::apiResource('pages', Admin\PageController::class);
             Route::delete('pages/delete', [Admin\PageController::class, 'destroy']);
+            Route::apiResource('pages', Admin\PageController::class);
             Route::get('pages/drop/all',  [Admin\PageController::class, 'dropAll']);
 
             /* User address */
-            Route::apiResource('user-addresses', Admin\UserAddressController::class);
             Route::delete('user-addresses/delete', [Admin\UserAddressController::class, 'destroy']);
+            Route::apiResource('user-addresses', Admin\UserAddressController::class);
             Route::get('user-addresses/drop/all',  [Admin\UserAddressController::class, 'dropAll']);
 
             /* Model logs */
-            Route::get('model/logs/{id}',     [Admin\ModelLogController::class, 'show']);
             Route::get('model/logs/paginate', [Admin\ModelLogController::class, 'paginate']);
+            Route::get('model/logs/{id}',     [Admin\ModelLogController::class, 'show']);
 
             /* Regions */
+            Route::delete('regions/delete',  [Admin\RegionController::class, 'destroy']);
             Route::apiResource('regions',  Admin\RegionController::class);
             Route::get('region/{id}/active', [Admin\RegionController::class, 'changeActive']);
-            Route::delete('regions/delete',  [Admin\RegionController::class, 'destroy']);
             Route::get('regions/drop/all',   [Admin\RegionController::class, 'dropAll']);
 
             /* Countries */
+            Route::delete('countries/delete', [Admin\CountryController::class, 'destroy']);
             Route::apiResource('countries', Admin\CountryController::class);
             Route::get('country/{id}/active', [Admin\CountryController::class, 'changeActive']);
             Route::post('countries/{country}/payments', [Admin\CountryController::class, 'updatePayments']);
-            Route::delete('countries/delete', [Admin\CountryController::class, 'destroy']);
             Route::get('countries/drop/all',  [Admin\CountryController::class, 'dropAll']);
 
             /* Cities */
+            Route::delete('cities/delete', [Admin\CityController::class, 'destroy']);
             Route::apiResource('cities', Admin\CityController::class);
             Route::get('city/{id}/active', [Admin\CityController::class, 'changeActive']);
-            Route::delete('cities/delete', [Admin\CityController::class, 'destroy']);
             Route::get('cities/drop/all',  [Admin\CityController::class, 'dropAll']);
 
             /* Areas */
+            Route::delete('areas/delete',  [Admin\AreaController::class, 'destroy']);
             Route::apiResource('areas',  Admin\AreaController::class);
             Route::get('area/{id}/active', [Admin\AreaController::class, 'changeActive']);
-            Route::delete('areas/delete',  [Admin\AreaController::class, 'destroy']);
             Route::get('areas/drop/all',   [Admin\AreaController::class, 'dropAll']);
 
             /* Ads Package */
+            Route::delete('ads-packages/delete',  [Admin\AdsPackageController::class, 'destroy']);
             Route::apiResource('ads-packages',  Admin\AdsPackageController::class);
             Route::get('ads-package/{id}/active', [Admin\AdsPackageController::class, 'changeActive']);
-            Route::delete('ads-packages/delete',  [Admin\AdsPackageController::class, 'destroy']);
             Route::get('ads-packages/drop/all',   [Admin\AdsPackageController::class, 'dropAll']);
 
             /* Shop Ads Package */
             Route::apiResource('shop-ads-packages', Admin\ShopAdsPackageController::class);
 
             /* RequestModel */
+            Route::delete('request-models/delete',   [Admin\RequestModelController::class, 'destroy']);
             Route::apiResource('request-models',   Admin\RequestModelController::class);
             Route::post('request-model/status/{id}', [Admin\RequestModelController::class, 'changeStatus']);
-            Route::delete('request-models/delete',   [Admin\RequestModelController::class, 'destroy']);
             Route::get('request-models/drop/all',    [Admin\RequestModelController::class, 'dropAll']);
 
             /* Digital File */
+            Route::delete('digital-files/delete',  [Admin\DigitalFileController::class, 'destroy']);
             Route::apiResource('digital-files',   Admin\DigitalFileController::class);
             Route::get('digital-file/{id}/active', [Admin\DigitalFileController::class, 'changeActive']);
-            Route::delete('digital-files/delete',  [Admin\DigitalFileController::class, 'destroy']);
             Route::get('digital-files/drop/all',   [Admin\DigitalFileController::class, 'dropAll']);
 
             /* Delivery prices */
-            Route::apiResource('delivery-prices', Admin\DeliveryPriceController::class);
             Route::delete('delivery-prices/delete', [Admin\DeliveryPriceController::class, 'destroy']);
+            Route::apiResource('delivery-prices', Admin\DeliveryPriceController::class);
             Route::get('delivery-prices/drop/all',  [Admin\DeliveryPriceController::class, 'dropAll']);
 
             /* Delivery Point */
-            Route::apiResource('delivery-points',   Admin\DeliveryPointController::class);
             Route::delete('delivery-points/delete',   [Admin\DeliveryPointController::class, 'destroy']);
+            Route::apiResource('delivery-points',   Admin\DeliveryPointController::class);
             Route::get('delivery-points/{id}/active', [Admin\DeliveryPointController::class, 'changeActive']);
             Route::get('delivery-points/drop/all',    [Admin\DeliveryPointController::class, 'dropAll']);
 
             /* Delivery Point Working Days */
-            Route::apiResource('delivery-point-working-days',     Admin\DeliveryPointWorkingDayController::class);
             Route::delete('delivery-point-working-days/delete',     [Admin\DeliveryPointWorkingDayController::class, 'destroy']);
+            Route::apiResource('delivery-point-working-days',     Admin\DeliveryPointWorkingDayController::class);
             Route::get('delivery-point-working-days/{id}/disabled', [Admin\DeliveryPointWorkingDayController::class, 'changeDisabled']);
             Route::get('delivery-point-working-days/drop/all',      [Admin\DeliveryPointWorkingDayController::class, 'dropAll']);
 
             /* Delivery Point Closed Days */
-            Route::apiResource('delivery-point-closed-dates', Admin\DeliveryPointClosedDateController::class);
             Route::delete('delivery-point-closed-dates/delete', [Admin\DeliveryPointClosedDateController::class, 'destroy']);
+            Route::apiResource('delivery-point-closed-dates', Admin\DeliveryPointClosedDateController::class);
             Route::get('delivery-point-closed-dates/drop/all',  [Admin\DeliveryPointClosedDateController::class, 'dropAll']);
 
             /* Warehouse */
-            Route::apiResource('warehouses',   Admin\WarehouseController::class);
             Route::delete('warehouses/delete',   [Admin\WarehouseController::class, 'destroy']);
+            Route::apiResource('warehouses',   Admin\WarehouseController::class);
             Route::get('warehouses/{id}/active', [Admin\WarehouseController::class, 'changeActive']);
             Route::get('warehouses/drop/all',    [Admin\WarehouseController::class, 'dropAll']);
 
             /* Warehouse Working Days */
-            Route::apiResource('warehouse-working-days',     Admin\WarehouseWorkingDayController::class);
             Route::delete('warehouse-working-days/delete',     [Admin\WarehouseWorkingDayController::class, 'destroy']);
+            Route::apiResource('warehouse-working-days',     Admin\WarehouseWorkingDayController::class);
             Route::get('warehouse-working-days/{id}/disabled', [Admin\WarehouseWorkingDayController::class, 'changeDisabled']);
             Route::get('warehouse-working-days/drop/all',      [Admin\WarehouseWorkingDayController::class, 'dropAll']);
 
             /* Warehouse Closed Days */
-            Route::apiResource('warehouse-closed-dates', Admin\WarehouseClosedDateController::class);
             Route::delete('warehouse-closed-dates/delete', [Admin\WarehouseClosedDateController::class, 'destroy']);
+            Route::apiResource('warehouse-closed-dates', Admin\WarehouseClosedDateController::class);
             Route::get('warehouse-closed-dates/drop/all',  [Admin\WarehouseClosedDateController::class, 'dropAll']);
 
             /* Auctions */
-            Route::apiResource('auctions', Admin\AuctionController::class);
             Route::delete('auctions/delete', [Admin\AuctionController::class, 'destroy']);
+            Route::apiResource('auctions', Admin\AuctionController::class);
             Route::get('auctions/drop/all',  [Admin\AuctionController::class, 'dropAll']);
 
             /* Auctions */
-            Route::apiResource('auction-questions', Admin\AuctionQuestionController::class);
             Route::delete('auction-questions/delete', [Admin\AuctionQuestionController::class, 'destroy']);
+            Route::apiResource('auction-questions', Admin\AuctionQuestionController::class);
             Route::get('auction-questions/drop/all',  [Admin\AuctionQuestionController::class, 'dropAll']);
 
             /* Coupon */
@@ -1449,50 +1449,51 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::apiResource('coupons', Admin\CouponController::class);
 
             /* Gift Cart */
-            Route::apiResource('gift-carts',   Admin\GiftCartController::class);
             Route::delete('gift-carts/delete',   [Admin\GiftCartController::class, 'destroy']);
+            Route::apiResource('gift-carts',   Admin\GiftCartController::class);
             Route::get('gift-carts/drop/all',    [Admin\GiftCartController::class, 'dropAll']);
 
             /* User Gift Cart */
             Route::apiResource('user-gift-carts', Admin\UserGiftCartController::class)->only(['index', 'show']);
 
             /* Service */
+            Route::delete('services/delete',      [Admin\ServiceController::class, 'destroy']);
             Route::apiResource('services',      Admin\ServiceController::class);
             Route::post('services/{id}/extras',   [Admin\ServiceController::class, 'extrasUpdate']);
             Route::post('services/{id}/faqs',     [Admin\ServiceController::class, 'faqsUpdate']);
-            Route::delete('services/delete',      [Admin\ServiceController::class, 'destroy']);
             Route::get('services/drop/all',       [Admin\ServiceController::class, 'dropAll']);
 
             /* Service FAQ */
             Route::post('service-faqs/{id}/active/status',  [Admin\ServiceFaqController::class, 'setActiveStatus']);
-            Route::apiResource('service-faqs',            Admin\ServiceFaqController::class);
             Route::delete('service-faqs/delete',            [Admin\ServiceFaqController::class, 'destroy']);
+            Route::apiResource('service-faqs',            Admin\ServiceFaqController::class);
             Route::get('service-faqs/drop/all',             [Admin\ServiceFaqController::class, 'dropAll']);
 
             /* Service Master */
-            Route::apiResource('service-masters', Admin\ServiceMasterController::class);
             Route::delete('service-masters/delete', [Admin\ServiceMasterController::class, 'destroy']);
+            Route::apiResource('service-masters', Admin\ServiceMasterController::class);
             Route::get('service-masters/drop/all',  [Admin\ServiceMasterController::class, 'dropAll']);
 
             /* Service Master Notifications */
-            Route::apiResource('service-master-notifications', Admin\ServiceMasterNotificationController::class);
             Route::delete('service-master-notifications/delete', [Admin\ServiceMasterNotificationController::class, 'destroy']);
+            Route::apiResource('service-master-notifications', Admin\ServiceMasterNotificationController::class);
             Route::get('service-master-notifications/drop/all', [Admin\ServiceMasterNotificationController::class, 'dropAll']);
 
             /* Master Closed Days */
-            Route::apiResource('master-closed-dates', Admin\MasterClosedDateController::class);
             Route::delete('master-closed-dates/delete', [Admin\MasterClosedDateController::class, 'destroy']);
+            Route::apiResource('master-closed-dates', Admin\MasterClosedDateController::class);
             Route::get('master-closed-dates/drop/all',  [Admin\MasterClosedDateController::class, 'dropAll']);
 
             /* Master Disabled Times */
-            Route::apiResource('master-disabled-times', Admin\MasterDisabledTimeController::class);
             Route::delete('master-disabled-times/delete', [Admin\MasterDisabledTimeController::class, 'destroy']);
+            Route::apiResource('master-disabled-times', Admin\MasterDisabledTimeController::class);
             Route::get('master-disabled-times/drop/all',  [Admin\MasterDisabledTimeController::class, 'dropAll']);
 
             /* Bookings */
             Route::middleware('country.permission:bookings.view')->group(function () {
                 Route::apiResource('bookings', Admin\BookingController::class)->only(['index', 'show']);
             });
+            Route::delete('bookings/delete',           [Admin\BookingController::class, 'destroy']);
             Route::apiResource('bookings',   Admin\BookingController::class)->except(['index', 'show']);
             Route::get('bookings/{id}/get-all',        [Admin\BookingController::class, 'bookingsByParent']);
             Route::post('bookings/{id}/status/update', [Admin\BookingController::class, 'statusUpdate']);
@@ -1500,7 +1501,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('bookings/{id}/times/update',  [Admin\BookingController::class, 'timesUpdate']);
             Route::post('bookings/{id}/extra-time',    [Admin\BookingController::class, 'extraTime']);
             Route::post('bookings/calculate',          [Admin\BookingController::class, 'calculate']);
-            Route::delete('bookings/delete',           [Admin\BookingController::class, 'destroy']);
             Route::get('bookings/drop/all',            [Admin\BookingController::class, 'dropAll']);
             Route::get('bookings/report/transactions', [Admin\BookingController::class, 'reportTransactions']);
 
@@ -1508,8 +1508,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('booking/reports/statistic',    [Admin\BookingReportController::class, 'statistic']);
 
             /* Memberships */
-            Route::apiResource('memberships', Admin\MemberShipController::class);
             Route::delete('memberships/delete', [Admin\MemberShipController::class, 'destroy']);
+            Route::apiResource('memberships', Admin\MemberShipController::class);
             Route::get('memberships/drop/all',  [Admin\MemberShipController::class, 'dropAll']);
 
             /*User Membership */
@@ -1560,8 +1560,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('service-extras/drop/all',       [Admin\ServiceExtraController::class, 'dropAll']);
 
             /* Form-option */
-            Route::apiResource('form-options', Admin\FormOptionController::class);
             Route::delete('form-options/delete', [Admin\FormOptionController::class, 'destroy']);
+            Route::apiResource('form-options', Admin\FormOptionController::class);
 
             /* AI Translations */
             Route::apiResource('ai-translations', Admin\AITranslationController::class)->only(['index', 'show', 'store']);
