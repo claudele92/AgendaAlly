@@ -9,7 +9,7 @@ const LocationSelect = ({ onClose, onSubmit, isButtonLoading }) => {
   const [links, setLinks] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const fetchCountries = ({ search, page }) => {
-    const params = { search, page, has_price: true };
+    const params = { search, page };
 
     if (!search?.trim()?.length) delete params?.search;
 
@@ -28,7 +28,6 @@ const LocationSelect = ({ onClose, onSubmit, isButtonLoading }) => {
       search,
       page,
       country_id: selectedCountry?.value?.split(',')[0],
-      has_price: true,
     };
 
     if (!search?.trim()?.length) delete params?.search;

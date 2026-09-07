@@ -77,6 +77,7 @@ const AddressAutocompleteForm = ({
       showSearch
       autoClearSearchValue
       loading={isPlacePredictionsLoading}
+      placeholder={t('search')}
       options={placePredictions?.map((prediction) => ({
         label: prediction.description,
         value: prediction.description,

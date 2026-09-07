@@ -33,7 +33,6 @@ const GeneralSettingsDefaultCountry = () => {
       perPage: 20,
       page: 1,
       search: search?.length ? search : undefined,
-      has_price: 1,
     };
     return restCountryService.get(params).then((res) =>
       res?.data?.map((item) => ({
@@ -49,7 +48,6 @@ const GeneralSettingsDefaultCountry = () => {
       page: 1,
       search: search?.length ? search : undefined,
       country_id: selectedCountry?.value,
-      has_price: 1,
     };
     return restCityService.get(params).then((res) => extractOptions(res?.data));
   };
