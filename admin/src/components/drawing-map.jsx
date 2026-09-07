@@ -1,13 +1,8 @@
-import {
-  GoogleApiWrapper,
-  Map,
-  Marker,
-  Polygon,
-  Polyline,
-} from 'google-maps-react';
+import { Map, Marker, Polygon, Polyline } from 'google-maps-react';
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { MAP_API_KEY } from '../configs/app-global';
+import { Spin } from 'antd';
+import useGoogleMapsReady from '../helpers/googleMapsLoader';
 import { BiCurrentLocation } from 'react-icons/bi';
 
 const DrawingManager = (props) => {
@@ -148,7 +143,19 @@ const DrawingManager = (props) => {
   );
 };
 
-export default GoogleApiWrapper({
-  apiKey: MAP_API_KEY,
-  libraries: ['places'],
-})(DrawingManager);
+export default function DrawingManagerLoader(props) {
+  const ready = useGoogleMapsReady();
+
+  if (!ready) {
+    return (
+      <div
+        className='map-container d-flex align-items-center justify-content-center'
+        style={{ height: 500, width: '100%' }}
+      >
+        <Spin />
+      </div>
+    );
+  }
+
+  return <DrawingManager {...props} google={window.google} />;
+}

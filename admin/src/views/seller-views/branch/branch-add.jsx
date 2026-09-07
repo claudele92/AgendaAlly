@@ -12,14 +12,33 @@ import getDefaultLocation from '../../../helpers/getDefaultLocation';
 import { fetchBranch } from '../../../redux/slices/branch';
 import branchService from '../../../services/seller/branch';
 import { usePlacesWidget } from 'react-google-autocomplete';
-import { MAP_API_KEY } from '../../../configs/app-global';
+import useGoogleMapsReady from '../../../helpers/googleMapsLoader';
+
+// Only ever mounted once the shared Google Maps script has loaded (see
+// SellerBranchAdd below) — usePlacesWidget's own script-loading effect runs
+// once, on mount, so it must not mount before then.
+function AddressAutocompleteInput({ setLocation, form, defaultLang, ...rest }) {
+  const { ref } = usePlacesWidget({
+    onPlaceSelected: (place) => {
+      const location = {
+        lat: place?.geometry.location.lat(),
+        lng: place?.geometry.location.lng(),
+      };
+      setLocation(location);
+      form.setFieldsValue({
+        [`address[${defaultLang}]`]: place?.formatted_address,
+      });
+    },
+  });
+
+  return (
+    <input className='address-input' ref={ref} placeholder={''} {...rest} />
+  );
+}
 
 const SellerBranchAdd = () => {
   const { t } = useTranslation();
-  const { google_map_key } = useSelector(
-    (state) => state.globalSettings.settings,
-    shallowEqual
-  );
+  const ready = useGoogleMapsReady();
   const { settings } = useSelector(
     (state) => state.globalSettings,
     shallowEqual
@@ -71,20 +90,6 @@ const SellerBranchAdd = () => {
       .finally(() => setLoadingBtn(false));
   };
 
-  const { ref } = usePlacesWidget({
-    apiKey: google_map_key || MAP_API_KEY,
-    onPlaceSelected: (place) => {
-      const location = {
-        lat: place?.geometry.location.lat(),
-        lng: place?.geometry.location.lng(),
-      };
-      setLocation(location);
-      form.setFieldsValue({
-        [`address[${defaultLang}]`]: place?.formatted_address,
-      });
-    },
-  });
-
   return (
     <Card title={t('add.branch')} className='h-100' extra={<LanguageList />}>
       <Form
@@ -125,7 +130,15 @@ const SellerBranchAdd = () => {
                 },
               ]}
             >
-              <input className='address-input' ref={ref} placeholder={''} />
+              {ready ? (
+                <AddressAutocompleteInput
+                  setLocation={setLocation}
+                  form={form}
+                  defaultLang={defaultLang}
+                />
+              ) : (
+                <input className='address-input' disabled placeholder={''} />
+              )}
             </Form.Item>
           </Col>
           <Col span={24}>
