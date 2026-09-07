@@ -26,6 +26,10 @@ class ShopPaymentService extends CoreService
      */
     private const SHOP_CREDENTIAL_TAGS = [Payment::TAG_ORANGE, Payment::TAG_MTN];
 
+    // Encrypted-at-rest, never returned in plaintext — a blank value on
+    // update means "leave unchanged", not "clear it" (see UpdateRequest).
+    private const SECRET_KEYS = ['merchant_key', 'subscription_key', 'api_user', 'api_key'];
+
     public function create(array $data): array
     {
         try {
@@ -55,7 +59,12 @@ class ShopPaymentService extends CoreService
                 return $prepared;
             }
 
-            $shopPayment->update(collect(data_get($prepared, 'data'))->except('shop_id')->all());
+            $update = collect(data_get($prepared, 'data'))->except('shop_id');
+            $update = $update->reject(
+                fn ($value, $key) => in_array($key, self::SECRET_KEYS, true) && blank($value)
+            );
+
+            $shopPayment->update($update->all());
 
             return ['status' => true, 'code' => ResponseError::NO_ERROR];
         } catch (Throwable $e) {

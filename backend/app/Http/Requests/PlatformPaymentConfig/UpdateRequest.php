@@ -19,7 +19,10 @@ class UpdateRequest extends BaseRequest
     {
         $tag = Payment::query()->find($this->input('payment_id'))?->tag;
 
-        $configId = $this->route('platformPaymentConfig')?->id;
+        /** @var \App\Models\PlatformPaymentConfig|null $config */
+        $config = $this->route('platformPaymentConfig');
+
+        $configId = $config?->id;
 
         return [
             'country_id' => [
@@ -34,10 +37,16 @@ class UpdateRequest extends BaseRequest
             'status'     => 'required|boolean',
             'client_id'  => 'nullable|string',
 
-            'merchant_key'       => [Rule::requiredIf($tag === Payment::TAG_ORANGE), 'nullable', 'string'],
-            'subscription_key'   => [Rule::requiredIf($tag === Payment::TAG_MTN), 'nullable', 'string'],
-            'api_user'           => [Rule::requiredIf($tag === Payment::TAG_MTN), 'nullable', 'string'],
-            'api_key'            => [Rule::requiredIf($tag === Payment::TAG_MTN), 'nullable', 'string'],
+            // Encrypted-at-rest credentials are never returned in
+            // plaintext (see PlatformPaymentConfigResource) — so once
+            // one is already configured, it's only required again if
+            // the gateway actually needs it; leaving it blank means
+            // keep the existing value (see
+            // PlatformPaymentConfigService::update()).
+            'merchant_key'       => [Rule::requiredIf($tag === Payment::TAG_ORANGE && !$config?->merchant_key), 'nullable', 'string'],
+            'subscription_key'   => [Rule::requiredIf($tag === Payment::TAG_MTN && !$config?->subscription_key), 'nullable', 'string'],
+            'api_user'           => [Rule::requiredIf($tag === Payment::TAG_MTN && !$config?->api_user), 'nullable', 'string'],
+            'api_key'            => [Rule::requiredIf($tag === Payment::TAG_MTN && !$config?->api_key), 'nullable', 'string'],
             'target_environment' => [
                 Rule::requiredIf($tag === Payment::TAG_MTN),
                 'nullable',

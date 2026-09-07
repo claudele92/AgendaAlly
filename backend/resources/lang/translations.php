@@ -3107,4 +3107,7 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'manager.role.granted','value' => 'Manager role granted'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'revoke','value' => 'Revoke'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'are.you.sure.you.want.to.revoke.this.country.admin?','value' => 'Are you sure you want to revoke this country admin?'),
+
+  // Credential re-entry-on-edit UX pass (ShopPayment + PlatformPaymentConfig)
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'leave.blank.to.keep.current.value','value' => 'Leave blank to keep the current value'),
 );
