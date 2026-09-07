@@ -37,6 +37,7 @@ const SellerPaymentEdit = () => {
   const [loading, setLoading] = useState(false);
   const [paymentList, setPaymentList] = useState([]);
   const [activePayment, setActivePayment] = useState(null);
+  const [configured, setConfigured] = useState({});
 
   useEffect(() => {
     return () => {
@@ -53,6 +54,12 @@ const SellerPaymentEdit = () => {
         setActivePayment({
           label: data.payment.tag,
           value: data.payment.id,
+        });
+        setConfigured({
+          merchant_key: data.merchant_key_configured,
+          subscription_key: data.subscription_key_configured,
+          api_user: data.api_user_configured,
+          api_key: data.api_key_configured,
         });
         form.setFieldsValue({
           ...data,
@@ -163,6 +170,8 @@ const SellerPaymentEdit = () => {
               ) ? (
               <GatewayCredentialFields
                 tag={activePayment.label.toLowerCase()}
+                isEdit
+                configured={configured}
               />
             ) : (
               <>

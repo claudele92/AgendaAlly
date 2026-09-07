@@ -28,6 +28,7 @@ export default function PlatformPaymentConfigEdit() {
   const [loading, setLoading] = useState(true);
   const [paymentList, setPaymentList] = useState([]);
   const [activeTag, setActiveTag] = useState(null);
+  const [configured, setConfigured] = useState({});
 
   const fetchCountry = ({ search, page }) =>
     countryService
@@ -53,6 +54,12 @@ export default function PlatformPaymentConfigEdit() {
 
         const config = configRes.data;
         setActiveTag(config.payment?.tag);
+        setConfigured({
+          merchant_key: config.merchant_key_configured,
+          subscription_key: config.subscription_key_configured,
+          api_user: config.api_user_configured,
+          api_key: config.api_key_configured,
+        });
         form.setFieldsValue({
           status: config.status,
           client_id: config.client_id,
@@ -121,7 +128,11 @@ export default function PlatformPaymentConfigEdit() {
               </Form.Item>
             </Col>
             {SUPPORTED_TAGS.includes(activeTag) && (
-              <GatewayCredentialFields tag={activeTag} />
+              <GatewayCredentialFields
+                tag={activeTag}
+                isEdit
+                configured={configured}
+              />
             )}
             <Col span={12}>
               <Form.Item

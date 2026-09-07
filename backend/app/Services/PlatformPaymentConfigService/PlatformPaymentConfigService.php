@@ -20,6 +20,10 @@ use Throwable;
  */
 class PlatformPaymentConfigService extends CoreService
 {
+    // Encrypted-at-rest, never returned in plaintext — a blank value on
+    // update means "leave unchanged", not "clear it" (see UpdateRequest).
+    private const SECRET_KEYS = ['merchant_key', 'subscription_key', 'api_user', 'api_key'];
+
     protected function getModelClass(): string
     {
         return PlatformPaymentConfig::class;
@@ -55,7 +59,12 @@ class PlatformPaymentConfigService extends CoreService
                 return $prepared;
             }
 
-            $config->update(collect(data_get($prepared, 'data'))->except(['country_id', 'payment_id'])->all());
+            $update = collect(data_get($prepared, 'data'))->except(['country_id', 'payment_id']);
+            $update = $update->reject(
+                fn ($value, $key) => in_array($key, self::SECRET_KEYS, true) && blank($value)
+            );
+
+            $config->update($update->all());
 
             return ['status' => true, 'code' => ResponseError::NO_ERROR, 'data' => $config];
         } catch (Throwable $e) {
