@@ -141,6 +141,23 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            // Demo staff member for shop 501 (Cameroon) — see
+            // DemoStaffInvitationSeeder, which assigns this user the
+            // "Branch Manager" shop_role at the Douala branch.
+            [
+                'id' => 114,
+                'uuid' => Str::uuid(),
+                'firstname' => 'Branch',
+                'lastname' => 'Manager',
+                'email' => 'branch-manager@githubit.com',
+                'phone' => '998911902695',
+                'birthday' => '1990-12-31',
+                'gender' => 'male',
+                'email_verified_at' => now(),
+                'password' => bcrypt('branchmanager'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         foreach ($users as $user) {
