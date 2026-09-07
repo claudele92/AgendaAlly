@@ -8,6 +8,7 @@ use App\Models\Country;
 use App\Models\CountryTranslation;
 use App\Models\Region;
 use App\Models\RegionTranslation;
+use Database\Seeders\Support\CountryDefaultsBackfiller;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -36,6 +37,16 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
         $this->call(OrderSeeder::class);
 //        $this->call(RegionSeeder::class);
+
+        // Re-runs the country currency/payment-gateway backfill from the
+        // 2026_09_05_030000 migration now that seed data exists. On
+        // `migrate:fresh --seed`, that migration ran before any of the
+        // seeders above, so currencies/countries/payments were all still
+        // empty at the time and it backfilled nothing — this call is what
+        // actually populates country defaults for a fresh install. It's a
+        // no-op against anything already backfilled (e.g. a real deploy's
+        // `php artisan migrate`, where the migration already found data).
+        CountryDefaultsBackfiller::run();
 
 //        if (app()->environment() == 'local') {
 //            Category::factory()->hasTranslations(1)->count(10)->create();
