@@ -38,6 +38,12 @@ class DatabaseSeeder extends Seeder
         $this->call(OrderSeeder::class);
 //        $this->call(RegionSeeder::class);
 
+        // Cameroon/Burkina Faso demo geography + the two demo sellers'
+        // ShopLocation rows — needs UserSeeder's shops to already exist,
+        // and must run before CountryDefaultsBackfiller below so its two
+        // new countries get backfilled country_payments too.
+        $this->call(DemoAfricaSeeder::class);
+
         // Re-runs the country currency/payment-gateway backfill from the
         // 2026_09_05_030000 migration now that seed data exists. On
         // `migrate:fresh --seed`, that migration ran before any of the

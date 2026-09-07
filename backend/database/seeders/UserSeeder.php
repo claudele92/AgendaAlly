@@ -124,6 +124,23 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            // Second demo seller, based in Burkina Faso — see
+            // DemoAfricaSeeder for the country/city/ShopLocation data that
+            // actually places this shop there.
+            [
+                'id' => 113,
+                'uuid' => Str::uuid(),
+                'firstname' => 'sellers-bf',
+                'lastname' => 'sellers-bf',
+                'email' => 'sellers-bf@githubit.com',
+                'phone' => '998911902692',
+                'birthday' => '1990-12-31',
+                'gender' => 'male',
+                'email_verified_at' => now(),
+                'password' => bcrypt('sellerbf'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         foreach ($users as $user) {
@@ -151,6 +168,7 @@ class UserSeeder extends Seeder
         User::find(104)?->syncRoles('manager');
         User::find(105)?->syncRoles('moderator');
         User::find(106)?->syncRoles('deliveryman');
+        User::find(113)?->syncRoles('seller');
 
         $shop = Shop::updateOrCreate([
             'user_id'           => 107,
@@ -182,6 +200,40 @@ class UserSeeder extends Seeder
         ]);
 
         $shop->tags()->sync(ShopTag::pluck('id')->toArray());
+
+        // Second demo shop, for the Burkina Faso seller — DemoAfricaSeeder
+        // gives it its ShopLocation (which is what actually determines its
+        // checkout country; see Shop::checkoutCountry()).
+        $bfShop = Shop::updateOrCreate([
+            'user_id'           => 113,
+        ], [
+            'uuid'              => Str::uuid(),
+            'latitude'          => 12.3714277,
+            'longitude'         => -1.5196603,
+            'phone'             => '+2267000000',
+            'open'              => 1,
+            'background_img'    => 'url.webp',
+            'logo_img'          => 'url.webp',
+            'status'            => 'approved',
+            'status_note'       => 'approved',
+            'delivery_time'     => [
+                'from'              => '10',
+                'to'                => '90',
+                'type'              => 'minute',
+            ],
+            'type'              => 1,
+        ]);
+
+        ShopTranslation::updateOrCreate([
+            'shop_id'       => $bfShop->id,
+        ], [
+            'description'   => 'Ouagadougou branch desc',
+            'title'         => 'Ouagadougou branch',
+            'locale'        => data_get(Language::first(), 'locale', 'en'),
+            'address'       => 'Ouagadougou, Burkina Faso',
+        ]);
+
+        $bfShop->tags()->sync(ShopTag::pluck('id')->toArray());
 
     }
 
