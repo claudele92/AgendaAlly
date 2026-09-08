@@ -30,6 +30,7 @@ class AdsPackageResource extends JsonResource
             'time_type'     => $this->when($this->time_type, $this->time_type),
             'time'          => $this->when($this->time, $this->time),
             'price'         => $this->when($this->price, $this->rate_price),
+            'currency'      => CurrencyResource::make($this->rate_currency),
             'created_at'    => $this->when($this->created_at, $this->created_at?->format('Y-m-d H:i:s') . 'Z'),
             'updated_at'    => $this->when($this->updated_at, $this->updated_at?->format('Y-m-d H:i:s') . 'Z'),
 

@@ -11,10 +11,6 @@ const features = [];
 
 export default function SellerSubscriptions() {
   const { t } = useTranslation();
-  const { defaultCurrency } = useSelector(
-    (state) => state.currency,
-    shallowEqual,
-  );
   const { myShop } = useSelector((state) => state.myShop, shallowEqual);
   const [modal, setModal] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -78,7 +74,7 @@ export default function SellerSubscriptions() {
                             className='font-size-md d-inline-block mr-1'
                             style={{ transform: 'translate(0px, -17px)' }}
                           >
-                            {defaultCurrency?.symbol}
+                            {elm.currency?.symbol}
                           </span>
                           <span>{elm.price}</span>
                         </h1>

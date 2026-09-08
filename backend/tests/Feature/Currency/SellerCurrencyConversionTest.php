@@ -120,33 +120,37 @@ class SellerCurrencyConversionTest extends TestCase
         $this->assertSame(100.0, (float) $service->fresh()->rate_price);
     }
 
-    public function test_subscription_price_converts_to_the_viewing_sellers_own_shop_currency(): void
+    public function test_subscription_price_and_currency_match_the_viewing_sellers_own_shop(): void
     {
         Currency::query()->create(['title' => 'USD', 'symbol' => '$', 'rate' => 1, 'default' => 1, 'active' => 1]);
-        [, , $user] = $this->makeShopWithCountryCurrency('XAF', 600);
+        [, $xaf, $user] = $this->makeShopWithCountryCurrency('XAF', 600);
 
         $subscription = Subscription::query()->create(['type' => 'shop', 'price' => 250, 'month' => 1, 'active' => true, 'title' => 'Starter']);
 
         $this->actingAs($user, 'sanctum');
         $this->fakeSellerRequest();
         $this->assertSame(150000.0, $subscription->fresh()->rate_price);
+        $this->assertSame($xaf->id, $subscription->fresh()->rate_currency->id);
 
         $this->fakeAdminRequest();
         $this->assertSame(250.0, $subscription->fresh()->rate_price);
+        $this->assertSame('USD', $subscription->fresh()->rate_currency->title);
     }
 
-    public function test_ads_package_price_converts_to_the_viewing_sellers_own_shop_currency(): void
+    public function test_ads_package_price_and_currency_match_the_viewing_sellers_own_shop(): void
     {
         Currency::query()->create(['title' => 'USD', 'symbol' => '$', 'rate' => 1, 'default' => 1, 'active' => 1]);
-        [, , $user] = $this->makeShopWithCountryCurrency('XOF', 600);
+        [, $xof, $user] = $this->makeShopWithCountryCurrency('XOF', 600);
 
         $adsPackage = AdsPackage::query()->create(['active' => true, 'type' => AdsPackage::MAIN, 'time_type' => 'day', 'time' => 1, 'price' => 100]);
 
         $this->actingAs($user, 'sanctum');
         $this->fakeSellerRequest();
         $this->assertSame(60000.0, $adsPackage->fresh()->rate_price);
+        $this->assertSame($xof->id, $adsPackage->fresh()->rate_currency->id);
 
         $this->fakeAdminRequest();
         $this->assertSame(100.0, $adsPackage->fresh()->rate_price);
+        $this->assertSame('USD', $adsPackage->fresh()->rate_currency->title);
     }
 }

@@ -27,6 +27,7 @@ use Schema;
  * @property int $time
  * @property double $price
  * @property-read float $rate_price
+ * @property-read Currency $rate_currency
  * @property double $product_limit
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -120,11 +121,32 @@ class AdsPackage extends Model
      */
     public function getRatePriceAttribute(): float
     {
+        return Currency::convert((float) $this->price, $this->resolvedCurrency()?->id);
+    }
+
+    /**
+     * The currency rate_price above is actually expressed in — the
+     * frontend must read the symbol/position from here rather than
+     * assuming the platform default, since this can be the viewer's own
+     * shop currency. Kept as its own accessor (rather than folding into
+     * rate_price) so the resource can expose both consistently.
+     */
+    public function getRateCurrencyAttribute(): ?Currency
+    {
+        return $this->resolvedCurrency();
+    }
+
+    private function resolvedCurrency(): ?Currency
+    {
         if (request()->is('api/v1/dashboard/seller/*')) {
-            return Currency::convert((float) $this->price, GetShop::shop()?->displayCurrency()?->id);
+            $shopCurrency = GetShop::shop()?->displayCurrency();
+
+            if ($shopCurrency) {
+                return $shopCurrency;
+            }
         }
 
-        return (float) $this->price;
+        return Currency::currenciesList()->where('default', 1)->first();
     }
 
     public function scopeActive($query): Builder
