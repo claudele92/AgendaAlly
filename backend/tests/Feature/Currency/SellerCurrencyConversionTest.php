@@ -22,11 +22,22 @@ use Tests\TestCase;
 
 /**
  * Phase 1 of the multi-currency work: a shared Currency::convert() helper,
- * and extending it (for Stock/Service/AdsPackage/Subscription only — Order/
- * Booking/Cart/ParcelOrder already have their own, separate, frozen-rate
- * conversion for the customer-facing paths, untouched here) to the seller/
- * moderator-facing dashboard paths, using the shop's own resolved currency
- * rather than a customer's explicit preference or the platform default.
+ * used by AdsPackage/Subscription's seller-facing display (both previously
+ * had no conversion at all; both are read-only for sellers — browse/
+ * purchase, never edited — so converting for display is safe).
+ *
+ * Stock (product price) and Service originally got the same seller-facing
+ * conversion applied to their existing customer-facing accessors, but that
+ * was reverted: every seller-facing consumer of those prices is an
+ * editable create/edit form whose submit path resends the displayed value
+ * verbatim as the new raw price — converting for display there meant a
+ * seller editing an existing product/service (even without touching the
+ * price field) would silently resave it inflated by their currency's rate.
+ * See test_stock_and_service_prices_stay_raw_on_seller_paths below, which
+ * guards against reintroducing that.
+ *
+ * Order/Booking/Cart/ParcelOrder have their own, separate, frozen-rate
+ * conversion for customer-facing paths — untouched by any of this.
  */
 class SellerCurrencyConversionTest extends TestCase
 {
@@ -82,7 +93,15 @@ class SellerCurrencyConversionTest extends TestCase
         $this->assertSame(150000.0, Currency::convert(250.0, $xaf->id));
     }
 
-    public function test_stock_price_converts_to_the_products_own_shop_currency_on_seller_paths_only(): void
+    /**
+     * Regression guard: Stock/Service's seller-facing price must stay raw
+     * and unconverted, because every current seller-facing consumer is an
+     * editable form whose submit path resends this same value as the new
+     * price — converting it for display would silently inflate the stored
+     * price on every edit for a non-platform-default-currency shop. See
+     * the class docblock.
+     */
+    public function test_stock_and_service_prices_stay_raw_on_seller_paths(): void
     {
         Currency::query()->create(['title' => 'USD', 'symbol' => '$', 'rate' => 1, 'default' => 1, 'active' => 1]);
         [$shop] = $this->makeShopWithCountryCurrency('XAF', 600);
@@ -90,31 +109,15 @@ class SellerCurrencyConversionTest extends TestCase
         $category = Category::factory()->create();
         $product  = Product::factory()->create(['shop_id' => $shop->id, 'category_id' => $category->id]);
         $stock    = Stock::query()->create(['product_id' => $product->id, 'price' => 250, 'quantity' => 10]);
+        $service  = Service::query()->create(['shop_id' => $shop->id, 'category_id' => $category->id, 'price' => 100]);
 
         $this->fakeSellerRequest();
-        $this->assertSame(150000.0, $stock->fresh()->rate_price);
+        $this->assertSame(250.0, (float) $stock->fresh()->rate_price);
+        $this->assertSame(100.0, (float) $service->fresh()->rate_price);
 
         $this->fakeAdminRequest();
-        $this->assertSame(250.0, $stock->fresh()->rate_price);
-    }
-
-    public function test_service_price_converts_to_its_own_shop_currency_on_seller_paths_only(): void
-    {
-        Currency::query()->create(['title' => 'USD', 'symbol' => '$', 'rate' => 1, 'default' => 1, 'active' => 1]);
-        [$shop] = $this->makeShopWithCountryCurrency('XOF', 600);
-
-        $category = Category::factory()->create();
-        $service  = Service::query()->create([
-            'shop_id'     => $shop->id,
-            'category_id' => $category->id,
-            'price'       => 100,
-        ]);
-
-        $this->fakeSellerRequest();
-        $this->assertSame(60000.0, $service->fresh()->rate_price);
-
-        $this->fakeAdminRequest();
-        $this->assertSame(100.0, $service->fresh()->rate_price);
+        $this->assertSame(250.0, (float) $stock->fresh()->rate_price);
+        $this->assertSame(100.0, (float) $service->fresh()->rate_price);
     }
 
     public function test_subscription_price_converts_to_the_viewing_sellers_own_shop_currency(): void

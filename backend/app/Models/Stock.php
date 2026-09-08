@@ -106,10 +106,6 @@ class Stock extends Model
             return $this->actual_discount * $this->currency();
         }
 
-        if (request()->is('api/v1/dashboard/seller/*')) {
-            return Currency::convert((float) $this->actual_discount, $this->sellerDisplayCurrencyId());
-        }
-
         return $this->actual_discount;
     }
 
@@ -124,10 +120,6 @@ class Stock extends Model
             return $this->total_price * $this->currency();
         }
 
-        if (request()->is('api/v1/dashboard/seller/*')) {
-            return Currency::convert((float) $this->total_price, $this->sellerDisplayCurrencyId());
-        }
-
         return $this->total_price;
     }
 
@@ -135,10 +127,6 @@ class Stock extends Model
     {
         if (request()->is('api/v1/dashboard/user/*') || request()->is('api/v1/rest/*')) {
             return $this->price * $this->currency();
-        }
-
-        if (request()->is('api/v1/dashboard/seller/*')) {
-            return Currency::convert((float) $this->price, $this->sellerDisplayCurrencyId());
         }
 
         return $this->price;
@@ -155,24 +143,7 @@ class Stock extends Model
             return $this->tax_price * $this->currency();
         }
 
-        if (request()->is('api/v1/dashboard/seller/*')) {
-            return Currency::convert((float) $this->tax_price, $this->sellerDisplayCurrencyId());
-        }
-
         return $this->tax_price;
-    }
-
-    /**
-     * The shop this product belongs to's own resolved currency (see
-     * Shop::displayCurrency()) — used for the seller/moderator-facing
-     * conversion above, as distinct from the customer-facing $this->
-     * currency() lookup (a viewer's own explicit currency preference,
-     * see SetCurrency). Sellers don't pick an arbitrary display currency;
-     * they see their own shop's operating currency.
-     */
-    private function sellerDisplayCurrencyId(): ?int
-    {
-        return $this->product?->shop?->displayCurrency()?->id;
     }
 
     public function product(): BelongsTo
