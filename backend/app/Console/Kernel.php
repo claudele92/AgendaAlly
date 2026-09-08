@@ -28,7 +28,6 @@ class Kernel extends ConsoleKernel
          $schedule->command('remove:expired:master:closed:dates')->everySixHours();
          $schedule->command('remove:expired:warehouse:closed:dates')->hourly();
          $schedule->command('service:master:send:notification')->everyMinute();
-         $schedule->command('mysql:backup')->everySixHours();
          $schedule->command('mtn:reconcile-pending-payments')->everyFiveMinutes();
     }
 
