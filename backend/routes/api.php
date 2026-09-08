@@ -146,7 +146,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
         Route::get('shops/slug/{slug}',             [Rest\ShopController::class, 'showSlug']);
         Route::get('shops',                         [Rest\ShopController::class, 'shopsByIDs']);
         Route::get('shops-takes',                   [Rest\ShopController::class, 'takes']);
-        Route::get('shops-statuses',                [Rest\ShopController::class, 'statuses']);
         Route::get('products-avg-prices',           [Rest\ShopController::class, 'productsAvgPrices']);
         Route::get('shops/{id}/categories',         [Rest\ShopController::class, 'categories'])->where('id', '[0-9]+');
         Route::get('shops/{id}/galleries',          [Rest\ShopController::class, 'galleries'])->where('id', '[0-9]+');
@@ -233,7 +232,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
         Route::get('parcel-order/types',            [Rest\ParcelOrderSettingController::class, 'index']);
         Route::get('parcel-order/type/{id}',        [Rest\ParcelOrderSettingController::class, 'show']);
         Route::get('parcel-order/calculate-price',  [Rest\ParcelOrderSettingController::class, 'calculatePrice']);
-        Route::get('parcel-orders/get-price',       [Rest\ParcelOrderSettingController::class, 'getPrice']);
 
         /* Service */
         Route::apiResource('services',    Rest\ServiceController::class)->only(['index', 'show']);
