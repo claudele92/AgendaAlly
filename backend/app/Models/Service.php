@@ -102,6 +102,10 @@ class Service extends Model
             return $this->price * $this->currency();
         }
 
+        if (request()->is('api/v1/dashboard/seller/*')) {
+            return Currency::convert((float) $this->price, $this->sellerDisplayCurrencyId());
+        }
+
         return $this->price;
     }
 
@@ -116,6 +120,10 @@ class Service extends Model
             return $this->total_price * $this->currency();
         }
 
+        if (request()->is('api/v1/dashboard/seller/*')) {
+            return Currency::convert((float) $this->total_price, $this->sellerDisplayCurrencyId());
+        }
+
         return $this->total_price;
     }
 
@@ -125,7 +133,23 @@ class Service extends Model
             return $this->commission_fee * $this->currency();
         }
 
+        if (request()->is('api/v1/dashboard/seller/*')) {
+            return Currency::convert((float) $this->commission_fee, $this->sellerDisplayCurrencyId());
+        }
+
         return $this->commission_fee;
+    }
+
+    /**
+     * This service's own shop's resolved currency (see
+     * Shop::displayCurrency()) — used for the seller/moderator-facing
+     * conversion above, as distinct from the customer-facing $this->
+     * currency() lookup (a viewer's own explicit currency preference,
+     * see SetCurrency).
+     */
+    private function sellerDisplayCurrencyId(): ?int
+    {
+        return $this->shop?->displayCurrency()?->id;
     }
 
     public function translations(): HasMany

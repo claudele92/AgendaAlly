@@ -29,7 +29,7 @@ class AdsPackageResource extends JsonResource
             'product_limit' => $this->when($this->product_limit, $this->product_limit),
             'time_type'     => $this->when($this->time_type, $this->time_type),
             'time'          => $this->when($this->time, $this->time),
-            'price'         => $this->when($this->price, $this->price),
+            'price'         => $this->when($this->price, $this->rate_price),
             'created_at'    => $this->when($this->created_at, $this->created_at?->format('Y-m-d H:i:s') . 'Z'),
             'updated_at'    => $this->when($this->updated_at, $this->updated_at?->format('Y-m-d H:i:s') . 'Z'),
 

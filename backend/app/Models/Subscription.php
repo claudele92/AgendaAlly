@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Helpers\GetShop;
 use App\Traits\Payable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property boolean $with_report
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read float $rate_price
  * @method static Builder|self newModelQuery()
  * @method static Builder|self newQuery()
  * @method static Builder|self query()
@@ -47,4 +49,22 @@ class Subscription extends Model
         'active'        => 'bool',
         'with_report'   => 'bool',
     ];
+
+    /**
+     * $price is stored in the platform default currency (see every other
+     * price-bearing model in this app). Sellers/moderators browsing plans
+     * see it converted into their own shop's resolved currency (see
+     * Shop::displayCurrency()); every other viewer (admin included) sees
+     * the raw platform-default value, unconverted — same gating as Stock/
+     * Service, just resolving the viewer's own shop rather than an item's
+     * owning shop, since a Subscription plan isn't tied to one shop.
+     */
+    public function getRatePriceAttribute(): float
+    {
+        if (request()->is('api/v1/dashboard/seller/*')) {
+            return Currency::convert((float) $this->price, GetShop::shop()?->displayCurrency()?->id);
+        }
+
+        return (float) $this->price;
+    }
 }

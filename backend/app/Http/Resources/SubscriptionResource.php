@@ -21,7 +21,7 @@ class SubscriptionResource extends JsonResource
         return [
             'id'            => $this->when($this->id, $this->id),
             'type'          => $this->when($this->type, $this->type),
-            'price'         => $this->when($this->price, $this->price),
+            'price'         => $this->when($this->price, $this->rate_price),
             'month'         => $this->when($this->month, $this->month),
             'active'        => $this->when($this->active, $this->active),
             'title'         => $this->when($this->title, $this->title),
