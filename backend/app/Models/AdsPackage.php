@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Helpers\GetShop;
 use App\Traits\ByLocation;
 use App\Traits\Loadable;
 use App\Traits\SetCurrency;
@@ -25,6 +26,7 @@ use Schema;
  * @property string $time_type
  * @property int $time
  * @property double $price
+ * @property-read float $rate_price
  * @property double $product_limit
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -105,6 +107,24 @@ class AdsPackage extends Model
     public function shopAdsPackages(): HasMany
     {
         return $this->hasMany(ShopAdsPackage::class);
+    }
+
+    /**
+     * $price is stored in the platform default currency, same convention
+     * as every other price-bearing model. Sellers/moderators browsing
+     * packages see it converted into their own shop's resolved currency
+     * (see Shop::displayCurrency()); every other viewer sees the raw
+     * platform-default value, unconverted — an ads package isn't tied to
+     * one shop, so (unlike Stock/Service) this resolves the viewer's own
+     * shop rather than an item's owning shop.
+     */
+    public function getRatePriceAttribute(): float
+    {
+        if (request()->is('api/v1/dashboard/seller/*')) {
+            return Currency::convert((float) $this->price, GetShop::shop()?->displayCurrency()?->id);
+        }
+
+        return (float) $this->price;
     }
 
     public function scopeActive($query): Builder

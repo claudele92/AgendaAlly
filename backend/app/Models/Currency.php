@@ -57,4 +57,40 @@ class Currency extends Model
             return self::orderByDesc('default')->get();
         });
     }
+
+    /**
+     * Converts $amount from one currency to another, given both as ids
+     * into currenciesList(). All rates are stored USD-relative (units of
+     * that currency per 1 USD; the base/default currency has rate=1), so
+     * converting A -> B is amount * (rateB / rateA) — a no-op (returns
+     * $amount unchanged) if either id doesn't resolve to a currency, so
+     * this is safe to call with a possibly-unresolved target id.
+     *
+     * $fromCurrencyId omitted means "$amount is already in the platform
+     * default currency" — the convention every raw price column in this
+     * app is stored under (see Stock/Service/Subscription/AdsPackage).
+     */
+    public static function convert(float $amount, ?int $toCurrencyId, ?int $fromCurrencyId = null): float
+    {
+        if (!$toCurrencyId) {
+            return $amount;
+        }
+
+        $list = self::currenciesList();
+
+        $from = $fromCurrencyId
+            ? $list->where('id', $fromCurrencyId)->first()
+            : $list->where('default', 1)->first();
+
+        $to = $list->where('id', $toCurrencyId)->first();
+
+        if (!$to) {
+            return $amount;
+        }
+
+        $fromRate = $from?->rate > 0 ? $from->rate : 1;
+        $toRate   = $to->rate > 0 ? $to->rate : 1;
+
+        return $amount * ($toRate / $fromRate);
+    }
 }
