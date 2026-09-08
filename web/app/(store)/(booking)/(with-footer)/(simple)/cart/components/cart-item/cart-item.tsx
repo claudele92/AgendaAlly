@@ -1,4 +1,5 @@
 import { CartDetail } from "@/types/cart";
+import { Currency } from "@/types/global";
 import React from "react";
 import useCartStore from "@/global-store/cart";
 import dynamic from "next/dynamic";
@@ -19,9 +20,17 @@ interface CartItemProps {
   cartUuid?: string;
   userId?: number;
   showCoupon?: boolean;
+  currency?: Currency;
 }
 
-export const CartItem = ({ data, disabled, cartUuid, userId, showCoupon }: CartItemProps) => {
+export const CartItem = ({
+  data,
+  disabled,
+  cartUuid,
+  userId,
+  showCoupon,
+  currency,
+}: CartItemProps) => {
   const userCartUuid = useCartStore((state) => state.userCartUuid);
   const user = useUserStore((state) => state.user);
   const { dispatch } = useCheckout();
@@ -42,6 +51,7 @@ export const CartItem = ({ data, disabled, cartUuid, userId, showCoupon }: CartI
               data={product}
               disabled={userCartUuid ? userCartUuid !== cartUuid : user?.id !== userId}
               showNoteButton={!userCartUuid}
+              currency={currency}
             />
           ))
         )}

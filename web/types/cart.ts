@@ -1,4 +1,4 @@
-import { Country, Region } from "@/types/global";
+import { Country, Currency, Region } from "@/types/global";
 import { Shop } from "@/types/shop";
 import { ProductGallery, Stock } from "@/types/product";
 import { UserDetail } from "@/types/user";
@@ -102,6 +102,8 @@ export interface CartCalculateRes {
   km: number;
   service_fee: number;
   rate: number;
+  currency_id?: number;
+  currency?: Currency;
   total_coupon_price?: number;
   receipt_discount: number;
   receipt_count: number;

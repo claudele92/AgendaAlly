@@ -333,7 +333,7 @@ export const BookingTotal = ({
         <div className="hidden lg:flex items-center justify-between py-7 text-xl border-b border-gray-link">
           <strong>{t("coupon")}</strong>
           <strong>
-            <Price number={calculateRes?.data?.coupon_price} />
+            <Price number={calculateRes?.data?.coupon_price} customCurrency={calculateRes?.data?.currency} />
           </strong>
         </div>
       )}
@@ -342,7 +342,7 @@ export const BookingTotal = ({
         <div className="hidden lg:flex items-center justify-between py-7 text-xl border-b border-gray-link">
           <strong>{t("total.discount")}</strong>
           <strong>
-            <Price number={calculateRes?.data.total_discount} />
+            <Price number={calculateRes?.data.total_discount} customCurrency={calculateRes?.data?.currency} />
           </strong>
         </div>
       )}
@@ -351,7 +351,10 @@ export const BookingTotal = ({
         <div className="hidden lg:flex items-center justify-between py-7 text-xl border-b border-gray-link">
           <strong>{t("total.gift.card")}</strong>
           <strong>
-            <Price number={calculateRes?.data?.total_gift_cart_price} />
+            <Price
+              number={calculateRes?.data?.total_gift_cart_price}
+              customCurrency={calculateRes?.data?.currency}
+            />
           </strong>
         </div>
       )}
@@ -360,7 +363,10 @@ export const BookingTotal = ({
         <div className="hidden lg:flex items-center justify-between py-7 text-xl border-b border-gray-link">
           <strong>{t("total.commission.fee")}</strong>
           <strong>
-            <Price number={calculateRes?.data.total_commission_fee} />
+            <Price
+              number={calculateRes?.data.total_commission_fee}
+              customCurrency={calculateRes?.data?.currency}
+            />
           </strong>
         </div>
       )}
@@ -369,7 +375,10 @@ export const BookingTotal = ({
         <div className="hidden lg:flex items-center justify-between py-7 text-xl border-b border-gray-link">
           <strong>{t("total.service.fee")}</strong>
           <strong>
-            <Price number={calculateRes?.data.total_service_fee} />
+            <Price
+              number={calculateRes?.data.total_service_fee}
+              customCurrency={calculateRes?.data?.currency}
+            />
           </strong>
         </div>
       )}
@@ -378,7 +387,10 @@ export const BookingTotal = ({
         <div className="hidden lg:flex items-center justify-between py-7 text-xl border-b border-gray-link">
           <strong>{t("total.extras.price")}</strong>
           <strong>
-            <Price number={calculateRes?.data?.total_extra_price} />
+            <Price
+              number={calculateRes?.data?.total_extra_price}
+              customCurrency={calculateRes?.data?.currency}
+            />
           </strong>
         </div>
       )}
@@ -386,7 +398,10 @@ export const BookingTotal = ({
       <div className="hidden lg:flex items-center justify-between py-7 text-[26px] font-semibold">
         <strong>{t("total")}</strong>
         <strong>
-          <Price number={totalPrice ?? calculateRes?.data.total_price} />
+          <Price
+            number={totalPrice ?? calculateRes?.data.total_price}
+            customCurrency={calculateRes?.data?.currency}
+          />
         </strong>
       </div>
       <div>

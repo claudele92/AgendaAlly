@@ -140,7 +140,7 @@ export const CheckoutProductGroup = ({ data, calcResult }: CheckoutProductGroupP
             <div>
               <div className="text-sm">{t("delivery.fee")}</div>
               <span className="text-sm font-bold">
-                <Price number={deliveryFee} />
+                <Price number={deliveryFee} customCurrency={calcResult?.currency} />
               </span>
             </div>
           </div>

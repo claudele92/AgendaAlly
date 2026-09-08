@@ -5,6 +5,7 @@ namespace App\Repositories\BookingRepository;
 
 use App\Helpers\OrderHelper;
 use App\Helpers\ResponseError;
+use App\Http\Resources\CurrencyResource;
 use App\Http\Resources\ServiceExtraResource;
 use App\Http\Resources\ServiceMasterResource;
 use App\Http\Resources\ShopResource;
@@ -147,6 +148,7 @@ class BookingRepository extends CoreRepository
         $defaultCurrency = Currency::currenciesList()->where('active', 1)->where('default', 1)->first();
         $rate            = $defaultCurrency?->rate ?: 1;
         $currencyId      = $defaultCurrency?->id;
+        $currency        = $defaultCurrency;
 
         if (request()->is('api/v1/dashboard/user/*') || request()->is('api/v1/rest/*')) {
             // Customer-facing checkout: currency/rate come from the shop's
@@ -163,6 +165,7 @@ class BookingRepository extends CoreRepository
 
             $rate       = $country->currency->rate ?: 1;
             $currencyId = $country->currency_id;
+            $currency   = $country->currency;
         }
 
         $serviceFee = Settings::where('key', 'booking_service_fee')->first()?->value;
@@ -430,6 +433,7 @@ class BookingRepository extends CoreRepository
             'user_gift_cart_id'     => $data['user_gift_cart_id'] ?? 0,
             'rate'                  => $rate,
             'currency_id'           => $currencyId,
+            'currency'              => CurrencyResource::make($currency),
             'price'                 => $price + $discount,
             'total_price'           => max($totalPrice + $serviceFee, 0),
             'total_extra_price'     => max($extraPrice, 0),

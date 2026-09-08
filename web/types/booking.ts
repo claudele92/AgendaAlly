@@ -122,6 +122,8 @@ export interface BookingCalculateRes {
   total_gift_cart_price: number;
   total_price: number;
   total_service_fee: number;
+  currency_id?: number;
+  currency?: Currency;
   items: {
     errors?: string[];
   }[];

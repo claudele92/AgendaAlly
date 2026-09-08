@@ -8,13 +8,15 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import { Input } from "@/components/input";
 import { warning } from "@/components/alert";
+import { Currency } from "@/types/global";
 
 interface TipsProps {
   totalPrice?: number;
+  currency?: Currency;
   onSubmit: (tip: number) => void;
 }
 
-const Tips = ({ totalPrice = 0, onSubmit }: TipsProps) => {
+const Tips = ({ totalPrice = 0, currency, onSubmit }: TipsProps) => {
   const { t } = useTranslation();
 
   const [selectedTip, setSelectedTip] = useState<{ percent: number | string; price?: number }>({
@@ -57,7 +59,7 @@ const Tips = ({ totalPrice = 0, onSubmit }: TipsProps) => {
           >
             <span>{percentage}%</span>
             <span>
-              <Price number={percentToPrice(percentage, totalPrice)} />
+              <Price number={percentToPrice(percentage, totalPrice)} customCurrency={currency} />
             </span>
           </button>
         ))}

@@ -378,6 +378,7 @@ const AuthorizedCart = () => {
                     ownerId={data?.data.owner_id}
                     key={userCartItem.id}
                     data={userCartItem}
+                    currency={cartTotal?.data?.currency}
                   />
                 ))
               : userCart?.cartDetails.map((detail) => (
@@ -388,6 +389,7 @@ const AuthorizedCart = () => {
                     cartUuid={userCart.uuid}
                     userId={data?.data.owner_id}
                     showCoupon
+                    currency={cartTotal?.data?.currency}
                   />
                 ))}
             {!!cartTotal?.data?.errors?.length && (
@@ -430,7 +432,11 @@ const AuthorizedCart = () => {
                 <div className="flex items-center gap-4">
                   <HandCoinLineIcon />
                   <span className="text-base font-medium">
-                    {checkoutState.tips ? <Price number={checkoutState.tips} /> : t("add.tips")}
+                    {checkoutState.tips ? (
+                      <Price number={checkoutState.tips} customCurrency={cartTotal?.data?.currency} />
+                    ) : (
+                      t("add.tips")
+                    )}
                   </span>
                 </div>
                 <Button size="xsmall" color="gray" onClick={openTipsModal}>
@@ -456,6 +462,7 @@ const AuthorizedCart = () => {
                 {" - "}
                 <Price
                   number={(cartTotal?.data?.total_price ?? 0) + (cartTotal?.data?.tips ?? 0)}
+                  customCurrency={cartTotal?.data?.currency}
                 />
               </Button>
             </div>
@@ -477,6 +484,7 @@ const AuthorizedCart = () => {
       <Modal isOpen={isTipsModalOpen} onClose={closeTipsModal} withCloseButton={!isMobile}>
         <Tips
           totalPrice={cartTotal?.data?.total_price ?? 0}
+          currency={cartTotal?.data?.currency}
           onSubmit={(num) => {
             dispatch({ type: Types.UpdateTips, payload: { tips: num } });
             closeTipsModal();

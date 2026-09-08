@@ -6,6 +6,7 @@ import StarIcon from "@/assets/icons/star";
 import { Price } from "@/components/price";
 import React, { useState } from "react";
 import { CartDetailProduct } from "@/types/cart";
+import { Currency } from "@/types/global";
 import { useCart } from "@/hook/use-cart";
 import TrashIcon from "@/assets/icons/trash";
 import MessageBubleIcon from "@/assets/icons/message-buble";
@@ -24,6 +25,7 @@ interface CartProductProps {
   onCounterClick?: () => void;
   disabled?: boolean;
   showNoteButton?: boolean;
+  currency?: Currency;
 }
 
 const CartProduct = ({
@@ -32,6 +34,7 @@ const CartProduct = ({
   isCalculating,
   disabled,
   showNoteButton = true,
+  currency,
 }: CartProductProps) => {
   const { t } = useTranslation();
   const { stock, id, galleries } = data;
@@ -111,11 +114,12 @@ const CartProduct = ({
                         ? data.price - data.discount
                         : data.price
                     }
+                    customCurrency={currency}
                   />
                 </strong>
                 {!!data.discount && data.discount > 0 && (
                   <span className="text-primary text-xl font-semibold line-through">
-                    <Price number={data?.price} />
+                    <Price number={data?.price} customCurrency={currency} />
                   </span>
                 )}
               </div>
