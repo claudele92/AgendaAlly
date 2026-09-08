@@ -9,6 +9,7 @@ import clsx from "clsx";
 import useUserStore from "@/global-store/user";
 import { ProfilePlaceholder } from "@/components/profile-placeholder";
 import { useSettings } from "@/hook/use-settings";
+import { Currency } from "@/types/global";
 import { CartItem } from "../cart-item";
 
 const Empty = dynamic(() =>
@@ -18,9 +19,10 @@ const Empty = dynamic(() =>
 interface UserCartItemProps {
   data: UserCart;
   ownerId?: number;
+  currency?: Currency;
 }
 
-export const UserCartItem = ({ data, ownerId }: UserCartItemProps) => {
+export const UserCartItem = ({ data, ownerId, currency }: UserCartItemProps) => {
   const userCartUuid = useCartStore((state) => state.userCartUuid);
   const { t } = useTranslation();
   const productList = data?.cartDetails.flatMap((detail) => detail.cartDetailProducts);
@@ -59,6 +61,7 @@ export const UserCartItem = ({ data, ownerId }: UserCartItemProps) => {
                     cartUuid={data.uuid}
                     userId={data.user_id}
                     showCoupon={user?.id === ownerId && user?.id === data?.user_id}
+                    currency={currency}
                   />
                 ))
               )}

@@ -5,6 +5,7 @@ namespace App\Repositories\CartRepository;
 
 use App\Helpers\OrderHelper;
 use App\Helpers\ResponseError;
+use App\Http\Resources\CurrencyResource;
 use App\Models\Cart;
 use App\Models\CartDetailProduct;
 use App\Models\Settings;
@@ -26,6 +27,7 @@ class CartRepository extends CoreRepository
     public function with(): array
     {
         return [
+                'currency',
                 'userCarts.cartDetails' => fn($q) => $q->with([
                     'shop:id,latitude,longitude,tax,uuid,slug,logo_img,status,type,delivery_type,delivery_time,verify',
                     'shop.translation' => fn($q) => $q->where('locale', $this->language),
@@ -191,6 +193,8 @@ class CartRepository extends CoreRepository
             'total_discount' => $totalDiscount,
             'coupon'         => $couponPrice,
             'rate'           => $rate,
+            'currency_id'    => $cart->currency_id,
+            'currency'       => CurrencyResource::make($cart->currency),
             'service_fee'    => $serviceFee,
             'tips'           => $tips
         ];

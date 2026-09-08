@@ -6,6 +6,7 @@ namespace App\Http\Resources\Cart;
 use App\Http\Resources\AreaResource;
 use App\Http\Resources\CityResource;
 use App\Http\Resources\CountryResource;
+use App\Http\Resources\CurrencyResource;
 use App\Http\Resources\RegionResource;
 use App\Http\Resources\UserResource;
 use App\Models\Cart;
@@ -29,6 +30,7 @@ class CartResource extends JsonResource
             'status'        => $this->status,
             'total_price'   => $this->rate_total_price,
             'currency_id'   => $this->currency_id,
+            'currency'      => CurrencyResource::make($this->whenLoaded('currency')),
             'region_id'     => $this->when($this->region_id, $this->region_id),
             'country_id'    => $this->when($this->country_id, $this->country_id),
             'city_id'       => $this->when($this->city_id, $this->city_id),

@@ -18,13 +18,14 @@ export const CartTotal = ({
   transactions,
 }: CartTotalProps) => {
   const { t } = useTranslation();
+  const currency = totals?.currency;
   return (
     <div className={couponStyle ? "coupon" : ""}>
       {!!totals?.price && (
         <div className="flex items-center justify-between py-4 border-b border-gray-border">
           <span className="text-sm">{t("products")}</span>
           <span className="text-sm">
-            <Price number={totals?.price} />
+            <Price number={totals?.price} customCurrency={currency} />
           </span>
         </div>
       )}
@@ -32,7 +33,7 @@ export const CartTotal = ({
         <div className="flex items-center justify-between py-4 border-b border-gray-border">
           <span className="text-sm">{t("discount")}</span>
           <span className="text-sm">
-            -<Price number={totals?.total_discount} />
+            -<Price number={totals?.total_discount} customCurrency={currency} />
           </span>
         </div>
       )}
@@ -49,6 +50,7 @@ export const CartTotal = ({
                     ? totals?.delivery_fee?.reduce((acc, curr) => acc + curr.price, 0)
                     : totals.delivery_fee
                 }
+                customCurrency={currency}
               />
             </span>
           </div>
@@ -57,7 +59,7 @@ export const CartTotal = ({
         <div className="flex items-center justify-between py-4 border-b border-gray-border">
           <span className="text-sm">{t("total.tax")}</span>
           <span className="text-sm">
-            <Price number={totals?.total_shop_tax} />
+            <Price number={totals?.total_shop_tax} customCurrency={currency} />
           </span>
         </div>
       )}
@@ -65,7 +67,7 @@ export const CartTotal = ({
         <div className="flex items-center justify-between py-4 border-b border-gray-border">
           <span className="text-sm">{t("total.tax")}</span>
           <span className="text-sm">
-            <Price number={totals?.total_tax} />
+            <Price number={totals?.total_tax} customCurrency={currency} />
           </span>
         </div>
       )}
@@ -73,7 +75,7 @@ export const CartTotal = ({
         <div className="flex items-center justify-between py-4 border-b border-gray-border">
           <span className="text-sm">{t("service.fee")}</span>
           <span className="text-sm">
-            <Price number={totals?.service_fee} />
+            <Price number={totals?.service_fee} customCurrency={currency} />
           </span>
         </div>
       )}
@@ -81,7 +83,7 @@ export const CartTotal = ({
         <div className="flex items-center justify-between py-4 border-b border-gray-border">
           <span className="text-sm">{t("tips")}</span>
           <span className="text-sm">
-            <Price number={totals?.tips} />
+            <Price number={totals?.tips} customCurrency={currency} />
           </span>
         </div>
       )}
@@ -89,7 +91,11 @@ export const CartTotal = ({
         <div className="flex items-center justify-between py-4 ">
           <span className="text-sm">{t("coupon")}</span>
           <span className="text-sm">
-            -<Price number={totals?.coupon?.reduce((acc, curr) => acc + curr.price, 0)} />
+            -
+            <Price
+              number={totals?.coupon?.reduce((acc, curr) => acc + curr.price, 0)}
+              customCurrency={currency}
+            />
           </span>
         </div>
       )}
@@ -97,7 +103,7 @@ export const CartTotal = ({
         <div className="flex items-center justify-between py-4 ">
           <span className="text-sm">{t("coupon")}</span>
           <span className="text-sm">
-            -<Price number={totals?.total_coupon_price} />
+            -<Price number={totals?.total_coupon_price} customCurrency={currency} />
           </span>
         </div>
       )}
@@ -106,7 +112,7 @@ export const CartTotal = ({
       <div className="flex items-center justify-between mt-7">
         <strong className="text-[22px] font-bold">{t("total")}</strong>
         <strong className="text-[22px] font-bold">
-          <Price number={totals?.total_price ?? 0} />
+          <Price number={totals?.total_price ?? 0} customCurrency={currency} />
         </strong>
       </div>
       {!!transactions?.length &&
@@ -123,7 +129,7 @@ export const CartTotal = ({
               )}
             >
               {transaction?.payment_system?.tag === "wallet" && "- "}
-              <Price number={transaction?.price} />
+              <Price number={transaction?.price} customCurrency={currency} />
             </span>
           </div>
         ))}
