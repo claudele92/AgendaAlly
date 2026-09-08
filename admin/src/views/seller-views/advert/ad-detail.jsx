@@ -43,7 +43,7 @@ const AdDetail = ({ id, onClose }) => {
             {data?.translation?.title}
           </Descriptions.Item>
           <Descriptions.Item span={3} label={t('price')}>
-            {numberToPrice(data?.price)}
+            {numberToPrice(data?.price, data?.currency?.symbol)}
           </Descriptions.Item>
           <Descriptions.Item span={3} label={t('time')}>
             {data?.time} {data?.time_type}

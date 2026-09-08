@@ -56,7 +56,11 @@ export default function Advert() {
       title: t('price'),
       dataIndex: 'price',
       is_show: true,
-      render: (_, row) => numberToPrice(row?.ads_package?.price),
+      render: (_, row) =>
+        numberToPrice(
+          row?.ads_package?.price,
+          row?.ads_package?.currency?.symbol,
+        ),
     },
     {
       title: t('expired.at'),

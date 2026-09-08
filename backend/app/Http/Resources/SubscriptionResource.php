@@ -22,6 +22,7 @@ class SubscriptionResource extends JsonResource
             'id'            => $this->when($this->id, $this->id),
             'type'          => $this->when($this->type, $this->type),
             'price'         => $this->when($this->price, $this->rate_price),
+            'currency'      => CurrencyResource::make($this->rate_currency),
             'month'         => $this->when($this->month, $this->month),
             'active'        => $this->when($this->active, $this->active),
             'title'         => $this->when($this->title, $this->title),

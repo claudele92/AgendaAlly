@@ -63,7 +63,7 @@ export default function Advert() {
       title: t('price'),
       dataIndex: 'price',
       is_show: true,
-      render: (price) => numberToPrice(price),
+      render: (price, row) => numberToPrice(price, row?.currency?.symbol),
     },
 
     {
