@@ -214,12 +214,17 @@ class UserSeeder extends Seeder
             'longitude'         => 69.3453324,
             'phone'             => '+1234566',
             'open'              => 1,
-            // Placeholder demo imagery (placehold.co, brand teal) — the
-            // old 'url.webp' value wasn't a resolvable path at all, so it
-            // rendered as a broken image everywhere background_img/logo_img
-            // are shown (My Shop, seller header, superadmin Shops list).
-            'background_img'    => 'https://placehold.co/1200x400/1d9e75/ffffff?text=Demo+Shop+Banner',
-            'logo_img'          => 'https://placehold.co/400x400/1d9e75/ffffff?text=Demo+Shop+Logo',
+            // Placeholder demo imagery — placehold.co isn't in web/'s
+            // next.config.js images.remotePatterns allowlist, so it crashed
+            // next/image (and the old 'url.webp' value before that wasn't a
+            // resolvable path at all either). flagcdn.com IS already
+            // allowlisted there and already used elsewhere in this exact
+            // codebase for country flags (see DemoAfricaSeeder::country()),
+            // so reusing it here needs no config change and no new external
+            // dependency — just this shop's own country's flag standing in
+            // for a real uploaded logo/banner.
+            'background_img'    => 'https://flagcdn.com/h240/cm.png',
+            'logo_img'          => 'https://flagcdn.com/h120/cm.png',
             'status'            => 'approved',
             'status_note'       => 'approved',
             'delivery_time'     => [
@@ -252,8 +257,10 @@ class UserSeeder extends Seeder
             'longitude'         => -1.5196603,
             'phone'             => '+2267000000',
             'open'              => 1,
-            'background_img'    => 'url.webp',
-            'logo_img'          => 'url.webp',
+            // Same flagcdn.com fix as the Cameroon shop above, this
+            // country's own flag ('bf') standing in for a real logo/banner.
+            'background_img'    => 'https://flagcdn.com/h240/bf.png',
+            'logo_img'          => 'https://flagcdn.com/h120/bf.png',
             'status'            => 'approved',
             'status_note'       => 'approved',
             'delivery_time'     => [
