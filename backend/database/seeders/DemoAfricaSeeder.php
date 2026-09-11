@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\DeliveryPrice;
 use App\Models\Language;
 use App\Models\Region;
 use App\Models\Shop;
@@ -23,6 +24,12 @@ use Throwable;
  * type and country (Cameroon), so they can't trip
  * ShopLocationService::conflictingCountryLocation()'s same-country-per-type
  * rule.
+ *
+ * Also seeds DeliveryPrice rows for both countries — without these, the
+ * storefront's checkout can't offer a delivery option at all for either
+ * demo shop (both are DELIVERY_TYPE_IN_HOUSE, so OrderHelper::deliveryPrice()
+ * looks the price up directly by region/country/city, not by shop_id) and
+ * the cart/checkout screens are unreachable past the shipping step.
  *
  * Deliberately NOT part of RegionSeeder. RegionSeeder is disabled (see
  * DatabaseSeeder) and populates the entire world from countries.json — a
@@ -80,8 +87,22 @@ class DemoAfricaSeeder extends Seeder
 
             // Bobo-Dioulasso is seeded per the spec (a second Burkina Faso
             // city to pick from) but isn't assigned to a shop — only one
-            // Burkina Faso branch was asked for.
+            // Burkina Faso branch was asked for. It's also deliberately
+            // left without a DeliveryPrice row below, for the same reason.
             unset($boboDioulasso);
+
+            // A country-level fallback (city_id null) alongside each seeded
+            // city: DeliveryPrice::filter() falls back to the null-city row
+            // whenever a request narrows by country_id but hasn't got a
+            // city_id yet (see DeliveryPrice::scopeFilter()'s whereNull
+            // defaults), which is exactly the state the storefront's
+            // shipping step queries in before the customer's city is known.
+            $this->deliveryPrice($africa, $cameroon, null);
+            $this->deliveryPrice($africa, $cameroon, $douala);
+            $this->deliveryPrice($africa, $cameroon, $yaounde);
+
+            $this->deliveryPrice($africa, $burkinaFaso, null);
+            $this->deliveryPrice($africa, $burkinaFaso, $ouagadougou);
         } catch (Throwable $e) {
             $this->error($e);
         }
@@ -155,5 +176,24 @@ class DemoAfricaSeeder extends Seeder
             'region_id'  => $region->id,
             'country_id' => $country->id,
         ]);
+    }
+
+    private function deliveryPrice(Region $region, Country $country, ?City $city): void
+    {
+        $deliveryPrice = DeliveryPrice::where('region_id', $region->id)
+            ->where('country_id', $country->id)
+            ->when($city, fn($q) => $q->where('city_id', $city->id), fn($q) => $q->whereNull('city_id'))
+            ->first();
+
+        if (!$deliveryPrice) {
+            $deliveryPrice = DeliveryPrice::create([
+                'price'      => 2,
+                'region_id'  => $region->id,
+                'country_id' => $country->id,
+                'city_id'    => $city?->id,
+            ]);
+            $deliveryPrice->translations()->create(['title' => 'Standard delivery', 'locale' => 'en']);
+            $this->command?->info("delivery price: {$country->code}" . ($city ? "/{$city->id}" : ''));
+        }
     }
 }
