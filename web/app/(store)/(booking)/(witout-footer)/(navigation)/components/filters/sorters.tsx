@@ -24,7 +24,20 @@ export const Sorters = ({ options, title, loading, setClearCallback }: SorterPro
   });
 
   useEffect(() => {
-    setClearCallback(() => {
+    // setClearCallback is FilterList's useState setter for a stored
+    // callback. Passing it a plain function — setClearCallback(() => {...})
+    // — makes React treat that function as a state *updater*: it gets
+    // invoked immediately (calling setSelectedOption as a side effect of
+    // computing FilterList's next state, which is what was tripping
+    // React's "Cannot update a component while rendering a different
+    // component" guard) and its `undefined` return value becomes the new
+    // clearCallback, so `if (clearCallback) clearCallback()` in
+    // handleClearAll never actually ran — "Clear all" reset the URL params
+    // but left this component's selectedOption showing the old choice.
+    // Wrapping in a second arrow makes the outer function the updater
+    // (called once, side-effect-free) and its return value — the inner
+    // function — the callback that actually gets stored and later invoked.
+    setClearCallback(() => () => {
       setSelectedOption({
         queryKey: urlSearchParams.has("has_discount")
           ? "has_discount"
@@ -61,9 +74,9 @@ export const Sorters = ({ options, title, loading, setClearCallback }: SorterPro
       <RadioGroup value={selectedOption} onChange={handleChange} className="flex flex-col gap-3">
         {loading
           ? Array.from(Array(9).keys()).map((item) => (
-              <div className="flex justify-between">
-                <div key={item} className="bg-gray-300 h-6 w-4/5 rounded-full" />
-                <div key={`${item}_circle`} className="bg-gray-300 h-6 w-[24px] rounded-full" />
+              <div key={item} className="flex justify-between">
+                <div className="bg-gray-300 h-6 w-4/5 rounded-full" />
+                <div className="bg-gray-300 h-6 w-[24px] rounded-full" />
               </div>
             ))
           : options?.map((option) => (

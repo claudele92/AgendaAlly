@@ -20,7 +20,7 @@ interface AuthProps {
   redirectOnSuccess?: boolean;
 }
 
-export default async ({ defaultView = "SIGNUP", redirectOnSuccess = true }: AuthProps) => {
+export default ({ defaultView = "SIGNUP", redirectOnSuccess = true }: AuthProps) => {
   const [currentView, setCurrentView] = useState<AuthViews>(defaultView);
   const handleChangeView = useCallback((view: AuthViews) => setCurrentView(view), []);
   const renderView = () => {
