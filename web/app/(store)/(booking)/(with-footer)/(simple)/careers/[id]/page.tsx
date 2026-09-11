@@ -4,7 +4,7 @@ import { CareerDetailContent } from "./content";
 
 const CareersDetailPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const data = await infoService.getCareer(params.id, { lang });
 
   return <CareerDetailContent initialData={data} />;

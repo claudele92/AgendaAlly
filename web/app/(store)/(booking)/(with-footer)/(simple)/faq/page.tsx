@@ -5,7 +5,7 @@ import { GeneralChat } from "./components/general-chat";
 import { HelpContent } from "./content";
 
 const Help = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const faqs = await infoService.faq({ lang });
   return (
     <>

@@ -45,7 +45,7 @@ export const generateMetadata = async (props: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
   const shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
 
@@ -64,7 +64,7 @@ export const generateMetadata = async (props: {
 
 const SingleShop = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
   const settings = await globalService.settings();
   const parsedSettings = parseSettings(settings?.data);

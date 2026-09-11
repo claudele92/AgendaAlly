@@ -8,7 +8,7 @@ import { Qa } from "./components/qa";
 import { GeneralChat } from "./components/general-chat";
 
 const Help = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const faqs = await fetcher<Paginate<Faq>>(
     buildUrlQueryParams("v1/rest/faqs/paginate", { lang }),
     { cache: "no-cache" }

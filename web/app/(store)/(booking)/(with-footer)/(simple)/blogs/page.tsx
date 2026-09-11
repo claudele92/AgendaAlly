@@ -18,7 +18,7 @@ export const metadata = {
 };
 
 const BlogPage = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const blogs = await fetcher<Paginate<Blog<BlogShortTranslation>>>(
     buildUrlQueryParams("v1/rest/blogs/paginate", { lang, type: "blog" }),
     {

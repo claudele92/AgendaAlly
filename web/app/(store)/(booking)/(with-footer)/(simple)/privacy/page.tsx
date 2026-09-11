@@ -5,7 +5,7 @@ import { PrivacyContent } from "./content";
 export const dynamic = "force-dynamic";
 
 const PrivacyPolicy = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const terms = await infoService.privacy({ lang });
   return <PrivacyContent data={terms} />;
 };

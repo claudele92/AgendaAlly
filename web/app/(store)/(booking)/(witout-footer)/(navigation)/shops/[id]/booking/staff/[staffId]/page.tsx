@@ -10,7 +10,7 @@ const StaffDetail = dynamic(() =>
 
 const SingleStaffPage = async (props: { params: Promise<{ id: string; staffId: string }> }) => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
   const shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
   return (

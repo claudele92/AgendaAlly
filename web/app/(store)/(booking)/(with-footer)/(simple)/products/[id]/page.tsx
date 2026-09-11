@@ -15,7 +15,7 @@ export const generateMetadata = async (
   }
 ): Promise<Metadata> => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
   const { data } = await fetcher<DefaultResponse<ProductFull>>(
     buildUrlQueryParams(`v1/rest/products/${params.id}`, { lang, currency_id: currencyId }),
@@ -37,7 +37,7 @@ export const generateMetadata = async (
 
 const ProductDetailPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
   const data = await fetcher<DefaultResponse<ProductFull>>(
     buildUrlQueryParams(`v1/rest/products/${params.id}`, { lang, currency_id: currencyId })

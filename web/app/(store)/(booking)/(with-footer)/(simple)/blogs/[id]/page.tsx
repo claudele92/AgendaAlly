@@ -20,7 +20,7 @@ export const generateMetadata = async (
   }
 ): Promise<Metadata> => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
     buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
     {
@@ -44,7 +44,7 @@ export const generateMetadata = async (
 
 const BlogDetailPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
     buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
     { redirectOnError: true }
