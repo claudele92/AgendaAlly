@@ -21,14 +21,16 @@ export const Footer = ({ settings }: FooterProps) => {
           <div>
             <div className="relative h-[45px] max-w-[420px] ">
               <Link href="/" className="mb-3 max-w-max">
-                <Image
-                  src={settings?.logo || ""}
-                  alt={settings?.title || "logo"}
-                  className="object-contain max-h-11 h-full !w-auto"
-                  // quality={100}
-                  sizes="45px"
-                  fill
-                />
+                {settings?.logo && (
+                  <Image
+                    src={settings.logo}
+                    alt={settings?.title || "logo"}
+                    className="object-contain max-h-11 h-full !w-auto"
+                    // quality={100}
+                    sizes="45px"
+                    fill
+                  />
+                )}
               </Link>
             </div>
             <p className="text-base font-medium">{settings?.description}</p>

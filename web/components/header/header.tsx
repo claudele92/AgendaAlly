@@ -48,13 +48,15 @@ export const Header = ({
           href="/"
           className={clsx("relative z-10 lg:z-[4] lg:inline", showOnlyBackButton && "hidden")}
         >
-          <Image
-            src={settings?.logo || ""}
-            alt={settings?.title || "logo"}
-            width={148}
-            height={28}
-            className="object-contain h-7 w-auto"
-          />
+          {settings?.logo && (
+            <Image
+              src={settings.logo}
+              alt={settings?.title || "logo"}
+              width={148}
+              height={28}
+              className="object-contain h-7 w-auto"
+            />
+          )}
         </Link>
         <CountryIndicator />
         {showOnlyBackButton && (
