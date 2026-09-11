@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { TermsContent } from "./content";
 
 export const generateMetadata = async (): Promise<Metadata> => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const terms = await infoService.terms({ lang });
   return {
     title: terms?.data.translation?.title,
@@ -12,7 +12,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
 };
 
 const TermsPage = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const terms = await infoService.terms({ lang });
   return <TermsContent data={terms} />;
 };

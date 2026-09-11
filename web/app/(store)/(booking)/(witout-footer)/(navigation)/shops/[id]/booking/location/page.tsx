@@ -8,7 +8,7 @@ import { BookingBackButton } from "../booking-back-button";
 
 const ShopBookingLocation = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const shop = await shopService.getBySlug(params.id, { lang });
   return (
     <section className="xl:container px-2 py-7">

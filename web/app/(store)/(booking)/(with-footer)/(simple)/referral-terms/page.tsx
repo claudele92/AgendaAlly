@@ -3,7 +3,7 @@ import { infoService } from "@/services/info";
 import { ReferralContent } from "./content";
 
 const ReferralTerms = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const data = await infoService.referrals({ lang });
   return <ReferralContent data={data} />;
 };

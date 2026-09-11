@@ -13,7 +13,7 @@ const MembershipDetailPage = async (
 ) => {
   const searchParams = await props.searchParams;
   const params = await props.params;
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
   const data = await membershipService.getById(searchParams.shopId, params.membershipId, {
     lang,

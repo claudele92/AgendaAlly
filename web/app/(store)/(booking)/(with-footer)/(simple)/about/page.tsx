@@ -3,7 +3,7 @@ import { infoService } from "@/services/info";
 import { AboutPageContent } from "./content";
 
 const AboutPage = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const data = await infoService.getPages({ type: "all_about", lang });
 
   return <AboutPageContent initialData={data} />;

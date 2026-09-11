@@ -14,7 +14,7 @@ import FilteredProductList from "./components/filtered-product-list";
 import { Brands } from "./components/brands";
 
 const Products = async () => {
-  const lang = (await cookies()).get("lang")?.value;
+  const lang = (await cookies()).get("lang")?.value || "en";
   const banners = await fetcher<Paginate<Banner>>(
     buildUrlQueryParams("v1/rest/banners/paginate", { lang }),
     {
