@@ -24,12 +24,16 @@ class SubscriptionSeeder extends Seeder
      */
     public function run(): void
     {
+        // Prices are written as "real-world $ * 600" (600 = the currency:
+        // rebase-to-xaf factor, see CurrencySeeder) - a bare 100.00 here
+        // would mean 100 XAF (~$0.17) now that XAF is the base currency,
+        // not $100.
         $data =  [
             [
                 'id'            => 97,
                 'title'         => 'Starter',
                 'type'          => 'orders',
-                'price'         => 100.00,
+                'price'         => 100.00 * 600,
                 'product_limit' => 1000,
                 'order_limit'   => 1000,
                 'booking_limit' => 1000,
@@ -43,7 +47,7 @@ class SubscriptionSeeder extends Seeder
                 'id'            => 98,
                 'title'         => 'Growth',
                 'type'          => 'orders',
-                'price'         => 250.00,
+                'price'         => 250.00 * 600,
                 'product_limit' => 3000,
                 'order_limit'   => 3000,
                 'booking_limit' => 3000,
@@ -61,7 +65,7 @@ class SubscriptionSeeder extends Seeder
                 'order_limit'   => 6000,
                 'booking_limit' => 6000,
                 'with_report'   => 1,
-                'price'         => 450.00,
+                'price'         => 450.00 * 600,
                 'month'         => 6,
                 'active'        => true,
                 'created_at'    => now(),
@@ -75,7 +79,7 @@ class SubscriptionSeeder extends Seeder
                 'booking_limit' => 12000,
                 'with_report'   => 1,
                 'type'          => 'orders',
-                'price'         => 800.00,
+                'price'         => 800.00 * 600,
                 'month'         => 12,
                 'active'        => true,
                 'created_at'    => now(),

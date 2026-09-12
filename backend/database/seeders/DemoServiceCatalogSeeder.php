@@ -79,13 +79,20 @@ class DemoServiceCatalogSeeder extends Seeder
     // both shops, same reasoning as DemoAfricaSeeder's symmetric
     // DeliveryPrice treatment — a small, predictable, easy-to-browse catalog
     // rather than inventing asymmetric per-shop assortments.
+    //
+    // Prices are written as "real-world $ * 600" (600 = the currency:rebase
+    // -to-xaf factor, see CurrencySeeder) so they read as the intended
+    // real-world price while actually storing the correct XAF-denominated
+    // raw value XAF-as-base now requires — a bare 15 here would mean 15
+    // XAF (~$0.025), not $15, since this table's raw price column is
+    // implicitly denominated in whatever currency is flagged default.
     private const SERVICES = [
-        ['category' => 'Haircut',          'price' => 15, 'interval' => 30, 'description' => 'A precision haircut tailored to your style.'],
-        ['category' => 'Hair Coloring',    'price' => 45, 'interval' => 90, 'description' => 'Full color or highlights using professional-grade dye.'],
-        ['category' => 'Manicure',         'price' => 20, 'interval' => 45, 'description' => 'Nail shaping, cuticle care, and polish of your choice.'],
-        ['category' => 'Massage Therapy',  'price' => 35, 'interval' => 60, 'description' => 'A relaxing full-body massage to ease tension.'],
-        ['category' => 'Beard Trim',       'price' => 10, 'interval' => 20, 'description' => 'Beard shaping and trim with a straight razor finish.'],
-        ['category' => 'Bridal Makeup',    'price' => 60, 'interval' => 90, 'description' => 'Full bridal makeup application, trial included.'],
+        ['category' => 'Haircut',          'price' => 15 * 600, 'interval' => 30, 'description' => 'A precision haircut tailored to your style.'],
+        ['category' => 'Hair Coloring',    'price' => 45 * 600, 'interval' => 90, 'description' => 'Full color or highlights using professional-grade dye.'],
+        ['category' => 'Manicure',         'price' => 20 * 600, 'interval' => 45, 'description' => 'Nail shaping, cuticle care, and polish of your choice.'],
+        ['category' => 'Massage Therapy',  'price' => 35 * 600, 'interval' => 60, 'description' => 'A relaxing full-body massage to ease tension.'],
+        ['category' => 'Beard Trim',       'price' => 10 * 600, 'interval' => 20, 'description' => 'Beard shaping and trim with a straight razor finish.'],
+        ['category' => 'Bridal Makeup',    'price' => 60 * 600, 'interval' => 90, 'description' => 'Full bridal makeup application, trial included.'],
     ];
 
     public function run(): void
