@@ -10,6 +10,7 @@ use App\Models\ShopTranslation;
 use App\Models\User;
 use App\Services\UserServices\UserWalletService;
 use App\Traits\Loggable;
+use App\Traits\SetTranslations;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Throwable;
@@ -17,6 +18,13 @@ use Throwable;
 class UserSeeder extends Seeder
 {
     use Loggable;
+    // Only for its setSlug() helper — these two shops are created via raw
+    // Shop::updateOrCreate() below rather than through ShopService::create(),
+    // so they never go through that service's own setTranslations() call
+    // (which is what generates a slug for every shop made through the real
+    // seller-facing flow). Reusing the exact same helper instead of
+    // reimplementing its Str::slug($title) . "-$id" formula a second time.
+    use SetTranslations;
 
     /**
      * Run the database seeds.
@@ -236,14 +244,24 @@ class UserSeeder extends Seeder
             'type'              => 1,
         ]);
 
+        $shopLocale = data_get(Language::first(), 'locale', 'en');
+
         ShopTranslation::updateOrCreate([
             'shop_id'       => $shop->id,
         ], [
             'description'   => 'branch desc',
             'title'         => 'branch title',
-            'locale'        => data_get(Language::first(), 'locale', 'en'),
+            'locale'        => $shopLocale,
             'address'       => 'address',
         ]);
+
+        if (!$shop->slug) {
+            try {
+                $this->setSlug($shop, [$shopLocale => 'branch title'], $shopLocale);
+            } catch (Throwable $e) {
+                $this->error($e);
+            }
+        }
 
         $shop->tags()->sync(ShopTag::pluck('id')->toArray());
 
@@ -277,9 +295,17 @@ class UserSeeder extends Seeder
         ], [
             'description'   => 'Ouagadougou branch desc',
             'title'         => 'Ouagadougou branch',
-            'locale'        => data_get(Language::first(), 'locale', 'en'),
+            'locale'        => $shopLocale,
             'address'       => 'Ouagadougou, Burkina Faso',
         ]);
+
+        if (!$bfShop->slug) {
+            try {
+                $this->setSlug($bfShop, [$shopLocale => 'Ouagadougou branch'], $shopLocale);
+            } catch (Throwable $e) {
+                $this->error($e);
+            }
+        }
 
         $bfShop->tags()->sync(ShopTag::pluck('id')->toArray());
 
