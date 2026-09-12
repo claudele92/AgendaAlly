@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import { ShopCardLoading } from "@/components/shop-card-horizontal/loading";
 import SearchIcon from "@/assets/icons/search";
 import { useDebounce } from "@/hook/use-debounce";
+import useAddressStore from "@/global-store/address";
 
 const ErrorFallback = dynamic(() => import("@/components/error-fallback"));
 
@@ -27,6 +28,8 @@ export const Shops = ({ onFilterButtonClick, onMapButtonClick }: FilterShopProps
   const { t } = useTranslation();
   const { language, settings } = useSettings();
   const searchParams = useSearchParams();
+  const country = useAddressStore((countryState) => countryState.country);
+  const city = useAddressStore((cityState) => cityState.city);
   const debouncePriceFrom = useDebounce(searchParams.get("priceFrom") || undefined, 500);
   const debouncePriceTo = useDebounce(searchParams.get("priceTo") || undefined, 500);
 
@@ -40,6 +43,8 @@ export const Shops = ({ onFilterButtonClick, onMapButtonClick }: FilterShopProps
     [
       "shops",
       language?.locale,
+      country?.id,
+      city?.id,
       searchParams.get("longitude"),
       searchParams.get("latitude"),
       searchParams.get("order_by"),
@@ -57,6 +62,8 @@ export const Shops = ({ onFilterButtonClick, onMapButtonClick }: FilterShopProps
       shopService.getAll({
         lang: language?.locale,
         location_type: "2",
+        country_id: country?.id,
+        city_id: city?.id,
         column: searchParams.has("column") ? searchParams.get("column") : "distance",
         sort: searchParams.has("sort") ? searchParams.get("sort") : "asc",
         "address[latitude]": searchParams.get("latitude") || settings?.latitude,

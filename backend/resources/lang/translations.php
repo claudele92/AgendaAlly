@@ -3182,4 +3182,8 @@ return array(
   // renders both directly and neither showed translated).
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'open.now','value' => 'Open now'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.comment','value' => 'Add comment'),
+
+  // Homepage hero headline - rendered raw ("find.services") on every fresh
+  // install until now, since this key was never seeded.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'find.services','value' => 'Find services near you'),
 );

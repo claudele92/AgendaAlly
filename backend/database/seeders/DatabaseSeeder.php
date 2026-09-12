@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(LanguageSeeder::class);
         $this->call(CurrencySeeder::class);
+        // Was never wired in here at all - the settings table had zero rows
+        // on every fresh install (is_demo/google_map_key included), despite
+        // this seeder existing and being kept up to date.
+        $this->call(SettingsSeeder::class);
         $this->call(NotificationSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(ShopPermissionSeeder::class);

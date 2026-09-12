@@ -10,6 +10,7 @@ import { Drawer } from "@/components/drawer";
 import dynamic from "next/dynamic";
 import { useMediaQuery } from "@/hook/use-media-query";
 import { useDebounce } from "@/hook/use-debounce";
+import useAddressStore from "@/global-store/address";
 import { ShopMarker } from "./shop-marker";
 
 const ShopInfo = dynamic(() =>
@@ -24,6 +25,8 @@ interface MarkerClusterProps {
 export const MarkerCluster = ({ centerLatitude, centerLongitude }: MarkerClusterProps) => {
   const { language, settings } = useSettings();
   const { urlSearchParams } = useQueryParams({ scroll: false });
+  const country = useAddressStore((countryState) => countryState.country);
+  const city = useAddressStore((cityState) => cityState.city);
   const [selectedShop, setSelectedShop] = useState<Shop | undefined>();
   const isMobile = useMediaQuery("(max-width: 1200px)");
   const debouncePriceFrom = useDebounce(urlSearchParams.get("priceFrom") || undefined, 500);
@@ -32,6 +35,8 @@ export const MarkerCluster = ({ centerLatitude, centerLongitude }: MarkerCluster
     [
       "shops",
       language?.locale,
+      country?.id,
+      city?.id,
       centerLongitude,
       centerLatitude,
       urlSearchParams.get("order_by"),
@@ -49,6 +54,8 @@ export const MarkerCluster = ({ centerLatitude, centerLongitude }: MarkerCluster
       shopService.getAll({
         lang: language?.locale,
         location_type: "2",
+        country_id: country?.id,
+        city_id: city?.id,
         column: urlSearchParams.has("column") ? urlSearchParams.get("column") : "distance",
         sort: urlSearchParams.has("sort") ? urlSearchParams.get("sort") : "asc",
         "address[latitude]": centerLatitude ?? settings?.latitude,
