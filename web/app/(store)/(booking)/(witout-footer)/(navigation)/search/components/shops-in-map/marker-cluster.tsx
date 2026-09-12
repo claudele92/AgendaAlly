@@ -78,6 +78,7 @@ export const MarkerCluster = ({ centerLatitude, centerLongitude }: MarkerCluster
           <div>
             {shopList?.map((shop) => (
               <OverlayViewF
+                key={shop.id}
                 position={{
                   lat: Number(shop.lat_long.latitude || 43),
                   lng: Number(shop.lat_long.longitude || 54),

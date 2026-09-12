@@ -15,6 +15,7 @@ use App\Services\UserServices\UserWalletService;
 use App\Traits\Loggable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -89,24 +90,41 @@ class DemoServiceCatalogSeeder extends Seeder
 
     public function run(): void
     {
+        $locale = data_get(Language::where('default', 1)->first(), 'locale', 'en');
+
+        $categoriesByTitle = $this->categories($locale);
+
+        // Each shop is seeded in its own try/catch: a failure resolving the
+        // Cameroon master must not silently take Burkina Faso's services
+        // down with it (and vice versa) - the two previously shared one
+        // catch around both, so one shop's exception skipped the other's
+        // seeding entirely with nothing but a log line to show for it.
+        $this->seedShop(self::CAMEROON_SHOP_ID, fn (Shop $shop) => $this->cameroonMaster($shop), $categoriesByTitle, $locale);
+        $this->seedShop(self::BURKINA_FASO_SHOP_ID, fn (Shop $shop) => $this->burkinaFasoMaster($shop), $categoriesByTitle, $locale);
+    }
+
+    /**
+     * @param array<string, Category> $categoriesByTitle
+     */
+    private function seedShop(int $shopId, \Closure $resolveMaster, array $categoriesByTitle, string $locale): void
+    {
         try {
-            $locale = data_get(Language::where('default', 1)->first(), 'locale', 'en');
+            $shop = Shop::find($shopId);
 
-            $categoriesByTitle = $this->categories($locale);
+            if (!$shop) {
+                $this->command?->warn("DemoServiceCatalogSeeder: shop $shopId not found, skipping (run DemoAfricaSeeder/UserSeeder first)");
 
-            $cameroonShop = Shop::find(self::CAMEROON_SHOP_ID);
-            $burkinaShop  = Shop::find(self::BURKINA_FASO_SHOP_ID);
-
-            if ($cameroonShop) {
-                $master = $this->cameroonMaster($cameroonShop);
-                $this->servicesForShop($cameroonShop, $master, $categoriesByTitle, $locale);
+                return;
             }
 
-            if ($burkinaShop) {
-                $master = $this->burkinaFasoMaster($burkinaShop);
-                $this->servicesForShop($burkinaShop, $master, $categoriesByTitle, $locale);
-            }
+            $master = $resolveMaster($shop);
+            $this->servicesForShop($shop, $master, $categoriesByTitle, $locale);
         } catch (Throwable $e) {
+            // Printed to the console, not just logged - a seeder that
+            // reports "Seeding database" with no visible error while
+            // silently creating zero services is exactly the failure mode
+            // this is fixing.
+            $this->command?->error("DemoServiceCatalogSeeder: failed seeding shop $shopId - {$e->getMessage()}");
             $this->error($e);
         }
     }
@@ -155,6 +173,17 @@ class DemoServiceCatalogSeeder extends Seeder
     private function cameroonMaster(Shop $shop): User
     {
         $master = User::find(self::CAMEROON_MASTER_USER_ID);
+
+        if (!$master) {
+            // A plain User::find() miss used to be passed straight into
+            // ensureInvitation()'s non-nullable User $master param, throwing
+            // a bare "Call to a member function invitations() on null" -
+            // caught by the (now-removed) shared try/catch with no
+            // indication of which precondition actually failed.
+            throw new RuntimeException(
+                'Demo master user ' . self::CAMEROON_MASTER_USER_ID . ' not found - did UserSeeder run?'
+            );
+        }
 
         $this->ensureInvitation($master, $shop);
         $this->ensureWorkingDays($master);
