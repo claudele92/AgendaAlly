@@ -3139,4 +3139,9 @@ return array(
   // Value corrected to proper spelling; the key itself keeps the source
   // code's typo'd literal ("dosnt") since t() calls it by that exact string.
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'your.browser.dosnt.support.this.feature','value' => "Your browser doesn't support this feature"),
+
+  // Staff invite modal's "invite existing user" vs "create new staff
+  // account" toggle
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'invite.existing.user','value' => 'Invite existing user'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'create.new.staff.account','value' => 'Create new staff account'),
 );
