@@ -100,19 +100,22 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
   const primaryButtonFontColor =
     parsedSettings?.primary_button_font_color || DEFAULT_PRIMARY_BUTTON_FONT_COLOR;
 
-  const css = `:root {
-  --primary: ${primaryColor};
-  --primary-button-font-color: ${primaryButtonFontColor};
-  }`;
-
   return (
     <html
       lang={selectedLocale || defaultLanguage?.locale || "en"}
       dir={selectedDirection || (defaultLanguage?.backward ? "rtl" : "ltr")}
+      style={
+        {
+          "--primary": primaryColor,
+          "--primary-button-font-color": primaryButtonFontColor,
+        } as React.CSSProperties
+      }
+      // next-themes (via ThemeProvider below) sets className/color-scheme on
+      // <html> itself once it resolves the theme client-side, which by
+      // design differs from the server-rendered markup for one render -
+      // see https://github.com/pacocoursey/next-themes#with-app
+      suppressHydrationWarning
     >
-      <head>
-        <style>{css}</style>
-      </head>
       <body className={clsx(inter.className)}>
         <div id="portal" />
         <TranslationsProvider
