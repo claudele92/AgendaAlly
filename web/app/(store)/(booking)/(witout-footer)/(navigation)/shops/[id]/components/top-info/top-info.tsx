@@ -124,12 +124,12 @@ export const TopInfo = ({ data }: TopInfoProps) => {
                 </>
               )}
               <span className="text-sm">{isShopClosed ? t("closed") : t("open")}</span>
-              {!isShopClosed && (
+              {!isShopClosed && today && (
                 <>
                   <div className="rounded-full w-2 h-2 bg-white bg-opacity-30" />
                   <span className="text-sm">
-                    {dayjs(today?.from, "HH:mm").format(hourFormat)} -{" "}
-                    {dayjs(today?.to, "HH:mm").format(hourFormat)}
+                    {dayjs(today.from, "HH:mm").format(hourFormat)} -{" "}
+                    {dayjs(today.to, "HH:mm").format(hourFormat)}
                   </span>
                 </>
               )}
@@ -164,11 +164,11 @@ export const TopInfo = ({ data }: TopInfoProps) => {
         </span>
         <div className="rounded-full w-2 h-2 bg-gray-link " />
         <span className="text-sm">{isShopClosed ? t("closed") : t("open")}</span>
-        {!isShopClosed && (
+        {!isShopClosed && today && (
           <>
             <div className="rounded-full w-2 h-2 bg-gray-link " />
             <span className="text-sm">
-              {today?.from} - {today?.to}
+              {today.from} - {today.to}
             </span>
           </>
         )}
