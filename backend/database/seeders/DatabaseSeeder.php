@@ -59,6 +59,11 @@ class DatabaseSeeder extends Seeder
         // role itself (DemoStaffRolesSeeder), and the demo user (UserSeeder).
         $this->call(DemoCountryInvitationSeeder::class);
 
+        // A real, bookable service catalog (categories + services + master
+        // working days/assignments) for both demo shops — needs the shops
+        // from DemoAfricaSeeder and the 'master' role from RoleSeeder.
+        $this->call(DemoServiceCatalogSeeder::class);
+
         // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
         // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
         // already exist, so it can't live inside SubscriptionSeeder::run()

@@ -205,6 +205,7 @@ class UserSeeder extends Seeder
         User::find(105)?->syncRoles('moderator');
         User::find(106)?->syncRoles('deliveryman');
         User::find(113)?->syncRoles('seller');
+        User::find(112)?->syncRoles('master');
 
         $shop = Shop::updateOrCreate([
             'user_id'           => 107,
