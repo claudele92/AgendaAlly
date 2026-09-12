@@ -2,17 +2,23 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Alert, Button, Form, Input, Modal } from 'antd';
+import { Alert, Button, Form, Input, Modal, Radio } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import staffInviteService from '../../../services/seller/staffInvite';
 import { addMenu } from '../../../redux/slices/menu';
 import { BranchSelect, RoleSelect } from './role-branch-selects';
+import CreateAccountForm from './create-account-form';
 
-// The invite endpoint is keyed by an existing user's id, not free-text
-// contact info (see Invitation\SellerRequest on the backend) — so this is
-// a two-step flow: resolve an exact email/phone to a user first, then
-// pick a shop_role for them.
+// Two ways to get someone onto the staff list: link an existing platform
+// account (the invite endpoint is keyed by an existing user's id, not
+// free-text contact info — see Invitation\SellerRequest on the backend),
+// or create a brand-new account for someone who doesn't have one yet
+// (posts straight to dashboard/seller/users, the same endpoint the master
+// invitation flow already uses for exactly this purpose - see
+// CreateAccountForm). Both end up with a real shop_role + branch
+// assignment; which one applies just depends on whether the person
+// already exists on the platform.
 export default function InviteModal({
   shopRoles,
   shopLocations,
@@ -23,6 +29,7 @@ export default function InviteModal({
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [mode, setMode] = useState('search');
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
@@ -109,62 +116,83 @@ export default function InviteModal({
       onCancel={handleCancel}
       footer={null}
     >
-      <Form layout='vertical'>
-        <Form.Item label={t('email.or.phone')}>
-          <Input.Group compact style={{ display: 'flex' }}>
-            <Input
-              value={query}
-              placeholder={t('enter.email.or.phone')}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setResolvedUser(null);
-                setSearchError(null);
-              }}
-              onPressEnter={handleSearch}
-              style={{ flex: 1 }}
-            />
-            <Button
-              icon={<SearchOutlined />}
-              onClick={handleSearch}
-              loading={searching}
-            >
-              {t('search')}
-            </Button>
-          </Input.Group>
-        </Form.Item>
+      <Radio.Group
+        className='mb-3'
+        optionType='button'
+        buttonStyle='solid'
+        value={mode}
+        onChange={(e) => setMode(e.target.value)}
+        options={[
+          { label: t('invite.existing.user'), value: 'search' },
+          { label: t('create.new.staff.account'), value: 'create' },
+        ]}
+      />
 
-        {searchError && (
-          <Alert className='mb-3' type='error' showIcon message={searchError} />
-        )}
+      {mode === 'create' ? (
+        <CreateAccountForm
+          shopRoles={shopRoles}
+          shopLocations={shopLocations}
+          handleCancel={handleCancel}
+          onInvited={onInvited}
+        />
+      ) : (
+        <Form layout='vertical'>
+          <Form.Item label={t('email.or.phone')}>
+            <Input.Group compact style={{ display: 'flex' }}>
+              <Input
+                value={query}
+                placeholder={t('enter.email.or.phone')}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setResolvedUser(null);
+                  setSearchError(null);
+                }}
+                onPressEnter={handleSearch}
+                style={{ flex: 1 }}
+              />
+              <Button
+                icon={<SearchOutlined />}
+                onClick={handleSearch}
+                loading={searching}
+              >
+                {t('search')}
+              </Button>
+            </Input.Group>
+          </Form.Item>
 
-        {resolvedUser && (
-          <>
-            <Alert
-              className='mb-3'
-              type='success'
-              showIcon
-              message={resolvedUser.name}
-              description={[resolvedUser.email, resolvedUser.phone]
-                .filter(Boolean)
-                .join(' · ')}
-            />
-            <RoleSelect shopRoles={shopRoles} value={roleId} onChange={setRoleId} />
-            <BranchSelect
-              shopLocations={shopLocations}
-              value={locationIds}
-              onChange={setLocationIds}
-            />
-            <Button
-              type='primary'
-              disabled={!roleId}
-              loading={submitting}
-              onClick={handleInvite}
-            >
-              {t('send.invite')}
-            </Button>
-          </>
-        )}
-      </Form>
+          {searchError && (
+            <Alert className='mb-3' type='error' showIcon message={searchError} />
+          )}
+
+          {resolvedUser && (
+            <>
+              <Alert
+                className='mb-3'
+                type='success'
+                showIcon
+                message={resolvedUser.name}
+                description={[resolvedUser.email, resolvedUser.phone]
+                  .filter(Boolean)
+                  .join(' · ')}
+              />
+              <RoleSelect shopRoles={shopRoles} value={roleId} onChange={setRoleId} />
+              <BranchSelect
+                shopLocations={shopLocations}
+                value={locationIds}
+                onChange={setLocationIds}
+              />
+              <Button
+                type='primary'
+                disabled={!roleId}
+                loading={submitting}
+                onClick={handleInvite}
+              >
+                {t('send.invite')}
+              </Button>
+            </>
+          )}
+        </Form>
+      )}
     </Modal>
   );
 }
