@@ -1,5 +1,5 @@
 import { Category } from "@/types/category";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 
 interface ServiceCardProps {
   data?: Category;
@@ -8,8 +8,8 @@ interface ServiceCardProps {
 export const ServiceCardUi2 = ({ data }: ServiceCardProps) => (
   <div className="overflow-hidden flex flex-col items-center justify-between">
     <div className="relative flex items-center justify-center h-[152px] w-[136px] bg-gray-50 rounded-xl overflow-hidden">
-      <Image
-        src={data?.img || ""}
+      <ImageWithFallBack
+        src={data?.img}
         alt={data?.translation?.title || "service"}
         fill
         style={{ objectFit: "cover" }}

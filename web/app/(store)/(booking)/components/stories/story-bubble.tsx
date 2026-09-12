@@ -1,5 +1,5 @@
 import { Story } from "@/types/story";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import { useStories } from "./stories.provider";
 import { Types } from "./stories.reducer";
 
@@ -37,8 +37,8 @@ export const StoryBubble = ({
         }`}
       >
         <div className="w-full h-full bg-white dark:bg-darkBg rounded-full overflow-hidden relative">
-          <Image
-            src={stories?.[0]?.logo_img || ""}
+          <ImageWithFallBack
+            src={stories?.[0]?.logo_img}
             alt={stories?.[0].product_title || ""}
             fill
             className="w-full h-full rounded-full"

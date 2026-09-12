@@ -5,8 +5,9 @@ import { ImageWithFallBack } from "@/components/image";
 import PlayFillIcon from "remixicon-react/PlayFillIcon";
 import { useState } from "react";
 
-interface MediaRenderProps extends ImageProps {
+interface MediaRenderProps extends Omit<ImageProps, "src"> {
   preview?: string;
+  src?: ImageProps["src"] | null;
 }
 
 export const MediaRender = ({ preview, src, className, ...otherProps }: MediaRenderProps) => {

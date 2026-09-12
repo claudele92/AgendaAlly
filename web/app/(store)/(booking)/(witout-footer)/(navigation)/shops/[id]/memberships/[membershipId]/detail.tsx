@@ -4,7 +4,7 @@ import { Modal } from "@/components/modal";
 import { Price } from "@/components/price";
 import { useModal } from "@/hook/use-modal";
 import { MembershipDetail } from "@/types/membership";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import { useTranslation } from "react-i18next";
 
 interface MembershipDetailProps {
@@ -19,8 +19,8 @@ export const MembershipDetailRender = ({ data }: MembershipDetailProps) => {
         <div className="rounded-2xl md:pt-10 md:pb-7 md:px-10 px-5 pt-5 pb-5 flex flex-col justify-between text-white md:gap-[150px] gap-16 bg-noise bg-cover bg-no-repeat backdrop-blur-3xl bg-opacity-10">
           <div className="flex items-center gap-3">
             <div className="md:h-16 md:w-16 relative w-10 h-10">
-              <Image
-                src={data?.shop?.logo_img || ""}
+              <ImageWithFallBack
+                src={data?.shop?.logo_img}
                 alt="shop"
                 fill
                 className="rounded-full aspect-square object-cover"

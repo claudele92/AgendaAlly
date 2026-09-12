@@ -15,7 +15,7 @@ import { TextArea } from "@/components/text-area";
 import { ImageUpload } from "@/components/image-upload";
 import { ImageTypes } from "@/types/global";
 import UploadLineIcon from "remixicon-react/UploadLineIcon";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import { IconButton } from "@/components/icon-button";
 import TrashIcon from "@/assets/icons/trash";
 import useUserStore from "@/global-store/user";
@@ -201,7 +201,7 @@ const ReviewCreate = ({
                   {watch("images")?.map((image, idx) => (
                     <div className="group relative rounded-md overflow-hidden" key={image}>
                       <div className="aspect-square">
-                        <Image alt={image} src={image || ""} fill className="object-contain" />
+                        <ImageWithFallBack alt={image} src={image} fill className="object-contain" />
                       </div>
                       <div className="absolute select-none opacity-0 group-hover:select-all group-hover:opacity-100 group-hover:z-10 top-0 left-0  w-full h-full flex items-center justify-center group-hover:bg-black group-hover:bg-opacity-20">
                         <IconButton color="white" size="small" onClick={() => handleDelete(idx)}>

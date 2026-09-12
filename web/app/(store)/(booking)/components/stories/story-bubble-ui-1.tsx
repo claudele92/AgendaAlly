@@ -1,5 +1,6 @@
 import { Story } from "@/types/story";
 import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import { useStories } from "./stories.provider";
 import { Types } from "./stories.reducer";
 
@@ -30,8 +31,8 @@ export const StoryBubbleUi1 = ({ stories, isPost, storyIndex }: StoryBubbleProps
           ))}
         </div>
         <div className="w-10 h-10 rounded-button border border-white flex items-center justify-center mt-1 bg-white bg-opacity-60">
-          <Image
-            src={stories?.[0]?.logo_img || ""}
+          <ImageWithFallBack
+            src={stories?.[0]?.logo_img}
             alt="story"
             width={28}
             height={28}

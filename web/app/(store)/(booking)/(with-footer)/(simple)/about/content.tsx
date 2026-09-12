@@ -36,7 +36,7 @@ export const AboutPageContent = ({ initialData }: AboutPageContentProps) => {
       <div className="py-3 mb-7">
         <div className="relative aspect-[2/1] mb-3">
           <ImageWithFallBack
-            src={mainSection?.img || ""}
+            src={mainSection?.img}
             alt={mainSection?.translation?.title || "mainSection"}
             fill
             className="object-cover rounded-button"
@@ -56,7 +56,7 @@ export const AboutPageContent = ({ initialData }: AboutPageContentProps) => {
         >
           <div className={clsx("relative aspect-[2/1]", i === 0 && "md:order-2")}>
             <ImageWithFallBack
-              src={section?.img || ""}
+              src={section?.img}
               alt={section?.translation?.title || "mainSection"}
               fill
               className="object-cover rounded-button"

@@ -6,7 +6,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { shopService } from "@/services/shop";
 import { extractDataFromPagination } from "@/utils/extract-data";
 import { ListHeader } from "@/components/list-header";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import clsx from "clsx";
 import Link from "next/link";
 import useAddressStore from "@/global-store/address";
@@ -51,8 +51,8 @@ export const Salons = () => {
             key={shop.id}
           >
             <Link href={`/shops/${shop.slug}`}>
-              <Image
-                src={shop.background_img || ""}
+              <ImageWithFallBack
+                src={shop.background_img}
                 alt={shop.translation?.title || "shop"}
                 fill
                 className="object-cover"

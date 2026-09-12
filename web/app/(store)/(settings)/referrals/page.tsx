@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { infoService } from "@/services/info";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import { userService } from "@/services/user";
 import useUserStore from "@/global-store/user";
 import { useTranslation } from "react-i18next";
@@ -68,8 +68,8 @@ const ReferralsPage = () => {
   return (
     <div className="grid sm:grid-cols-2 gap-7">
       <div className="relative h-96 w-full">
-        <Image
-          src={referrals?.data?.img || ""}
+        <ImageWithFallBack
+          src={referrals?.data?.img}
           alt={referrals?.data?.translation?.title || "referral"}
           className="rounded-xl object-cover"
           fill

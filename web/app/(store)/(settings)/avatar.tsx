@@ -1,7 +1,7 @@
 "use client";
 
 import { UpdateProfileBody, UserDetail } from "@/types/user";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import { IconButton } from "@/components/icon-button";
 import PenIcon from "@/assets/icons/pen";
 import React, { useCallback } from "react";
@@ -37,8 +37,8 @@ export const Avatar = ({ data }: { data?: UserDetail }) => {
           {!preview && !data?.img ? (
             <ProfilePlaceholder size={100} name={data?.firstname} />
           ) : (
-            <Image
-              src={preview || data?.img || ""}
+            <ImageWithFallBack
+              src={preview || data?.img}
               alt="profile"
               width={100}
               height={100}

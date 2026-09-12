@@ -2,7 +2,7 @@
 
 import { ExtraValue, ProductExpandedGallery, ProductFull, Stock } from "@/types/product";
 import React, { useMemo, useState } from "react";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import StoreIcon from "@/assets/icons/store";
 import StarIcon from "@/assets/icons/star";
 import GreenCheckIcon from "@/assets/icons/green-check";
@@ -230,8 +230,8 @@ export const ProductDetail = ({ initialData, fullPage }: ProductDetailProps) => 
             <div className="border border-gray-border rounded-2xl p-4 mt-5 flex items-center justify-between dark:border-gray-inputBorder flex-wrap gap-y-2">
               <div className="flex items-center gap-2.5">
                 {data?.brand && (
-                  <Image
-                    src={data?.brand?.img || ""}
+                  <ImageWithFallBack
+                    src={data?.brand?.img}
                     alt={data?.brand?.title || ""}
                     width={22}
                     height={15}

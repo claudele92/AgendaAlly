@@ -37,7 +37,7 @@ export const MasterCard = ({ data, selected }: MasterCardProps) => {
       </div>
       <div className="relative aspect-[198/182]">
         <ImageWithFallBack
-          src={data?.img || ""}
+          src={data?.img}
           alt={data?.firstname || "master"}
           fill
           className="object-cover transition-all group-hover:scale-105"
