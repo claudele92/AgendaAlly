@@ -3144,4 +3144,42 @@ return array(
   // account" toggle
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'invite.existing.user','value' => 'Invite existing user'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'create.new.staff.account','value' => 'Create new staff account'),
+
+  // i18n web/ Chunk 2: shop detail page (top-info, services, masters,
+  // working schedule, buy options, nearby shops, reviews) - 24 keys
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'book.now','value' => 'Book now'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'see.photos','value' => 'See photos'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'see.all.photos','value' => 'See all photos'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'share.this.shop','value' => 'Share this shop'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'shop.socials','value' => 'Social media'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'view.all','value' => 'View all'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'faq.questions','value' => 'FAQs'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'our.specialists','value' => 'Our specialists'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'starting.from','value' => 'Starting from'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'service.place','value' => 'Service location'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'business.hours','value' => 'Business hours'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'buy.options','value' => 'Buy options'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'venues.nearby','value' => 'Venues nearby'),
+  // Review-create category chips (create-review.tsx's reviewCategoryList) -
+  // cleanliness/interior/communication/equipment are new; location/masters/
+  // price/service already exist as keys elsewhere.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'cleanliness','value' => 'Cleanliness'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'interior','value' => 'Interior'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'communication','value' => 'Communication'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'equipment','value' => 'Equipment'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'your.rating','value' => 'Your rating'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'out.of','value' => 'out of'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'upload.review.photo','value' => 'Upload a photo'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'send.review','value' => 'Send review'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'based.on','value' => 'Based on'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'total.rating','value' => 'Total rating'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'star','value' => 'star'),
+  // These two were initially miscounted as already present - my first
+  // existence check used an unescaped '.' in a grep pattern, which matches
+  // any character, so 'open.now' spuriously matched the unrelated existing
+  // row 'open_now'. Re-checked with the dot properly escaped and confirmed
+  // both are genuinely missing; caught via live verification (main-info.tsx
+  // renders both directly and neither showed translated).
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'open.now','value' => 'Open now'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.comment','value' => 'Add comment'),
 );

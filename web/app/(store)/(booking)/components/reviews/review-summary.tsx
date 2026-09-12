@@ -33,7 +33,7 @@ const ReviewSummary = ({ type, typeId, reviewAvg, reviewCount }: ReviewSummaryPr
         <div className="border border-gray-border dark:border-gray-bold rounded-button flex items-center justify-center flex-col flex-1 gap-2 bg-gray-card aspect-[1.2/1] md:aspect-auto">
           <strong className="text-[40px] font-bold">{reviewAvg || 0}</strong>
           <StarMarkIcon />
-          <span className="text-lg font-semibold">{createRatingText(reviewAvg)}</span>
+          <span className="text-lg font-semibold">{t(createRatingText(reviewAvg))}</span>
           <span>
             {t("based.on")} {reviewCount || 0} {t("reviews")}
           </span>
