@@ -3116,4 +3116,27 @@ return array(
 
   // PayU field set on the Payment Payloads screen
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'client.secret','value' => 'Client secret'),
+
+  // i18n web/ Chunk 1: auth (login/sign-up) + nav-home (search field, sidebar) - 19 keys
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'complete.auth','value' => 'Complete registration'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'for.business','value' => 'For business'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'i.agree.with','value' => 'I agree with'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'or','value' => 'Or'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'sign.in','value' => 'Sign in'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'successfully.logged.in','value' => 'Successfully logged in'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'successfully.signed.up','value' => 'Successfully signed up'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'terms.and.conditions','value' => 'Terms and conditions'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'cant.get.place.detail','value' => "Couldn't get place details"),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'cant.get.place.info','value' => "Couldn't get place info"),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'map.loading.error','value' => 'Map failed to load'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'map.service.is.down','value' => 'Map service is unavailable'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.places.found','value' => 'No places found'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.results.found','value' => 'No results found'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'popular.categories','value' => 'Popular categories'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'search.nearby','value' => 'Search nearby'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'search.services','value' => 'Search services'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'there.is.more','value' => "There's more in the app"),
+  // Value corrected to proper spelling; the key itself keeps the source
+  // code's typo'd literal ("dosnt") since t() calls it by that exact string.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'your.browser.dosnt.support.this.feature','value' => "Your browser doesn't support this feature"),
 );
