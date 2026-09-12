@@ -196,7 +196,10 @@ class DemoAfricaSeeder extends Seeder
 
         if (!$deliveryPrice) {
             $deliveryPrice = DeliveryPrice::create([
-                'price'      => 2,
+                // "real-world $ * 600" (600 = the currency:rebase-to-xaf
+                // factor, see CurrencySeeder) - a bare 2 here would mean 2
+                // XAF (~$0.003) now that XAF is the base currency, not $2.
+                'price'      => 2 * 600,
                 'region_id'  => $region->id,
                 'country_id' => $country->id,
                 'city_id'    => $city?->id,
