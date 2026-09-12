@@ -3186,4 +3186,31 @@ return array(
   // Homepage hero headline - rendered raw ("find.services") on every fresh
   // install until now, since this key was never seeded.
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'find.services','value' => 'Find services near you'),
+
+  // i18n web/ Chunk 4: search/filters sidebar (/search) - 19 keys.
+  // clear.all/categories/show/selected/price/from/to/results/male/female/
+  // all already existed. type re-confirmed as already correctly
+  // translated (key='type', value='Type') - not a gap, no change needed.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'filters','value' => 'Filters'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'sort.by','value' => 'Sort by'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'takes','value' => 'Quantity'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'genders','value' => 'Gender'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'offline_in','value' => 'At the venue'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'offline_out','value' => "At your location"),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'see.more','value' => 'Show more'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'r_avg_asc','value' => 'Rating: Low to High'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'r_avg_desc','value' => 'Rating: High to Low'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'b_count_asc','value' => 'Bookings: Low to High'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'b_count_desc','value' => 'Bookings: High to Low'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'distance_asc','value' => 'Distance: Nearest first'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'distance_desc','value' => 'Distance: Farthest first'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'has_discount','value' => 'Has discount'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'service_min_price','value' => 'Price: Low to High'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'service_max_price','value' => 'Price: High to Low'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.results','value' => 'No results found'),
+  // Shared SearchField widget's placeholder text - also rendered at the
+  // top of /search (folded into this chunk since already found during
+  // the full-page audit, per explicit go-ahead).
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'any','value' => 'Any'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'where','value' => 'Where'),
 );
