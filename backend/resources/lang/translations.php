@@ -3187,6 +3187,33 @@ return array(
   // install until now, since this key was never seeded.
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'find.services','value' => 'Find services near you'),
 
+  // i18n web/ Chunk 3: business/landing page (/for-business) - 21 keys.
+  // payment/notification/get.started/clients/pos.system already existed;
+  // professinals kept as-is (a pre-existing typo in the source key itself,
+  // t()'s call site uses this exact literal string) - flagged as a
+  // separate future cleanup, not fixed here.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'business.section.title','value' => 'Grow your business with us'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'business.section.description','value' => 'Join thousands of businesses using our platform to manage bookings, payments, and more.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'online.booking','value' => 'Online booking'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'management','value' => 'Management'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'management.description','value' => 'Manage your schedule, staff, and services all in one place.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'payment.description','value' => 'Accept payments securely and track your earnings with ease.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'notifications.description','value' => 'Stay up to date with real-time booking and customer notifications.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'stay.in.control','value' => 'Stay in control'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'intuitive.software','value' => 'Powerful, intuitive software to manage every part of your business.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'run.your.business','value' => 'Run your business your way'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'choose.category','value' => 'Choose the services you offer and start accepting bookings.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'download.the.app','value' => 'Download the app'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'application.description','value' => 'Manage your business on the go with our mobile app.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'fastest.growing.companies','value' => 'Trusted by the fastest growing companies'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'grow.your.business','value' => 'Grow your business with us'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'grow.your.business.desc','value' => 'Join a growing community of businesses reaching more customers every day.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'grow.percent','value' => 'Growth'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'professinals','value' => 'Professionals'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'client.app','value' => 'Client app'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'business.app','value' => 'Business app'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'driver.app','value' => 'Driver app'),
+
   // i18n web/ Chunk 4: search/filters sidebar (/search) - 19 keys.
   // clear.all/categories/show/selected/price/from/to/results/male/female/
   // all already existed. type re-confirmed as already correctly
