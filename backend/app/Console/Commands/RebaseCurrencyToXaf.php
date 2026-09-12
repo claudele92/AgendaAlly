@@ -41,7 +41,7 @@ use Throwable;
  *   delivery_prices, gift_carts, user_gift_carts, points WHERE type=fix
  *   (price) / unconditionally (value, compared directly against already-
  *   rebased order/booking totals), member_ships, user_member_ships,
- *   room_prices, shop_deliveryman_settings WHERE type=fix,
+ *   shop_deliveryman_settings WHERE type=fix,
  *   shop_subscriptions, point_histories).
  * - Denormalized caches: shops.min_price/max_price/service_min_price/
  *   service_max_price, products.min_price/max_price - multiplied directly
@@ -111,8 +111,6 @@ class RebaseCurrencyToXaf extends Command
         ['table' => 'points', 'column' => 'value'],
         ['table' => 'member_ships', 'column' => 'price'],
         ['table' => 'user_member_ships', 'column' => 'price'],
-        ['table' => 'room_prices', 'column' => 'price'],
-        ['table' => 'room_prices', 'column' => 'discount'],
         ['table' => 'shop_deliveryman_settings', 'column' => 'value', 'where' => ['type' => 'fix']],
         ['table' => 'shop_subscriptions', 'column' => 'price'],
         ['table' => 'point_histories', 'column' => 'price'],
