@@ -75,7 +75,7 @@ export const Banners = ({ banners }: { banners?: Paginate<Banner> }) => {
         <div className="sm:py-8 sm:px-8 py-4 px-4">
           <div className="relative h-[315px]">
             <MediaRender
-              src={selectedBanner?.galleries?.[0].path || ""}
+              src={selectedBanner?.galleries?.[0].path}
               preview={selectedBanner?.galleries?.[0].preview}
               alt="banner"
               fill

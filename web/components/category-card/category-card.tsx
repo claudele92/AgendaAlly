@@ -1,6 +1,6 @@
 import { Category } from "@/types/category";
 import clsx from "clsx";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import React from "react";
 import Link from "next/link";
 
@@ -36,8 +36,8 @@ export const CategoryCard = ({ size = "small", data, bordered }: CategoryCardPro
         )}
       >
         <div className="relative aspect-square">
-          <Image
-            src={data.img || ""}
+          <ImageWithFallBack
+            src={data.img}
             alt={data.translation?.title || "category"}
             fill
             className="object-contain"

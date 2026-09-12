@@ -26,7 +26,7 @@ export const ReviewCard = ({ data }: { data: Review }) => {
       <div className="flex items-center gap-2 mb-2.5">
         {data?.user?.img ? (
           <Image
-            src={data.user?.img || ""}
+            src={data.user?.img}
             alt={data.user?.firstname || "user"}
             width={50}
             height={50}

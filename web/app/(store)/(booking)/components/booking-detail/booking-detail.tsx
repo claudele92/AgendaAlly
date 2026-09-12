@@ -150,7 +150,7 @@ export const BookingDetail = ({ data, id }: BookingDetailProps) => {
       <div className="flex items-center gap-4 border-b border-gray-link pb-5 mt-4">
         <div className="w-14 h-14 relative rounded-full border border-gray-link aspect-square ">
           <ImageWithFallBack
-            src={mainData?.shop?.logo_img || ""}
+            src={mainData?.shop?.logo_img}
             alt={mainData?.shop?.translation?.title || "shop"}
             fill
             className="object-contain rounded-full w-20 h-20"

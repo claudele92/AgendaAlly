@@ -222,7 +222,7 @@ export const BookingTotal = ({
       <div className="hidden lg:flex items-center gap-4 border-b border-gray-link pb-7">
         <div className="w-20 h-20 relative rounded-full border border-gray-link aspect-square ">
           <ImageWithFallBack
-            src={shopDetail?.data?.logo_img || ""}
+            src={shopDetail?.data?.logo_img}
             alt={shopDetail?.data.translation?.title || "shop"}
             fill
             className="object-contain rounded-full w-20 h-20"

@@ -67,7 +67,7 @@ export const ProductStickyInfo = ({ data, selectedStock }: ProductStickyInfoProp
         <div className="flex items-center gap-4 xl:container px-2 md:px-4 justify-between ">
           <div className="items-center gap-2 hidden sm:flex">
             <ImageWithFallBack
-              src={data?.img || ""}
+              src={data?.img}
               alt={data?.translation?.title || "product"}
               width={60}
               height={60}

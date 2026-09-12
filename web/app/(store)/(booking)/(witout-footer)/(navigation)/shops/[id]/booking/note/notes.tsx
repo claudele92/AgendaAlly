@@ -13,7 +13,7 @@ import CrossIcon from "@/assets/icons/cross";
 import { useModal } from "@/hook/use-modal";
 import { Button } from "@/components/button";
 import MarkIcon from "@/assets/icons/mark";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import useUserStore from "@/global-store/user";
 
 const Auth = dynamic(() => import("@/components/auth"), {
@@ -68,8 +68,8 @@ export const BookingNotes = ({ shopSlug }: BookingNoteProps) => {
           <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
             <div className="flex items-center gap-1 p-5 md:border-r border-gray-link">
               <div className="w-14 h-14 relative">
-                <Image
-                  src={service?.master?.img || ""}
+                <ImageWithFallBack
+                  src={service?.master?.img}
                   alt={service?.master?.firstname || "master"}
                   className="rounded-full object-cover"
                   fill

@@ -34,7 +34,7 @@ export const ShopCardUi2 = ({ data }: ShopCardProps) => {
       <Link href={`/shops/${data.slug}`} scroll>
         <div className="relative aspect-[2/1]">
           <ImageWithFallBack
-            src={data.background_img || ""}
+            src={data.background_img}
             alt={data.translation?.title || ""}
             fill
             className="object-cover transition-all group-hover:scale-105"

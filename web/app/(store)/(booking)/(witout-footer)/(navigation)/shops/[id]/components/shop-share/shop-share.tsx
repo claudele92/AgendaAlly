@@ -34,7 +34,7 @@ export const ShopShare = ({ data }: ShopShareProps) => {
       <div className="flex gap-2.5 my-7">
         <div className="relative w-24 h-24 aspect-square">
           <ImageWithFallBack
-            src={data?.logo_img || ""}
+            src={data?.logo_img}
             alt={data?.translation?.title || "shop"}
             fill
             className="rounded-button object-cover"

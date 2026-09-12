@@ -73,7 +73,7 @@ export const TopInfo = ({ data }: TopInfoProps) => {
           </IconButton>
         </div>
         <ImageWithFallBack
-          src={data?.data.background_img || ""}
+          src={data?.data.background_img}
           alt={data?.data.translation?.title || "banner"}
           className="object-cover w-full h-full"
           fill
@@ -85,7 +85,7 @@ export const TopInfo = ({ data }: TopInfoProps) => {
           <div>
             <div className="relative md:w-20 md:h-20 w-14 h-14 rounded-full overflow-hidden border-2 border-white mb-2">
               <ImageWithFallBack
-                src={data?.data.logo_img || ""}
+                src={data?.data.logo_img}
                 alt={data?.data.translation?.title || "shop"}
                 fill
                 className="object-contain"

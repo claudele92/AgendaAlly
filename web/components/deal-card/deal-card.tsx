@@ -13,7 +13,7 @@ export const DealCard = ({ data }: DealCardProps) => (
   <Link href={`/shops/${data.slug}`}>
     <div className="relative rounded-button overflow-hidden aspect-[313/300] w-full">
       <ImageWithFallBack
-        src={data.background_img || ""}
+        src={data.background_img}
         alt="shopBackground"
         fill
         className="object-cover"

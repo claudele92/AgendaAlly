@@ -1,6 +1,6 @@
 import { Category } from "@/types/category";
 import { serviceBgs, serviceColors } from "@/config/global";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 
 interface ServiceCardProps {
   data?: Category;
@@ -30,8 +30,8 @@ export const ServiceCard = ({ data, index, length }: ServiceCardProps) => {
       </div>
       <div className="flex items-end justify-end flex-1">
         <div className="relative bottom-0 right-0 max-h-[80%] w-full min-h-[100px]">
-          <Image
-            src={data?.img || ""}
+          <ImageWithFallBack
+            src={data?.img}
             alt={data?.translation?.title || "service"}
             fill
             className="object-contain max-w-max right-0 !left-auto"

@@ -2,7 +2,7 @@ import { Shop } from "@/types/shop";
 import { Disclosure } from "@headlessui/react";
 import clsx from "clsx";
 import Link from "next/link";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import ChevronRightIcon from "@/assets/icons/chevron-right";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -35,8 +35,8 @@ export const ExpandableShop = ({
             <div className="flex gap-2 items-center">
               <Link href={`/shops/${shop?.slug}`} className="flex items-center gap-2">
                 <div className="w-11 h-11 relative">
-                  <Image
-                    src={shop?.logo_img || ""}
+                  <ImageWithFallBack
+                    src={shop?.logo_img}
                     alt={shop?.translation?.title || "shop"}
                     className="rounded-full object-cover w-11 h-11"
                     fill

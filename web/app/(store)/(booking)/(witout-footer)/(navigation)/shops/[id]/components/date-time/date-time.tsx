@@ -18,7 +18,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Button } from "@/components/button";
 import { BookingDate } from "@/types/booking";
 import { Master } from "@/types/master";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import { useHourFormat } from "@/hook/use-hour-format";
 
 dayjs.extend(customParseFormat);
@@ -201,8 +201,8 @@ export const BookingDateTime = ({
         {master && (
           <div className="flex items-center gap-1">
             <div className="w-14 h-14 relative">
-              <Image
-                src={master?.img || ""}
+              <ImageWithFallBack
+                src={master?.img}
                 alt={master?.firstname || "master"}
                 className="rounded-full object-cover"
                 fill

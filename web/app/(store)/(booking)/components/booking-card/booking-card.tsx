@@ -81,7 +81,7 @@ export const BookingCard = ({
       <div className="flex items-center md:gap-4 gap-2.5 md:py-5 py-2.5 md:px-2.5 px-0.5">
         <div className="relative xl:w-20 xl:h-20 w-14 h-14 aspect-square">
           <ImageWithFallBack
-            src={data.shop?.logo_img || ""}
+            src={data.shop?.logo_img}
             alt={data.shop?.translation?.title || "shop"}
             fill
             className="object-cover rounded-full"

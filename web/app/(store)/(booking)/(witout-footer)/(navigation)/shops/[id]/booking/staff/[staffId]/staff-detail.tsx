@@ -57,7 +57,7 @@ export const StaffDetail = ({ id }: StaffDetailProps) => {
             <div className="bg-gray-300 h-full w-full animate-pulse" />
           ) : (
             <ImageWithFallBack
-              src={staffDetail?.data.img || ""}
+              src={staffDetail?.data.img}
               alt={staffDetail?.data.firstname || "user"}
               fill
               className="object-cover"

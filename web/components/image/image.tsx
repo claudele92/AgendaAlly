@@ -23,16 +23,26 @@ const shimmer = (isDark: boolean) => `
 const toBase64 = (str: string) =>
   typeof window === "undefined" ? Buffer.from(str).toString("base64") : window.btoa(str);
 
-export const ImageWithFallBack = (props: ImageProps) => {
+type ImageWithFallBackProps = Omit<ImageProps, "src"> & {
+  src?: ImageProps["src"] | null;
+};
+
+export const ImageWithFallBack = (props: ImageWithFallBackProps) => {
   const { src, loader, ...rest } = props;
   const [isError, setIsError] = useState(false);
   const { theme } = useTheme();
 
+  // A falsy src (missing/empty field from the API) is treated the same as a
+  // load failure: next/image rejects an empty string synchronously, before
+  // onError ever gets a chance to fire, so that case has to be caught here
+  // rather than relying on the existing onError handler below.
+  const useFallback = isError || !src;
+
   return (
     <Image
       {...rest}
-      loader={isError ? undefined : loader}
-      src={isError ? "/img/image-load-failed.png" : src}
+      loader={useFallback ? undefined : loader}
+      src={useFallback ? "/img/image-load-failed.png" : src}
       placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(theme === "dark"))}`}
       onError={() => {
         setIsError(true);
