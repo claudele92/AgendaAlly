@@ -83,6 +83,15 @@ class DemoAfricaSeeder extends Seeder
 
             if ($burkinaShop) {
                 $this->shopLocation($burkinaShop, $africa, $burkinaFaso, $ouagadougou, ShopLocation::PRODUCT);
+
+                // Missing until now — DemoServiceCatalogSeeder (added later,
+                // in a separate PR) seeds real bookable services for this
+                // shop too, but without this SERVICE-type location row it
+                // could never surface in the storefront's service search at
+                // all: that search always queries location_type=2/SERVICE,
+                // and scopeFilter()'s location match requires an exact type
+                // hit — Cameroon's shop already had both types (see above).
+                $this->shopLocation($burkinaShop, $africa, $burkinaFaso, $ouagadougou, ShopLocation::SERVICE);
             }
 
             // Bobo-Dioulasso is seeded per the spec (a second Burkina Faso

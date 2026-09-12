@@ -29,6 +29,29 @@ class SettingsSeeder extends Seeder
             ]);
         }
 
+        // Real hero/footer copy for the storefront (web/components/footer)
+        // and platform lat/long (used as the search page's fallback
+        // "where am I" center when no explicit address is set - see
+        // shops.tsx/marker-cluster.tsx). Previously blank, which made that
+        // fallback resolve to (0,0) ("null island") instead of anywhere
+        // near the demo shops. firstOrCreate, same reasoning as
+        // google_map_key below: once a superadmin edits these via the UI,
+        // a later reseed must not silently overwrite their value.
+        $firstOrCreateItems = [
+            'title'       => 'AgendaAlly',
+            'description' => 'Book beauty and wellness appointments near you.',
+            'footer_text' => '© ' . date('Y') . ' AgendaAlly. All rights reserved.',
+            // Douala, Cameroon - same coordinates as the Cameroon demo shop
+            // (see UserSeeder), a reasonable "platform home base" default
+            // given this seed's demo geography is Cameroon/Burkina Faso.
+            'latitude'    => '4.0511',
+            'longitude'   => '9.7679',
+        ];
+
+        foreach ($firstOrCreateItems as $key => $value) {
+            Settings::firstOrCreate(['key' => $key], ['value' => $value]);
+        }
+
         // google_map_key is read by admin/, web/ and the mobile app straight off
         // this same key/value settings table (no dedicated column - see
         // Settings::class) to init their Google Maps SDK/geocoding widgets; the

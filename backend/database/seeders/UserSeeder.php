@@ -219,8 +219,16 @@ class UserSeeder extends Seeder
             'user_id'           => 107,
         ], [
             'uuid'              => Str::uuid(),
-            'latitude'          => -69.3453324,
-            'longitude'         => 69.3453324,
+            // Real Douala, Cameroon coordinates — the previous values
+            // (-69.3453324, 69.3453324) placed this shop in the Southern
+            // Ocean near Antarctica, thousands of km from the country/city
+            // (Cameroon/Douala) DemoAfricaSeeder actually assigns it via
+            // ShopLocation. That mismatch was silently masked until the
+            // storefront search's location filter was fixed to actually
+            // apply country_id/city_id — before that, every distance
+            // calculation involving this shop was already meaningless.
+            'latitude'          => 4.0511,
+            'longitude'         => 9.7679,
             'phone'             => '+1234566',
             'open'              => 1,
             // Placeholder demo imagery — placehold.co isn't in web/'s
