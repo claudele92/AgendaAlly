@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -177,6 +178,16 @@ class RebaseCurrencyToXaf extends Command
 
             return self::FAILURE;
         }
+
+        // Currency::currenciesList() (used by Currency::convert() and the
+        // SetCurrency trait - i.e. every conversion in the app) caches its
+        // result for 24h (Currency::TTL). Left alone, every conversion
+        // would keep computing against the pre-rebase rates for up to a
+        // day after this command reports success - a live-verified miss
+        // caught while testing this exact command: Currency::convert()
+        // returned an unconverted raw amount immediately after a real run,
+        // until this cache was cleared.
+        Cache::forget('currencies-list');
 
         $this->info('Currency rebase to XAF complete.');
 
