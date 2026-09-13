@@ -2,8 +2,8 @@
 
 import { CountrySelectForm } from "@/components/country-select/country-select-form";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
+import { ImageWithFallBack } from "@/components/image";
 
 const CountrySelectPanel = ({ settings }: { settings: Record<string, string> }) => {
   const router = useRouter();
@@ -13,7 +13,7 @@ const CountrySelectPanel = ({ settings }: { settings: Record<string, string> }) 
   return (
     <div className="md:p-8 p-4 rounded-xl bg-white bg-opacity-80 dark:bg-dark dark:bg-opacity-50 backdrop-blur-md grid lg:grid-cols-2 sm:grid-cols-2  gap-2 md:gap-4">
       <div className="relative md:aspect-square aspect-[2/1]">
-        <Image
+        <ImageWithFallBack
           src={settings?.logo || "/img/cartempty.png"}
           alt={settings?.title || ""}
           className="w-auto h-full object-contain rounded-2xl aspect-square"

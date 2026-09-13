@@ -60,10 +60,24 @@ class FileHelper
 
             $url = $file->storeAs("public/$dir/$path", $fileName, $options);
 
+            // config('app.img_host') is a plain env('IMG_HOST') with no
+            // default (see config/app.php) - if it's ever unset on a given
+            // environment, string concatenation silently turns this into
+            // "" . "storage/images/...", a bare relative path with no
+            // host. That's not a URL a browser (or next/image, which
+            // rejects it outright rather than trying to load it) can ever
+            // resolve - it crashed the entire storefront the one time this
+            // happened for real (a Settings logo upload). Falling back to
+            // config('app.url') - which always has a real value, defaulting
+            // to 'http://localhost' - guarantees this never degrades below
+            // a syntactically valid absolute URL, even if it points at the
+            // wrong host until IMG_HOST is actually configured.
+            $imgHost = rtrim(config('app.img_host') ?: config('app.url'), '/') . '/';
+
             return [
                 'status' => true,
                 'code'   => ResponseError::NO_ERROR,
-                'data'   => config('app.img_host') . (!data_get($isAws, 'value') ? str_replace('public/', 'storage/', $url) : $url)
+                'data'   => $imgHost . (!data_get($isAws, 'value') ? str_replace('public/', 'storage/', $url) : $url)
             ];
         } catch (Throwable $e) {
 

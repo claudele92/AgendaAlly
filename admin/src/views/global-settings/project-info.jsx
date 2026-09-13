@@ -79,7 +79,7 @@ export default function ProjectInfo({ next }) {
               rules={[{ required: true, message: 'Missing project logo' }]}
             >
               <ImageUploadSingle
-                type='shops'
+                type='settings'
                 image={logo}
                 setImage={setLogo}
                 form={form}
@@ -94,7 +94,7 @@ export default function ProjectInfo({ next }) {
               rules={[{ required: true, message: 'Missing project favicon' }]}
             >
               <ImageUploadSingle
-                type='shops'
+                type='settings'
                 image={favicon}
                 setImage={setFavicon}
                 form={form}

@@ -238,7 +238,7 @@ const Setting = ({
               ]}
             >
               <ImageUploadSingle
-                type='languages'
+                type='settings'
                 image={favicon}
                 setImage={setFavicon}
                 form={form}
@@ -256,7 +256,7 @@ const Setting = ({
               ]}
             >
               <ImageUploadSingle
-                type='languages'
+                type='settings'
                 image={logo}
                 setImage={setLogo}
                 form={form}
@@ -274,7 +274,7 @@ const Setting = ({
               ]}
             >
               <ImageUploadSingle
-                type='languages'
+                type='settings'
                 image={adminFavicon}
                 setImage={setAdminFavicon}
                 form={form}
