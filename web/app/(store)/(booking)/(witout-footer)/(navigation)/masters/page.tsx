@@ -17,7 +17,7 @@ const Empty = dynamic(() =>
 );
 
 const MastersPage = () => {
-  const { language } = useSettings();
+  const { language, currency } = useSettings();
   const country = useAddressStore((state) => state.country);
   const city = useAddressStore((state) => state.city);
   const {
@@ -27,7 +27,7 @@ const MastersPage = () => {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    ["masters", language?.locale, country?.region_id, country?.id, city?.id],
+    ["masters", language?.locale, country?.region_id, country?.id, city?.id, currency?.id],
     ({ pageParam }) =>
       masterService.list({
         lang: language?.locale,
@@ -35,6 +35,7 @@ const MastersPage = () => {
         region_id: country?.region_id,
         country_id: country?.id,
         city_id: city?.id,
+        currency_id: currency?.id,
       }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

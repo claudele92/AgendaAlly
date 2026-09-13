@@ -3240,4 +3240,19 @@ return array(
   // the full-page audit, per explicit go-ahead).
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'any','value' => 'Any'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'where','value' => 'Where'),
+
+  // Chunk 5 - homepage gaps found while investigating the master-card
+  // currency bug: "the.best.masters"/"new.salons" are the ListHeader
+  // titles for the Masters/Salons widgets on (home), home-3 and home-4;
+  // "find.and.book.appointment"/"mobile.card.description.1/2" are the
+  // MobileCard "download the app" section's customer-facing copy on the
+  // same three variants. "mobile.card.description" (no numeric suffix)
+  // is the equivalent single-description key used by the separate
+  // home-2 variant's MobileCard usage.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'the.best.masters','value' => 'The best masters'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'new.salons','value' => 'New salons'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'find.and.book.appointment','value' => 'Find and book your next appointment'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'mobile.card.description.1','value' => 'Search services, compare masters, and book in just a few taps.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'mobile.card.description.2','value' => 'Manage your schedule, sell your products, and grow your business.'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'mobile.card.description','value' => 'Search services, compare masters, and book in just a few taps.'),
 );
