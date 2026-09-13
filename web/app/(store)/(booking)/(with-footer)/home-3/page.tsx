@@ -11,6 +11,7 @@ import { SlidableProductList } from "@/components/slidable-product-list";
 import storyService from "@/services/story";
 import { SearchField } from "./components/search-field";
 import { Canvas } from "./components/canvas";
+import { resolveDefaultLocation } from "@/utils/resolve-default-location";
 
 const Header = dynamic(() =>
   import("@/components/header").then((component) => ({ default: component.Header }))
@@ -113,8 +114,8 @@ const Recommended = dynamic(
 
 const HomePage = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
-  const countryId = (await cookies()).get("country_id")?.value || undefined;
-  const cityId = (await cookies()).get("city_id")?.value || undefined;
+  const cookieCountryId = (await cookies()).get("country_id")?.value || undefined;
+  const cookieCityId = (await cookies()).get("city_id")?.value || undefined;
   const services = await categoryService.getAll({
     lang,
     type: "service",
@@ -122,16 +123,21 @@ const HomePage = async () => {
     column: "input",
     sort: "asc",
   });
+  const settings = await globalService.settings();
+  const parsedSettings = parseSettings(settings?.data);
+  const productsEnabled = parsedSettings?.products_enabled === "1";
+  const { countryId, cityId } = resolveDefaultLocation(
+    cookieCountryId,
+    cookieCityId,
+    parsedSettings
+  );
   const shops = await shopService.getAll({
     lang,
     perPage: 8,
     country_id: countryId,
     city_id: cityId,
   });
-  const settings = await globalService.settings();
   const stories = await storyService.getAll({ lang });
-  const parsedSettings = parseSettings(settings?.data);
-  const productsEnabled = parsedSettings?.products_enabled === "1";
   return (
     <>
       <section className="lg:h-full relative pb-12 mb-10">
