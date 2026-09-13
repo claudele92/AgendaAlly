@@ -524,7 +524,33 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function scopeFilter($query, array $filter): void
     {
+        $regionId  = data_get($filter, 'region_id');
+        $countryId = data_get($filter, 'country_id');
+        $cityId    = data_get($filter, 'city_id');
+
         $query
+            // Restricts masters to ones with an accepted invitation to a
+            // shop whose SERVICE-type location (the location that makes a
+            // master actually bookable there - see Service::scopeFilter()'s
+            // identical whereHas('serviceMaster.master.invitations', ...)
+            // gate) matches the given region/country/city. Without this,
+            // region_id/country_id/city_id were accepted as request params
+            // (see FilterParamsRequest) and dutifully sent by every
+            // masters-listing frontend call, but silently had no effect
+            // here - masters from every country came back regardless,
+            // unlike Shop::scopeFilter()'s equivalent, working
+            // whereHas('locations', ...) clause this mirrors.
+            ->when($regionId || $countryId || $cityId, function ($query) use ($regionId, $countryId, $cityId) {
+                $query->whereHas('invitations', function ($q) use ($regionId, $countryId, $cityId) {
+                    $q->where('status', Invitation::ACCEPTED)
+                        ->whereHas('shop.locations', function ($q) use ($regionId, $countryId, $cityId) {
+                            $q->where('type', ShopLocation::SERVICE)
+                                ->when($regionId, fn($q) => $q->where('region_id', $regionId))
+                                ->when($countryId, fn($q) => $q->where('country_id', $countryId))
+                                ->when($cityId, fn($q) => $q->where('city_id', $cityId));
+                        });
+                });
+            })
             ->when(data_get($filter, 'role'), function ($query, $role) {
                 $query->when(
                     $role === 'deliveryman',

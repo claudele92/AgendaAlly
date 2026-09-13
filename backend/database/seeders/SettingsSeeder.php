@@ -16,8 +16,13 @@ class SettingsSeeder extends Seeder
     {
         $items = [
             [
+                // This is a real, single-tenant deployment, not a public
+                // demo instance - true here silently disables Save buttons
+                // and other write actions across ~33 admin screens (see
+                // admin/src/helpers/useDemo.js), which is exactly the
+                // "Save not clickable" bug this flag caused.
                 'key'   => 'is_demo',
-                'value' => true
+                'value' => false
             ]
         ];
 
