@@ -241,10 +241,14 @@ class DemoServiceCatalogSeeder extends Seeder
             'phone'             => '998911902698',
             'birthday'          => '1990-12-31',
             'gender'            => 'male',
-            // Real portrait photo (Unsplash, free tier - "smiling man on
-            // grayscale photography", photo id b1k6h3GrvVU, by Anthony
-            // Tuil, @tuilan10) - was unset/null before.
-            'img'               => 'https://images.unsplash.com/photo-1534268844255-365517e40959?auto=format&fit=crop&w=600&h=600&q=80',
+            // Real portrait photo (Unsplash, free tier - "a man in a black
+            // shirt and a black tie", photo id j8RVCMWr3qE, by Hamidu
+            // Samuel Mansaray, @samueloxm). Replaces an earlier choice
+            // (photo id b1k6h3GrvVU) that was explicitly a black-and-white/
+            // grayscale photo - correct subject (a smiling man, gender
+            // matched) but visually inconsistent sitting next to every
+            // other demo photo, which are all in color.
+            'img'               => 'https://images.unsplash.com/photo-1726160182266-f5ff7f78682d?auto=format&fit=crop&w=600&h=600&q=80',
             'email_verified_at' => now(),
             'password'          => bcrypt('masterbf'),
         ]);
