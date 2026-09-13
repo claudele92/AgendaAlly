@@ -131,6 +131,11 @@ class UserSeeder extends Seeder
                 'phone' => '998911902694',
                 'birthday' => '1990-12-31',
                 'gender' => 'male',
+                // Real portrait photo (Unsplash, photo id K8kDDGljn90, CC0/
+                // Unsplash License - free tier, no attribution required but
+                // credited here anyway: photo by Oluwatobi, @oluwatobisimii)
+                // - was unset/null before.
+                'img' => 'https://images.unsplash.com/photo-1678282955808-de92256dbd59?auto=format&fit=crop&w=600&h=600&q=80',
                 'email_verified_at' => now(),
                 'password' => bcrypt('master'),
                 'created_at' => now(),
@@ -235,17 +240,18 @@ class UserSeeder extends Seeder
             'longitude'         => 9.7679,
             'phone'             => '+1234566',
             'open'              => 1,
-            // Placeholder demo imagery — placehold.co isn't in web/'s
-            // next.config.js images.remotePatterns allowlist, so it crashed
-            // next/image (and the old 'url.webp' value before that wasn't a
-            // resolvable path at all either). flagcdn.com IS already
-            // allowlisted there and already used elsewhere in this exact
-            // codebase for country flags (see DemoAfricaSeeder::country()),
-            // so reusing it here needs no config change and no new external
-            // dependency — just this shop's own country's flag standing in
-            // for a real uploaded logo/banner.
-            'background_img'    => 'https://flagcdn.com/h240/cm.png',
-            'logo_img'          => 'https://flagcdn.com/h120/cm.png',
+            // Real salon photos (Unsplash, free tier) replacing the earlier
+            // flagcdn.com country-flag placeholder (that placeholder was
+            // itself a fix for an even earlier broken placehold.co URL -
+            // see git history - not a real photo, just something that
+            // rendered without crashing next/image). background_img: "A
+            // hair salon interior with hair products and clients" (photo id
+            // 5xFEY6ZEE8g, by SumUp, @sumup). logo_img: "salon chairs with
+            // mirrors and products" (photo id jsuWg7IXx1k, by Greg Trowman,
+            // @gregtrow). images.unsplash.com is now allowlisted in
+            // next.config.js.
+            'background_img'    => 'https://images.unsplash.com/photo-1746723378067-83a345ff3160?auto=format&fit=crop&w=1200&q=80',
+            'logo_img'          => 'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&w=400&h=400&q=80',
             'status'            => 'approved',
             'status_note'       => 'approved',
             'delivery_time'     => [
@@ -294,10 +300,15 @@ class UserSeeder extends Seeder
             'longitude'         => -1.5196603,
             'phone'             => '+2267000000',
             'open'              => 1,
-            // Same flagcdn.com fix as the Cameroon shop above, this
-            // country's own flag ('bf') standing in for a real logo/banner.
-            'background_img'    => 'https://flagcdn.com/h240/bf.png',
-            'logo_img'          => 'https://flagcdn.com/h120/bf.png',
+            // Real salon photos (Unsplash, free tier), same reasoning as
+            // the Cameroon shop above - distinct photos so the two demo
+            // shops don't look identical. background_img: "a storefront
+            // with awnings and signs" (photo id TESSOkmyD5o, by
+            // Leo_Visions, @leo_visions_). logo_img: "black leather padded
+            // stainless steel chair" (photo id e0iRaJF5xlg, by Giorgio
+            // Trovato, @giorgiotrovato).
+            'background_img'    => 'https://images.unsplash.com/photo-1763333412344-da6a9bb3b57b?auto=format&fit=crop&w=1200&q=80',
+            'logo_img'          => 'https://images.unsplash.com/photo-1626383126210-15c15e62d9ba?auto=format&fit=crop&w=400&h=400&q=80',
             'status'            => 'approved',
             'status_note'       => 'approved',
             'delivery_time'     => [
