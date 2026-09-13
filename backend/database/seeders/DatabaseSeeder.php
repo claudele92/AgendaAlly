@@ -10,6 +10,7 @@ use App\Models\Region;
 use App\Models\RegionTranslation;
 use Database\Seeders\Support\CountryDefaultsBackfiller;
 use Database\Seeders\Support\CountryRoleDefaultsBackfiller;
+use Database\Seeders\Support\SellerCurrencyBackfiller;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -90,6 +91,15 @@ class DatabaseSeeder extends Seeder
         // countries; kept for symmetry and as a safety net (see
         // CountryRoleDefaultsBackfiller's own docblock).
         CountryRoleDefaultsBackfiller::run();
+
+        // Belt-and-suspenders alongside ShopLocation::booted()'s saved()
+        // sync: that event should already have set currency_id for every
+        // seller seeded above the moment their ShopLocation row was
+        // written, but this catches anything it might have missed (e.g. a
+        // shop whose location's country had no currency_id yet at the time
+        // it was saved). A no-op against any seller currency_id it's
+        // already set.
+        SellerCurrencyBackfiller::run();
 
 //        if (app()->environment() == 'local') {
 //            Category::factory()->hasTranslations(1)->count(10)->create();
