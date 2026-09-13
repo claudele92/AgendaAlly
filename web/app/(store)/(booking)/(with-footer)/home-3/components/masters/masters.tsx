@@ -19,10 +19,16 @@ const Empty = dynamic(() =>
 
 export const Masters = () => {
   const { t } = useTranslation();
-  const { language } = useSettings();
+  const { language, currency } = useSettings();
   const { data: masters, isLoading } = useInfiniteQuery(
-    ["masters", language?.locale],
-    () => masterService.list({ column: "r_avg", sort: "desc", lang: language?.locale }),
+    ["masters", language?.locale, currency?.id],
+    () =>
+      masterService.list({
+        column: "r_avg",
+        sort: "desc",
+        lang: language?.locale,
+        currency_id: currency?.id,
+      }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
     }
