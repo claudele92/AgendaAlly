@@ -42,27 +42,38 @@ export const Masters = ({ shopId, shopSlug }: MastersProps) => {
             ? Array.from(Array(12).keys()).map((item) => (
                 <div className="rounded-button bg-gray-300 aspect-[1/1.5]" key={item} />
               ))
-            : masterList?.map((master) => (
-                <button
-                  key={master.id}
-                  onClick={() =>
-                    router.push(
-                      buildUrlQueryParams(
-                        `/shops/${shopSlug}/booking`,
-                        //   {
-                        //   serviceId: master.service_master?.service_id,
-                        //   serviceMasterId: master.service_master?.id,
-                        // }
-                        {
-                          master_id: master.id,
-                        }
-                      )
+            : masterList?.map((master) => {
+                const goToMaster = () =>
+                  router.push(
+                    buildUrlQueryParams(
+                      `/shops/${shopSlug}/booking`,
+                      //   {
+                      //   serviceId: master.service_master?.service_id,
+                      //   serviceMasterId: master.service_master?.id,
+                      // }
+                      {
+                        master_id: master.id,
+                      }
                     )
-                  }
-                >
-                  <MasterCard data={master} key={master.id} />
-                </button>
-              ))}
+                  );
+                return (
+                  <div
+                    key={master.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={goToMaster}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        goToMaster();
+                      }
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <MasterCard data={master} />
+                  </div>
+                );
+              })}
         </div>
       ) : (
         <Empty animated={false} smallText />

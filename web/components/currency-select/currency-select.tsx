@@ -56,8 +56,9 @@ export const CurrencySelect = () => {
           {!isLoading ? (
             data?.data?.map((currency, index) => (
               <button
+                key={currency.id}
                 type="button"
-                className={`relative cursor-pointer text-left font-medium select-none py-4 flex items-center gap-2.5 px-5 
+                className={`relative cursor-pointer text-left font-medium select-none py-4 flex items-center gap-2.5 px-5
                 ${index !== 0 && "border-t border-gray-inputBorder"}`}
                 onClick={() => setLocalSelectedCurrency(currency)}
               >
