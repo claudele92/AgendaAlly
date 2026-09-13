@@ -2,7 +2,6 @@ import { Shop } from "@/types/shop";
 import React, { memo } from "react";
 import Link from "next/link";
 import { ImageWithFallBack } from "@/components/image";
-import Image from "next/image";
 import MapPinIcon from "@/assets/icons/map-pin";
 import { useTranslation } from "react-i18next";
 import { createRatingText } from "@/utils/create-rating-text";
@@ -57,7 +56,7 @@ export const ShopCard = memo(
                 </span>
               </div>
               <div className="rounded-full relative w-10 h-10 flex items-center justify-center z-[1] aspect-square flex-shrink-0">
-                <Image
+                <ImageWithFallBack
                   src={data.logo_img}
                   alt={data.translation?.title || "shoplogo"}
                   fill

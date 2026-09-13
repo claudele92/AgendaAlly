@@ -9,7 +9,7 @@ import { Modal } from "@/components/modal";
 import { useBooking } from "@/context/booking";
 import { useCallback } from "react";
 import { Master } from "@/types/master";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 
 const StaffSelect = dynamic(
   () => import("../staff-select").then((component) => ({ default: component.StaffSelect })),
@@ -49,7 +49,7 @@ export const StaffSelectCard = ({ data }: StaffSelectCardProps) => {
         <div className="flex items-center gap-2">
           {data.master ? (
             <div className="w-10 h-10 relative ">
-              <Image
+              <ImageWithFallBack
                 src={data.master.img}
                 className="object-cover rounded-full"
                 alt={data.master.firstname || "master"}

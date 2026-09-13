@@ -8,6 +8,11 @@ import { AsyncSelect } from "@/components/async-select";
 import useCartStore from "@/global-store/cart";
 import { useRouter } from "next/navigation";
 
+// Matches the zustand `address` store's localStorage persistence
+// (effectively indefinite) - see handleSaveAddress below for why these two
+// need to expire on the same schedule.
+const COUNTRY_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
 export const CountrySelectForm = ({ onSelect }: { onSelect: () => void }) => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -27,13 +32,22 @@ export const CountrySelectForm = ({ onSelect }: { onSelect: () => void }) => {
     if (tempCountry) {
       setIsPressed(false);
       updateCountry(tempCountry);
-      setCookie("country_id", tempCountry.id);
+      // Without maxAge this is a session cookie (cleared when the browser
+      // closes), while the zustand `address` store it's meant to mirror is
+      // persisted to localStorage (never expires). On a returning visit
+      // after the cookie expired but localStorage hadn't, the server (SSR,
+      // reads this cookie) and the client (reads the still-persisted
+      // zustand store) would resolve two different countries for the same
+      // page load - the server's shop/master lists would reflect one
+      // country, the client's immediate refetch another, replacing cards
+      // right after mount. One year keeps both sources in lockstep.
+      setCookie("country_id", tempCountry.id, { maxAge: COUNTRY_COOKIE_MAX_AGE });
       clearLocalCart();
     }
     if (tempCity) {
       setIsPressed(false);
       updateCity(tempCity);
-      setCookie("city_id", tempCity.id);
+      setCookie("city_id", tempCity.id, { maxAge: COUNTRY_COOKIE_MAX_AGE });
     } else {
       updateCity(null);
       deleteCookie("city_id");

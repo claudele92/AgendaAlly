@@ -1,7 +1,6 @@
 import { Shop } from "@/types/shop";
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import MapPinIcon from "@/assets/icons/map-pin";
 import { ImageWithFallBack } from "@/components/image";
 
@@ -29,7 +28,7 @@ export const DealCard = ({ data }: DealCardProps) => (
           </div>
         </div>
         <div className="border-2 relative overflow-hidden border-white rounded-full p-2 flex items-center justify-center w-[55px]  aspect-square ">
-          <Image
+          <ImageWithFallBack
             src={data?.logo_img}
             alt={data.translation?.title || "shop"}
             fill

@@ -6,6 +6,7 @@ import useAddressStore from "@/global-store/address";
 import { Modal } from "@/components/modal";
 import { useEffect, useState } from "react";
 import { countryService, cityService } from "@/services/country";
+import { deleteCookie } from "cookies-next";
 
 const CountrySelectPanel = dynamic(() => import("./country-select-panel"), {
   loading: () => <LoadingCard />,
@@ -48,6 +49,13 @@ export const CountrySelect = ({
     countryService.get(country.id).catch(() => {
       deleteCountry();
       updateCity(null);
+      // Mirrors the zustand-only clear into the country_id/city_id cookies
+      // (see country-select-form.tsx's handleSaveAddress) - otherwise the
+      // client's store says "no country" while the server keeps filtering
+      // SSR requests by the now-stale cookie value, the same divergence
+      // this whole re-validation effect exists to prevent, just inverted.
+      deleteCookie("country_id");
+      deleteCookie("city_id");
     });
   }, [mounted, country?.id, deleteCountry, updateCity]);
 
@@ -58,6 +66,7 @@ export const CountrySelect = ({
 
     cityService.get(city.id).catch(() => {
       updateCity(null);
+      deleteCookie("city_id");
     });
   }, [mounted, city?.id, updateCity]);
 
