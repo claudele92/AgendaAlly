@@ -40,14 +40,15 @@ use Throwable;
  * UserService::createDefaultWorkingDays(), the same helper the real
  * user-creation flow already calls) for whichever is missing either.
  *
- * Deliberately leaves img null on every category/service — this demo
- * environment can't currently source verified-working image URLs (Unsplash
- * MCP isn't enabled this session, and unsplash.com itself is blocked by this
- * sandbox's own egress proxy, so a real photo URL can't even be fetched to
- * confirm it's correct, unlike flagcdn.com's guessable, parametric URL
- * scheme). PR #74's ImageWithFallBack fix means a null img renders the
- * fallback image cleanly rather than crashing — real images are a deliberate
- * follow-up once Unsplash access is sorted, not guessed at here.
+ * img on every category/service is a real icon (see CATEGORY_ICONS), not a
+ * photographic image — this demo environment can't source verified-working
+ * photo URLs (Unsplash MCP isn't enabled this session, and unsplash.com
+ * itself is blocked by this sandbox's own egress proxy, unlike flagcdn.com's
+ * guessable, parametric URL scheme), so real icons from the already-a-
+ * dependency remixicon package, served locally from web/public/icons/, give
+ * a clean and reliable result without that verification problem. PR #74's
+ * ImageWithFallBack fix still covers any category/service outside this
+ * seeder's own six that's still missing an image.
  */
 class DemoServiceCatalogSeeder extends Seeder
 {
@@ -72,6 +73,26 @@ class DemoServiceCatalogSeeder extends Seeder
         'Makeup'         => ['Bridal Makeup', 'Everyday Makeup'],
         'Barbershop'     => ['Beard Trim', "Men's Haircut"],
         'Skin Care'      => ['Facial Cleansing', 'Skin Consultation'],
+    ];
+
+    // Real icons (not photographic images) per top-level category, so
+    // sub_service children and the SERVICES catalog below don't need to
+    // guess at Unsplash-verified photo URLs (this environment can't
+    // reach unsplash.com at all - see the class docblock's earlier
+    // explanation of why img was left null). These are real, static SVGs
+    // copied from the remixicon npm package - already a project
+    // dependency (web/package.json) - into web/public/icons/categories/,
+    // served locally rather than from any external host. Every
+    // sub_service child reuses its parent's icon: remixicon has no
+    // separate icon for e.g. "Pedicure" vs "Manicure", and a
+    // mismatched/invented icon would be worse than a shared, honest one.
+    private const CATEGORY_ICONS = [
+        'Hair Care'      => '/icons/categories/hair-care.svg',
+        'Nail Care'      => '/icons/categories/nail-care.svg',
+        'Spa & Massage'  => '/icons/categories/spa-massage.svg',
+        'Makeup'         => '/icons/categories/makeup.svg',
+        'Barbershop'     => '/icons/categories/barbershop.svg',
+        'Skin Care'      => '/icons/categories/skin-care.svg',
     ];
 
     // The 6 services every demo shop offers, keyed by the sub_service
@@ -144,17 +165,18 @@ class DemoServiceCatalogSeeder extends Seeder
         $leafCategories = [];
 
         foreach (self::CATEGORY_TREE as $parentTitle => $children) {
-            $parent = $this->category($parentTitle, Category::SERVICE, null, $locale);
+            $icon = self::CATEGORY_ICONS[$parentTitle] ?? null;
+            $parent = $this->category($parentTitle, Category::SERVICE, null, $locale, $icon);
 
             foreach ($children as $childTitle) {
-                $leafCategories[$childTitle] = $this->category($childTitle, Category::SUB_SERVICE, $parent, $locale);
+                $leafCategories[$childTitle] = $this->category($childTitle, Category::SUB_SERVICE, $parent, $locale, $icon);
             }
         }
 
         return $leafCategories;
     }
 
-    private function category(string $title, int $type, ?Category $parent, string $locale): Category
+    private function category(string $title, int $type, ?Category $parent, string $locale, ?string $img = null): Category
     {
         $category = Category::whereHas('translation', fn($q) => $q->where('locale', $locale)->where('title', $title))
             ->where('type', $type)
@@ -168,10 +190,14 @@ class DemoServiceCatalogSeeder extends Seeder
                 'parent_id' => $parent?->id ?? 0,
                 'active'    => true,
                 'status'    => Category::PUBLISHED,
-                'img'       => null,
+                'img'       => $img,
             ]);
             $category->translations()->create(['title' => $title, 'locale' => $locale]);
             $this->command?->info("category: $title");
+        } elseif ($img && $category->img !== $img) {
+            // Picks up the real icon on a database that already seeded
+            // these categories with img=null before this icon set existed.
+            $category->update(['img' => $img]);
         }
 
         return $category;
@@ -204,8 +230,13 @@ class DemoServiceCatalogSeeder extends Seeder
             'id' => self::BURKINA_FASO_MASTER_USER_ID,
         ], [
             'uuid'              => Str::uuid(),
-            'firstname'         => 'master-bf',
-            'lastname'          => 'master-bf',
+            // Real-sounding Burkinabé name (Ouédraogo is the most common
+            // Mossi surname in Burkina Faso) - was the literal
+            // 'master-bf'/'master-bf' placeholder. Email/password kept
+            // stable since they're used as demo login credentials
+            // elsewhere.
+            'firstname'         => 'Boureima',
+            'lastname'          => 'Ouédraogo',
             'email'             => 'master-bf@githubit.com',
             'phone'             => '998911902698',
             'birthday'          => '1990-12-31',
@@ -267,7 +298,11 @@ class DemoServiceCatalogSeeder extends Seeder
                     'category_id' => $category->id,
                     'shop_id'     => $shop->id,
                     'status'      => Service::STATUS_ACCEPTED,
-                    'img'         => null,
+                    // Same real icon as its category (see CATEGORY_ICONS) -
+                    // not a photographic image, so no Unsplash-verification
+                    // problem, and no per-service icon guesswork beyond
+                    // what the category already represents.
+                    'img'         => $category->img,
                     'price'       => $definition['price'],
                     'interval'    => $definition['interval'],
                     'pause'       => 10,
@@ -279,6 +314,10 @@ class DemoServiceCatalogSeeder extends Seeder
                     'description' => $definition['description'],
                 ]);
                 $this->command?->info("service: {$definition['category']} (shop {$shop->id})");
+            } elseif ($category->img && $service->img !== $category->img) {
+                // Picks up the real icon on a database that already seeded
+                // this service with img=null before this icon set existed.
+                $service->update(['img' => $category->img]);
             }
 
             ServiceMaster::updateOrCreate([

@@ -6,6 +6,14 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 
 const nextConfig = {
   images: {
+    // Needed to render the demo category/service icons (static, trusted
+    // SVGs shipped from our own remixicon dependency under public/icons) -
+    // next/image refuses SVGs by default as an XSS precaution against
+    // untrusted uploads, which doesn't apply here since these are our own
+    // build-time assets, not user-supplied files.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: "https",
