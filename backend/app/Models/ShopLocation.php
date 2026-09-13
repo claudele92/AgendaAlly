@@ -44,6 +44,33 @@ class ShopLocation extends Model
         self::SERVICE => self::SERVICE,
     ];
 
+    /**
+     * Keeps the seller's personal currency_id (what SetCurrency::currency()
+     * uses for their dashboard/earnings display) in lockstep with their
+     * shop's resolved country, mirroring how Shop::displayCurrency() already
+     * resolves the storefront's currency from these same rows. Living here
+     * rather than in the create/update service methods means it fires no
+     * matter how a ShopLocation gets written - the seller API, an admin
+     * action, or a seeder's updateOrCreate() - so a seller's currency is
+     * never left to a manual per-seller fix.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (self $location) {
+            /** @var Shop|null $shop */
+            $shop = $location->shop;
+            $currency = $shop?->displayCurrency();
+
+            // A shop with no resolved country/currency yet (e.g. only the
+            // opposite location type is set) is left alone rather than
+            // reset to null - that would just fall back to the platform
+            // default currency instead of leaving the seller's prior value.
+            if ($currency) {
+                $shop->seller()->update(['currency_id' => $currency->id]);
+            }
+        });
+    }
+
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
