@@ -2,7 +2,6 @@ import { Shop } from "@/types/shop";
 import React from "react";
 import Link from "next/link";
 import { ImageWithFallBack } from "@/components/image";
-import Image from "next/image";
 import MapPinIcon from "@/assets/icons/map-pin";
 import { useTranslation } from "react-i18next";
 import { createRatingText } from "@/utils/create-rating-text";
@@ -40,8 +39,8 @@ export const ShopCardUi2 = ({ data }: ShopCardProps) => {
             className="object-cover transition-all group-hover:scale-105"
           />
           <div className="absolute -bottom-5 rounded-full bg-white w-10 h-10 left-6 flex items-center justify-center z-[1]">
-            <Image
-              src={data?.logo_img === "url.webp" ? "/img/image-load-failed.png" : data?.logo_img}
+            <ImageWithFallBack
+              src={data?.logo_img}
               alt={data.translation?.title || "shoplogo"}
               width={36}
               height={36}
