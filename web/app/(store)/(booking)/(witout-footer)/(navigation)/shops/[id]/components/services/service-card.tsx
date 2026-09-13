@@ -55,9 +55,17 @@ export const ServiceCard = ({ data, onCardClick, isBookingPage }: ServiceCardPro
   };
   return (
     <>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onCardClick}
-        className=" py-6 px-5 border-t border-gray-link hover:bg-gray-link active:bg-gray-card transition-all"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onCardClick?.();
+          }
+        }}
+        className="w-full text-start py-6 px-5 border-t border-gray-link hover:bg-gray-link active:bg-gray-card transition-all cursor-pointer"
       >
         <div className="flex items-center justify-between">
           <div className="text-start">
@@ -110,7 +118,7 @@ export const ServiceCard = ({ data, onCardClick, isBookingPage }: ServiceCardPro
             />
           </span>
         </div>
-      </button>
+      </div>
       {hasFAQs && data.service_faqs?.length > 0 && (
         <Modal withCloseButton isOpen={isModalOpen} onClose={closeModal}>
           <ServiceFaqs faqs={data.service_faqs} />

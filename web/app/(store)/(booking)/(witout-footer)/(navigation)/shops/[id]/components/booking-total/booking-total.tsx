@@ -12,7 +12,6 @@ import { ImageWithFallBack } from "@/components/image";
 import { Price } from "@/components/price";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useBooking } from "@/context/booking";
-import Image from "next/image";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Link from "next/link";
@@ -255,7 +254,7 @@ export const BookingTotal = ({
       {!!state.master && (
         <div className="flex items-center gap-1 border-b border-gray-link py-4">
           <div className="w-14 h-14 relative">
-            <Image
+            <ImageWithFallBack
               src={state.master.img}
               alt={state.master.firstname || "master"}
               className="rounded-full object-cover"
@@ -310,7 +309,7 @@ export const BookingTotal = ({
               {!!service.master && !state.master && (
                 <div className="flex items-center gap-1 mb-4">
                   <div className="w-14 h-14 relative">
-                    <Image
+                    <ImageWithFallBack
                       src={service.master?.img}
                       alt={service.master?.firstname || "master"}
                       className="rounded-full object-cover"
