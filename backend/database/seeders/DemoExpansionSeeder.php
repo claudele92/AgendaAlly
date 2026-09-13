@@ -102,9 +102,19 @@ class DemoExpansionSeeder extends Seeder
                 'latitude'    => 6.4281,
                 'longitude'   => 3.4219,
                 'phone'       => '+2348000000001',
+                // Real salon photos (Unsplash, free tier). background_img:
+                // "a hair salon with chairs and neon signs" (photo id
+                // sbZi_DLSjzo, by Giorgio Trovato, @giorgiotrovato).
+                // logo_img: "shampoo and conditioner bottles on shelf"
+                // (photo id Wlu-dcVLuOI, by Ela De Pure, @eladepure).
+                'background_img' => 'https://images.unsplash.com/photo-1637777277337-f114350fb088?auto=format&fit=crop&w=1200&q=80',
+                'logo_img'        => 'https://images.unsplash.com/photo-1786725009844-3daea6bd1fb0?auto=format&fit=crop&w=400&h=400&q=80',
             ],
             'seller' => ['id' => 117, 'firstname' => 'sellers-ng', 'lastname' => 'sellers-ng', 'email' => 'sellers-ng@githubit.com', 'phone' => '998911902699', 'password' => 'sellerng', 'gender' => 'male'],
-            'master' => ['id' => 118, 'firstname' => 'Adaeze', 'lastname' => 'Okafor', 'email' => 'master-ng@githubit.com', 'phone' => '998911902700', 'password' => 'masterng', 'gender' => 'female'],
+            // Real portrait photo (Unsplash, free tier - "woman with green
+            // and white flower on ear", photo id h1lA3N5wb8M, by Divine
+            // Effiong, @iamdivineeffiong).
+            'master' => ['id' => 118, 'firstname' => 'Adaeze', 'lastname' => 'Okafor', 'email' => 'master-ng@githubit.com', 'phone' => '998911902700', 'password' => 'masterng', 'gender' => 'female', 'img' => 'https://images.unsplash.com/photo-1593351799227-75df2026356b?auto=format&fit=crop&w=600&h=600&q=80'],
             'staff'  => ['id' => 119, 'firstname' => 'Branch', 'lastname' => 'Manager NG', 'email' => 'branch-manager-ng@githubit.com', 'phone' => '998911902701', 'password' => 'branchmanagerng', 'gender' => 'male'],
         ],
         [
@@ -117,9 +127,20 @@ class DemoExpansionSeeder extends Seeder
                 'latitude'    => 5.5560,
                 'longitude'   => -0.1969,
                 'phone'       => '+2330000000001',
+                // Real salon photos (Unsplash, free tier). background_img:
+                // "woman in white shirt standing near black leather chairs"
+                // (photo id OKXwmdbdXkk, by Giorgio Trovato,
+                // @giorgiotrovato). logo_img: "two chairs outside a salon
+                // with products on shelves" (photo id CFynKzsvqjA, by
+                // Phuong Nguyen, @phuongtography).
+                'background_img' => 'https://images.unsplash.com/photo-1626383137804-ff908d2753a2?auto=format&fit=crop&w=1200&q=80',
+                'logo_img'        => 'https://images.unsplash.com/photo-1763741141049-352dfafcc64f?auto=format&fit=crop&w=400&h=400&q=80',
             ],
             'seller' => ['id' => 120, 'firstname' => 'sellers-gh', 'lastname' => 'sellers-gh', 'email' => 'sellers-gh@githubit.com', 'phone' => '998911902702', 'password' => 'sellergh', 'gender' => 'male'],
-            'master' => ['id' => 121, 'firstname' => 'Ama', 'lastname' => 'Boateng', 'email' => 'master-gh@githubit.com', 'phone' => '998911902703', 'password' => 'mastergh', 'gender' => 'female'],
+            // Real portrait photo (Unsplash, free tier - "woman in white
+            // button up shirt", photo id unG5ZwUPY0Y, by Qwerqu McBrew,
+            // @qwerqu_jnr).
+            'master' => ['id' => 121, 'firstname' => 'Ama', 'lastname' => 'Boateng', 'email' => 'master-gh@githubit.com', 'phone' => '998911902703', 'password' => 'mastergh', 'gender' => 'female', 'img' => 'https://images.unsplash.com/photo-1629145810320-aec9e63dd798?auto=format&fit=crop&w=600&h=600&q=80'],
             'staff'  => ['id' => 122, 'firstname' => 'Branch', 'lastname' => 'Manager GH', 'email' => 'branch-manager-gh@githubit.com', 'phone' => '998911902704', 'password' => 'branchmanagergh', 'gender' => 'male'],
         ],
         [
@@ -132,9 +153,20 @@ class DemoExpansionSeeder extends Seeder
                 'latitude'    => 4.0483,
                 'longitude'   => 9.7043,
                 'phone'       => '+2370000000002',
+                // Real salon photos (Unsplash, free tier). background_img:
+                // "black and silver office rolling chair beside mirror"
+                // (photo id gI9rvJK61L8, by Giorgio Trovato,
+                // @giorgiotrovato). logo_img: "shelves with skincare
+                // products and bottles in a salon" (photo id y-jhNJt0ZsM,
+                // by Ela De Pure, @eladepure).
+                'background_img' => 'https://images.unsplash.com/photo-1626379501846-0df4067b8bb9?auto=format&fit=crop&w=1200&q=80',
+                'logo_img'        => 'https://images.unsplash.com/photo-1760862652442-e8ff7ebdd2f8?auto=format&fit=crop&w=400&h=400&q=80',
             ],
             'seller' => ['id' => 123, 'firstname' => 'sellers-cm2', 'lastname' => 'sellers-cm2', 'email' => 'sellers-cm2@githubit.com', 'phone' => '998911902705', 'password' => 'sellercm2', 'gender' => 'male'],
-            'master' => ['id' => 124, 'firstname' => 'Brice', 'lastname' => 'Ngoma', 'email' => 'master-cm2@githubit.com', 'phone' => '998911902706', 'password' => 'mastercm2', 'gender' => 'male'],
+            // Real portrait photo (Unsplash, free tier - "Young black man
+            // with a big smile", photo id OGljLs0DnJ4, by Inocent Drici,
+            // @inidrici).
+            'master' => ['id' => 124, 'firstname' => 'Brice', 'lastname' => 'Ngoma', 'email' => 'master-cm2@githubit.com', 'phone' => '998911902706', 'password' => 'mastercm2', 'gender' => 'male', 'img' => 'https://images.unsplash.com/photo-1646658104783-2eec2433c1d1?auto=format&fit=crop&w=600&h=600&q=80'],
             'staff'  => ['id' => 125, 'firstname' => 'Branch', 'lastname' => 'Manager CM2', 'email' => 'branch-manager-cm2@githubit.com', 'phone' => '998911902707', 'password' => 'branchmanagercm2', 'gender' => 'female'],
         ],
         [
@@ -147,9 +179,20 @@ class DemoExpansionSeeder extends Seeder
                 'latitude'    => 3.8480,
                 'longitude'   => 11.5021,
                 'phone'       => '+2370000000003',
+                // Real salon photos (Unsplash, free tier). background_img:
+                // "stylish barbershop interior with a couch and magazines"
+                // (photo id WlfTYvvRG_w, by Zachary Lancaster,
+                // @zacharyl123). logo_img: "shelves filled with various
+                // bottles and jars" (photo id wuBiNO345DE, by Ela De Pure,
+                // @eladepure).
+                'background_img' => 'https://images.unsplash.com/photo-1781925856343-c97d0d44f94c?auto=format&fit=crop&w=1200&q=80',
+                'logo_img'        => 'https://images.unsplash.com/photo-1758188753373-5b01a0fc6d9d?auto=format&fit=crop&w=400&h=400&q=80',
             ],
             'seller' => ['id' => 126, 'firstname' => 'sellers-cm3', 'lastname' => 'sellers-cm3', 'email' => 'sellers-cm3@githubit.com', 'phone' => '998911902708', 'password' => 'sellercm3', 'gender' => 'male'],
-            'master' => ['id' => 127, 'firstname' => 'Chantal', 'lastname' => 'Mbarga', 'email' => 'master-cm3@githubit.com', 'phone' => '998911902709', 'password' => 'mastercm3', 'gender' => 'female'],
+            // Real portrait photo (Unsplash, free tier - "close-up of a
+            // smiling woman with braided hair", photo id JiZTPRLsa0Q, by
+            // JEaLiFe Pictures, @jealife_pictures).
+            'master' => ['id' => 127, 'firstname' => 'Chantal', 'lastname' => 'Mbarga', 'email' => 'master-cm3@githubit.com', 'phone' => '998911902709', 'password' => 'mastercm3', 'gender' => 'female', 'img' => 'https://images.unsplash.com/photo-1754844362137-88441eb7cc6f?auto=format&fit=crop&w=600&h=600&q=80'],
             'staff'  => ['id' => 128, 'firstname' => 'Branch', 'lastname' => 'Manager CM3', 'email' => 'branch-manager-cm3@githubit.com', 'phone' => '998911902710', 'password' => 'branchmanagercm3', 'gender' => 'male'],
         ],
         [
@@ -163,9 +206,22 @@ class DemoExpansionSeeder extends Seeder
                 'latitude'    => 5.4737,
                 'longitude'   => 10.4176,
                 'phone'       => '+2370000000004',
+                // Real salon photos (Unsplash, free tier), both with a
+                // vintage look matching this shop's "Belle Époque" name.
+                // background_img: "vintage barber shop interior with red
+                // chairs and dryers" (photo id EU0nTbr0Uhk, by Sergio
+                // Guardiola Herrador, @guardiola86). logo_img: "brown wooden
+                // chair beside black wooden table" - a vintage salon chair
+                // (photo id td9dv0feuuE, by judith girard-marczak,
+                // @judithgirardmarczak).
+                'background_img' => 'https://images.unsplash.com/photo-1758812818698-6ecd792a87da?auto=format&fit=crop&w=1200&q=80',
+                'logo_img'        => 'https://images.unsplash.com/photo-1584537319035-d6f4fb63f4c4?auto=format&fit=crop&w=400&h=400&q=80',
             ],
             'seller' => ['id' => 129, 'firstname' => 'sellers-cm4', 'lastname' => 'sellers-cm4', 'email' => 'sellers-cm4@githubit.com', 'phone' => '998911902711', 'password' => 'sellercm4', 'gender' => 'male'],
-            'master' => ['id' => 130, 'firstname' => 'Danielle', 'lastname' => 'Kamga', 'email' => 'master-cm4@githubit.com', 'phone' => '998911902712', 'password' => 'mastercm4', 'gender' => 'female'],
+            // Real portrait photo (Unsplash, free tier - "smiling woman
+            // sitting on black chair", photo id kXmKqYOGA4Y, by Christina @
+            // wocintechchat.com M, @wocintechchat).
+            'master' => ['id' => 130, 'firstname' => 'Danielle', 'lastname' => 'Kamga', 'email' => 'master-cm4@githubit.com', 'phone' => '998911902712', 'password' => 'mastercm4', 'gender' => 'female', 'img' => 'https://images.unsplash.com/photo-1573497161161-c3e73707e25c?auto=format&fit=crop&w=600&h=600&q=80'],
             'staff'  => ['id' => 131, 'firstname' => 'Branch', 'lastname' => 'Manager CM4', 'email' => 'branch-manager-cm4@githubit.com', 'phone' => '998911902713', 'password' => 'branchmanagercm4', 'gender' => 'male'],
         ],
     ];
@@ -306,6 +362,9 @@ class DemoExpansionSeeder extends Seeder
             'phone'             => $def['phone'],
             'birthday'          => '1990-12-31',
             'gender'            => $def['gender'],
+            // Only masters carry a photo (see BRANCHES) - sellers/staff
+            // don't need one for anything currently rendered.
+            'img'               => $def['img'] ?? null,
             'email_verified_at' => now(),
             'password'          => bcrypt($def['password']),
         ]);
@@ -318,15 +377,17 @@ class DemoExpansionSeeder extends Seeder
     private function shop(int $sellerId, array $def): Shop
     {
         $shop = Shop::updateOrCreate(['user_id' => $sellerId], [
-            'uuid'          => Str::uuid(),
-            'latitude'      => $def['latitude'],
-            'longitude'     => $def['longitude'],
-            'phone'         => $def['phone'],
-            'open'          => 1,
-            'status'        => 'approved',
-            'status_note'   => 'approved',
-            'delivery_time' => ['from' => '10', 'to' => '90', 'type' => 'minute'],
-            'type'          => 1,
+            'uuid'            => Str::uuid(),
+            'latitude'        => $def['latitude'],
+            'longitude'       => $def['longitude'],
+            'phone'           => $def['phone'],
+            'open'            => 1,
+            'status'          => 'approved',
+            'status_note'     => 'approved',
+            'delivery_time'   => ['from' => '10', 'to' => '90', 'type' => 'minute'],
+            'type'            => 1,
+            'background_img'  => $def['background_img'] ?? null,
+            'logo_img'        => $def['logo_img'] ?? null,
         ]);
 
         $shopLocale = data_get(Language::first(), 'locale', 'en');
