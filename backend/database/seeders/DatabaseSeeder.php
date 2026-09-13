@@ -10,6 +10,7 @@ use App\Models\Region;
 use App\Models\RegionTranslation;
 use Database\Seeders\Support\CountryDefaultsBackfiller;
 use Database\Seeders\Support\CountryRoleDefaultsBackfiller;
+use Database\Seeders\Support\SellerCurrencyBackfiller;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -77,6 +78,13 @@ class DatabaseSeeder extends Seeder
         // Nigeria/Ghana get backfilled country_payments too.
         $this->call(DemoExpansionSeeder::class);
 
+        // 6 more top-level categories (Tailoring, Dental Care, Healthcare,
+        // Handyman, Laundry & Dry Cleaning, Home Cleaning) with their
+        // subcategories - catalog-only, no demo shop/service/master wiring
+        // (unlike DemoServiceCatalogSeeder's 6). Independent of the seeders
+        // above; only needs the default Language.
+        $this->call(CategoryCatalogExpansionSeeder::class);
+
         // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
         // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
         // already exist, so it can't live inside SubscriptionSeeder::run()
@@ -99,6 +107,15 @@ class DatabaseSeeder extends Seeder
         // countries; kept for symmetry and as a safety net (see
         // CountryRoleDefaultsBackfiller's own docblock).
         CountryRoleDefaultsBackfiller::run();
+
+        // Belt-and-suspenders alongside ShopLocation::booted()'s saved()
+        // sync: that event should already have set currency_id for every
+        // seller seeded above the moment their ShopLocation row was
+        // written, but this catches anything it might have missed (e.g. a
+        // shop whose location's country had no currency_id yet at the time
+        // it was saved). A no-op against any seller currency_id it's
+        // already set.
+        SellerCurrencyBackfiller::run();
 
 //        if (app()->environment() == 'local') {
 //            Category::factory()->hasTranslations(1)->count(10)->create();
