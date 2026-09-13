@@ -72,6 +72,17 @@ return [
     |
     | This IMG HOST for set base url for files
     |
+    | Prepended to every uploaded file's path (see FileHelper::uploadFile())
+    | to build the URL returned to clients - if IMG_HOST doesn't match a
+    | host the browser can actually reach, every freshly-uploaded image
+    | (logos, favicons, category/service/shop images, etc.) silently fails
+    | to display, even though the file itself uploaded successfully. This
+    | was found shipping as the literal placeholder "https://api.example.com/"
+    | with no deploy-time reminder to change it - keep IMG_HOST current for
+    | wherever this backend is actually reachable (see DEPLOYMENT.md), and
+    | update it again the moment a real production domain replaces a tunnel
+    | or local URL.
+    |
     */
 
     'img_host'  => env('IMG_HOST'),

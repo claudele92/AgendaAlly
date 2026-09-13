@@ -12,6 +12,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import Link from "next/link";
 import { useSettings } from "@/hook/use-settings";
+import useAddressStore from "@/global-store/address";
 
 const Empty = dynamic(() =>
   import("@/components/empty").then((component) => ({ default: component.Empty }))
@@ -20,14 +21,19 @@ const Empty = dynamic(() =>
 export const Masters = () => {
   const { t } = useTranslation();
   const { language, currency } = useSettings();
+  const country = useAddressStore((state) => state.country);
+  const city = useAddressStore((state) => state.city);
   const { data: masters, isLoading } = useInfiniteQuery(
-    ["masters", language?.locale, currency?.id],
+    ["masters", language?.locale, currency?.id, country?.id, city?.id],
     () =>
       masterService.list({
         column: "r_avg",
         sort: "desc",
         lang: language?.locale,
         currency_id: currency?.id,
+        region_id: country?.region_id,
+        country_id: country?.id,
+        city_id: city?.id,
       }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
