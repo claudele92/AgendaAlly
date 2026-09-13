@@ -23,33 +23,65 @@ pick up the new code (`php artisan queue:restart`).
 
 ## First-time setup on a new environment
 
-- `php artisan storage:link` - creates the `public/storage` symlink to
-  `storage/app/public`. Without it, every uploaded file 404s even once
-  `IMG_HOST` (below) points at the right host: the upload itself succeeds
-  and lands on disk, but nothing served under `/storage/...` actually
-  resolves. Found missing here, compounding the `IMG_HOST` placeholder bug
-  below into the same "upload succeeds, image never displays" symptom.
+- Copy `backend/.env.example` to `backend/.env` and fill in real values
+  (DB credentials, `APP_URL`, `IMG_HOST`, mail, etc. - see the next
+  section for the two that have bitten this codebase in production).
+- `public/storage` (the symlink to `storage/app/public`, without which
+  every uploaded file 404s even once `IMG_HOST` points at the right host)
+  is now created automatically by `composer install`/`composer update` -
+  see "Every deploy" below. It no longer needs a manual step on a fresh
+  environment either; this line stays only as a record of what that
+  automation does and why. If you ever run composer with `--no-scripts`,
+  run `php artisan storage:link` by hand afterwards - it's a no-op
+  (exits 0) if the symlink already exists, so it's always safe to re-run.
+
+## Every deploy
+
+`composer install` (step 1 above) now also runs `php artisan storage:link`
+automatically via a `post-install-cmd`/`post-update-cmd` composer script -
+this was previously a manual "first-time setup" step, found missing on a
+real deployment for the second time in one day (once, its absence was the
+direct cause of every uploaded image 404ing; a fix was applied by hand
+and not made to survive future deploys the first time, which is exactly
+why it recurred). It's cheap and idempotent, so it now runs on *every*
+deploy rather than relying on someone remembering it was a one-time step
+on a *new* environment specifically - the same reasoning `optimize:clear`
+below is unconditional rather than conditional on "did this deploy touch
+anything cached."
 
 ## Environment variables to re-check on every new environment
 
 `backend/.env` is not committed, so these don't travel with the repo - they
 must be set by hand on every new environment (a fresh VPS, a tunnel URL that
-changed, a real domain replacing a tunnel):
+changed, a real domain replacing a tunnel). `backend/.env.example` documents
+sane starting values for local development; both of the following need a
+real, deliberate value in production:
 
 - `IMG_HOST` - the base URL prepended to every uploaded file's path (see
   `config('app.img_host')`'s doc comment). Must match a host the *browser*
-  can actually reach, not just the backend process itself. Found shipping
-  as the literal placeholder `https://api.example.com/`, which made every
-  freshly-uploaded image (logos, favicons, category/service/shop images)
-  silently fail to display while the upload itself "succeeded" - the file
-  really did land on disk, just under a URL nobody could load. Don't let
-  the next value (a tunnel URL, a `localhost` port) become the same kind
-  of stale placeholder once a real production domain is in place - update
-  it again at that point.
-- `APP_URL` - same category of host-mismatch risk; currently also a
-  placeholder (`https://api.example.org/`). Not yet confirmed to cause a
-  user-visible symptom the way `IMG_HOST` did, but worth setting correctly
-  alongside it rather than leaving a second placeholder domain in place.
+  can actually reach, not just the backend process itself, **and must
+  include the port** the backend actually listens on (or the port a
+  reverse proxy forwards to). Found shipping as the literal placeholder
+  `https://api.example.com/`, which made every freshly-uploaded image
+  (logos, favicons, category/service/shop images) silently fail to
+  display while the upload itself "succeeded" - the file really did land
+  on disk, just under a URL nobody could load. A later deploy fixed the
+  placeholder but dropped the port (`http://localhost` instead of
+  `http://localhost:8000`), reproducing the identical symptom - a bare
+  host with no port is exactly as broken as no host at all, just less
+  obviously so. Don't let the next value become the same kind of stale
+  placeholder once a real production domain is in place - update it again
+  at that point, port included if it's not the default for its scheme.
+- `APP_URL` - same category of host-mismatch risk, and `FileHelper::
+  uploadFile()` falls back to it when `IMG_HOST` is unset. Laravel's own
+  default when `APP_URL` is unset is the literal string `http://localhost`
+  - no port - so an unset `APP_URL` reproduces the exact same missing-port
+  bug as an unset `IMG_HOST`. `FileHelper::uploadFile()` now falls back
+  further still (to the current request's own host:port) if `APP_URL` is
+  left at that literal default, so a forgotten `APP_URL` no longer
+  produces a broken image URL by itself - but that fallback exists as a
+  safety net, not a reason to skip setting `APP_URL` correctly. Set it
+  explicitly, port included, the same as `IMG_HOST`.
 
 ## Why this matters here
 

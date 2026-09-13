@@ -67,12 +67,24 @@ class FileHelper
             // host. That's not a URL a browser (or next/image, which
             // rejects it outright rather than trying to load it) can ever
             // resolve - it crashed the entire storefront the one time this
-            // happened for real (a Settings logo upload). Falling back to
-            // config('app.url') - which always has a real value, defaulting
-            // to 'http://localhost' - guarantees this never degrades below
-            // a syntactically valid absolute URL, even if it points at the
-            // wrong host until IMG_HOST is actually configured.
-            $imgHost = rtrim(config('app.img_host') ?: config('app.url'), '/') . '/';
+            // happened for real (a Settings logo upload).
+            //
+            // config('app.url') is the next fallback, but it defaults to
+            // Laravel's own literal 'http://localhost' (no port) when
+            // APP_URL is unset too - that placeholder crashed the same way
+            // a second time, just missing a port instead of a host
+            // entirely. A bare 'http://localhost' is never a value anyone
+            // deliberately configured (it's indistinguishable from "not
+            // set"), so treat it as absent and fall back further to the
+            // current request's own scheme+host - the exact host:port the
+            // browser just used to reach this server, which is correct by
+            // construction regardless of what .env does or doesn't have
+            // set. Every caller of uploadFile() runs inside an HTTP
+            // request, so request() is always available here.
+            $imgHost = config('app.img_host')
+                ?: (config('app.url') !== 'http://localhost' ? config('app.url') : null)
+                ?: request()?->getSchemeAndHttpHost();
+            $imgHost = rtrim($imgHost ?: 'http://localhost', '/') . '/';
 
             return [
                 'status' => true,

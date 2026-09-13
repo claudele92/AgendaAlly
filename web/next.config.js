@@ -16,6 +16,17 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
+        // Matches the backend's actual dev/VPS port (see IMG_HOST/APP_URL
+        // in backend/.env.example) - without this, a correctly-formed
+        // absolute URL still gets rejected by next/image with "hostname
+        // not configured", which looks identical to the malformed-URL
+        // crash this same header/logo path had before, but is a
+        // completely separate cause (an allowlist gap, not a bad string).
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+      },
+      {
         protocol: "https",
         hostname: "api.uzmart.org",
         port: "",
