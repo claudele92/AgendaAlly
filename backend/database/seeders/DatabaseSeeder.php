@@ -69,6 +69,15 @@ class DatabaseSeeder extends Seeder
         // from DemoAfricaSeeder and the 'master' role from RoleSeeder.
         $this->call(DemoServiceCatalogSeeder::class);
 
+        // Nigeria + Ghana (new countries, one single-branch shop each),
+        // Bafoussam (new third Cameroon city, one single-branch shop), and
+        // two more single-branch Cameroon shops (Douala, Yaoundé) - needs
+        // DemoAfricaSeeder's Africa region/Cameroon country and
+        // DemoServiceCatalogSeeder's 6 sub_service categories to already
+        // exist. Must run before CountryDefaultsBackfiller below so
+        // Nigeria/Ghana get backfilled country_payments too.
+        $this->call(DemoExpansionSeeder::class);
+
         // 6 more top-level categories (Tailoring, Dental Care, Healthcare,
         // Handyman, Laundry & Dry Cleaning, Home Cleaning) with their
         // subcategories - catalog-only, no demo shop/service/master wiring
