@@ -13,6 +13,7 @@ import { SearchField } from "@/components/main-search-field";
 import { Header } from "@/components/header";
 import { SlidableProductList } from "@/components/slidable-product-list";
 import { Brands } from "./components/brands";
+import { resolveDefaultLocation } from "@/utils/resolve-default-location";
 
 const Stories = dynamic(() => import("../../components/stories"), {
   loading: () => (
@@ -115,8 +116,8 @@ const Recommended = dynamic(
 
 const HomePage = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
-  const countryId = (await cookies()).get("country_id")?.value || undefined;
-  const cityId = (await cookies()).get("city_id")?.value || undefined;
+  const cookieCountryId = (await cookies()).get("country_id")?.value || undefined;
+  const cookieCityId = (await cookies()).get("city_id")?.value || undefined;
   const services = await categoryService.getAll({
     lang,
     type: "service",
@@ -128,6 +129,11 @@ const HomePage = async () => {
   const brands = await brandService.getAll();
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
+  const { countryId, cityId } = resolveDefaultLocation(
+    cookieCountryId,
+    cookieCityId,
+    parsedSettings
+  );
   const recommendedShops = await shopService.getAll({
     lang,
     perPage: 8,
