@@ -121,8 +121,12 @@ class UserSeeder extends Seeder
             [
                 'id' => 112,
                 'uuid' => Str::uuid(),
-                'firstname' => 'master',
-                'lastname' => 'master',
+                // Real-sounding Cameroonian name (Fotso is a common
+                // Bamileke surname) - was the literal 'master'/'master'
+                // placeholder. Email/password kept stable since they're
+                // used as demo login credentials elsewhere.
+                'firstname' => 'Armand',
+                'lastname' => 'Fotso',
                 'email' => 'master@githubit.com',
                 'phone' => '998911902694',
                 'birthday' => '1990-12-31',
@@ -257,18 +261,24 @@ class UserSeeder extends Seeder
         ShopTranslation::updateOrCreate([
             'shop_id'       => $shop->id,
         ], [
-            'description'   => 'branch desc',
-            'title'         => 'branch title',
+            // Real-sounding Douala, Cameroon salon name/description/address
+            // - was the literal 'branch title'/'branch desc'/'address'
+            // placeholder.
+            'description'   => 'A modern beauty studio in the heart of Douala, offering hair, nail, and spa services for the whole family.',
+            'title'         => 'Le Sawa Beauty Studio',
             'locale'        => $shopLocale,
-            'address'       => 'address',
+            'address'       => '12 Rue de la Joie, Bonanjo, Douala, Cameroon',
         ]);
 
-        if (!$shop->slug) {
-            try {
-                $this->setSlug($shop, [$shopLocale => 'branch title'], $shopLocale);
-            } catch (Throwable $e) {
-                $this->error($e);
-            }
+        // No !$shop->slug guard here: setSlug() is a deterministic
+        // Str::slug($title)-$id, so re-running it is a safe no-op once the
+        // title stops changing, and it needs to actually run once now to
+        // pick up the new name above (an existing shop already has a slug
+        // from the old placeholder title).
+        try {
+            $this->setSlug($shop, [$shopLocale => 'Le Sawa Beauty Studio'], $shopLocale);
+        } catch (Throwable $e) {
+            $this->error($e);
         }
 
         $shop->tags()->sync(ShopTag::pluck('id')->toArray());
@@ -301,18 +311,23 @@ class UserSeeder extends Seeder
         ShopTranslation::updateOrCreate([
             'shop_id'       => $bfShop->id,
         ], [
-            'description'   => 'Ouagadougou branch desc',
-            'title'         => 'Ouagadougou branch',
+            // Real-sounding Ouagadougou, Burkina Faso salon name/description
+            // /address - was the generic 'Ouagadougou branch'/'Ouagadougou
+            // branch desc' placeholder (Kwame Nkrumah Avenue is a real,
+            // well-known avenue in central Ouagadougou).
+            'description'   => 'A welcoming beauty salon in central Ouagadougou, offering hair, nail, and skin care for every occasion.',
+            'title'         => 'Ouaga Éclat Beauté',
             'locale'        => $shopLocale,
-            'address'       => 'Ouagadougou, Burkina Faso',
+            'address'       => 'Avenue Kwame Nkrumah, Ouagadougou, Burkina Faso',
         ]);
 
-        if (!$bfShop->slug) {
-            try {
-                $this->setSlug($bfShop, [$shopLocale => 'Ouagadougou branch'], $shopLocale);
-            } catch (Throwable $e) {
-                $this->error($e);
-            }
+        // Same reasoning as the Cameroon shop above: always re-run so an
+        // existing shop's slug picks up the new title, not just a
+        // never-yet-slugged one.
+        try {
+            $this->setSlug($bfShop, [$shopLocale => 'Ouaga Éclat Beauté'], $shopLocale);
+        } catch (Throwable $e) {
+            $this->error($e);
         }
 
         $bfShop->tags()->sync(ShopTag::pluck('id')->toArray());

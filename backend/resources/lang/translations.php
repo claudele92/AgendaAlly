@@ -3185,14 +3185,19 @@ return array(
 
   // Homepage hero headline - rendered raw ("find.services") on every fresh
   // install until now, since this key was never seeded.
-  array('status' => '1','locale' => 'en','group' => 'web','key' => 'find.services','value' => 'Find services near you'),
+  // Customer-facing homepage hero - replaced with the new copy given
+  // explicitly for the "For Customers" hero (distinct from
+  // business.section.title/description below, which is the "For
+  // Businesses" hero on /for-business).
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'find.services','value' => 'Find Your Services. Book Your Appointments. Shop Your Favorites.'),
 
   // i18n web/ Chunk 3: business/landing page (/for-business) - 21 keys.
   // payment/notification/get.started/clients/pos.system already existed;
   // professinals kept as-is (a pre-existing typo in the source key itself,
   // t()'s call site uses this exact literal string) - flagged as a
   // separate future cleanup, not fixed here.
-  array('status' => '1','locale' => 'en','group' => 'web','key' => 'business.section.title','value' => 'Grow your business with us'),
+  // /for-business hero - "For Businesses" copy, given explicitly.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'business.section.title','value' => 'Run Your Schedule. Sell Your Products. Grow Your Business.'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'business.section.description','value' => 'Join thousands of businesses using our platform to manage bookings, payments, and more.'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'online.booking','value' => 'Online booking'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'management','value' => 'Management'),
