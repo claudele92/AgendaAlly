@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import dynamic from "next/dynamic";
 import { BackButton } from "@/components/back-button";
 import CountryIndicator from "@/components/country-indicator/country-indicator";
 import { HeaderLinks } from "./links";
+import { ImageWithFallBack } from "@/components/image";
 
 const HeaderButtons = dynamic(
   () =>
@@ -49,7 +49,7 @@ export const Header = ({
           className={clsx("relative z-10 lg:z-[4] lg:inline", showOnlyBackButton && "hidden")}
         >
           {settings?.logo && (
-            <Image
+            <ImageWithFallBack
               src={settings.logo}
               alt={settings?.title || "logo"}
               width={148}

@@ -27,22 +27,40 @@ type ImageWithFallBackProps = Omit<ImageProps, "src"> & {
   src?: ImageProps["src"] | null;
 };
 
+// next/image only accepts a src that's either a fully-qualified URL or a
+// root-relative local path ("/img/...") - anything else (a bare relative
+// path like "storage/images/settings/logo.webp", the exact shape a
+// Settings-driven value takes when the backend's host-prefixing silently
+// no-ops - see FileHelper::uploadFile()) fails its validation synchronously
+// during render, before onError ever gets a chance to fire, crashing the
+// whole page rather than just this one image. A non-empty but malformed
+// string needs the same fallback treatment as a genuinely missing one.
+const isRenderableSrc = (src: ImageProps["src"] | null | undefined): src is ImageProps["src"] => {
+  // A StaticImageData/import (not a plain string) is always safe - it
+  // only ever comes from a local `import`, never from API data.
+  if (typeof src !== "string") {
+    return Boolean(src);
+  }
+
+  return src.startsWith("/") || src.startsWith("data:") || /^https?:\/\//.test(src);
+};
+
 export const ImageWithFallBack = (props: ImageWithFallBackProps) => {
   const { src, loader, ...rest } = props;
   const [isError, setIsError] = useState(false);
   const { theme } = useTheme();
 
-  // A falsy src (missing/empty field from the API) is treated the same as a
-  // load failure: next/image rejects an empty string synchronously, before
-  // onError ever gets a chance to fire, so that case has to be caught here
-  // rather than relying on the existing onError handler below.
-  const useFallback = isError || !src;
+  // A falsy or malformed src (missing/empty/relative-without-a-leading-
+  // slash field from the API) is treated the same as a load failure - see
+  // isRenderableSrc above for why the shape check matters, not just
+  // truthiness.
+  const useFallback = isError || !isRenderableSrc(src);
 
   return (
     <Image
       {...rest}
       loader={useFallback ? undefined : loader}
-      src={useFallback ? "/img/image-load-failed.png" : src}
+      src={useFallback ? "/img/image-load-failed.png" : (src as ImageProps["src"])}
       placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(theme === "dark"))}`}
       onError={() => {
         setIsError(true);

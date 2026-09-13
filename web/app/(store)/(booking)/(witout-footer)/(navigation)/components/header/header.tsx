@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { SearchField } from "@/components/main-search-field";
 import { HeaderButtons } from "@/components/header-buttons/header-buttons";
 import { BackButton } from "@/components/back-button";
+import { ImageWithFallBack } from "@/components/image";
 
 interface HeaderProps {
   settings?: Record<string, string>;
@@ -13,7 +13,7 @@ export const NavigationHeader = ({ settings }: HeaderProps) => (
     <div className="px-4 md:py-5 py-2.5 flex items-center justify-between">
       <Link href="/" className="hidden lg:inline-block">
         {settings?.logo && (
-          <Image
+          <ImageWithFallBack
             src={settings.logo}
             alt={settings?.title || "logo"}
             width={148}

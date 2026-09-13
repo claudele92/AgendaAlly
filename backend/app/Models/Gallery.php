@@ -82,6 +82,12 @@ class Gallery extends Model
     const SERVICES              = 'services';
     const SERVICE_EXTRAS        = 'service_extras';
     const RECEIPTS              = 'receipts';
+    // Platform-wide branding uploads (logo/favicon/admin_favicon on
+    // Settings -> General Settings) - these were previously uploaded with
+    // type='languages' (a copy-paste leftover from the language-flag
+    // upload screen), storing them under public/images/languages/ instead
+    // of their own folder.
+    const SETTINGS              = 'settings';
 
     const TYPES = [
         self::SHOPS_LOGO            => self::SHOPS_LOGO,
@@ -120,6 +126,7 @@ class Gallery extends Model
         self::SERVICES              => self::SERVICES,
         self::SERVICE_EXTRAS        => self::SERVICE_EXTRAS,
         self::RECEIPTS              => self::RECEIPTS,
+        self::SETTINGS              => self::SETTINGS,
     ];
 
     public function loadable(): MorphTo

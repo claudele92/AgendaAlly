@@ -7,6 +7,7 @@ import { Disclosure } from "@headlessui/react";
 import AnchorDownIcon from "@/assets/icons/anchor-down";
 import clsx from "clsx";
 import { useMediaQuery } from "@/hook/use-media-query";
+import { ImageWithFallBack } from "@/components/image";
 
 interface FooterProps {
   settings?: Record<string, string>;
@@ -22,7 +23,7 @@ export const Footer = ({ settings }: FooterProps) => {
             <div className="relative h-[45px] max-w-[420px] ">
               <Link href="/" className="mb-3 max-w-max">
                 {settings?.logo && (
-                  <Image
+                  <ImageWithFallBack
                     src={settings.logo}
                     alt={settings?.title || "logo"}
                     className="object-contain max-h-11 h-full !w-auto"
