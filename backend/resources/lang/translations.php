@@ -3260,4 +3260,28 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'mobile.card.description.1','value' => 'Search services, compare masters, and book in just a few taps.'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'mobile.card.description.2','value' => 'Manage your schedule, sell your products, and grow your business.'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'mobile.card.description','value' => 'Search services, compare masters, and book in just a few taps.'),
+
+  // Chunk 6 - the requested my.appointments/about.company/work.for.us/
+  // contact.us, plus every other gap found auditing the same pages
+  // (header links, sidebar, footer) they live on: "information" and
+  // "socials" (footer accordion section headers) were also missing
+  // outright, and "profile.settings" is a typo-key mismatch - the code
+  // (web/components/header/sidebar.tsx) looks up "profile.settings"
+  // (dot notation) but only "profile_settings" (underscore) existed,
+  // same class of bug as the older privacy_policy/privacy.policy pair
+  // already sitting side by side below - added as a new key rather than
+  // renamed/removed the existing one, for the same reason that pair
+  // wasn't collapsed: no way to confirm nothing else still reads the
+  // underscore form.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'my.appointments','value' => 'My appointments'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'about.company','value' => 'About us'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'work.for.us','value' => 'Work with us'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'contact.us','value' => 'Contact us'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'information','value' => 'Information'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'socials','value' => 'Social'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'profile.settings','value' => 'Profile settings'),
+
+  // Superadmin panel's Country Staff menu item (admin/src/configs/menu-config.js) -
+  // never had a translation at all, rendering the raw key as its label.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'country.staff','value' => 'Country Staff'),
 );
