@@ -10,7 +10,7 @@ export const SingleStory = memo(({ data, onLoad }: { data: Story; onLoad: () => 
         src={data.url}
         fill
         className="w-auto object-contain"
-        alt={data.product_title}
+        alt={data.model_title || data.title || "Story"}
         onLoad={() => onLoad()}
       />
     </div>

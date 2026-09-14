@@ -185,6 +185,16 @@ export const Footer = ({ settings }: FooterProps) => {
                           Twitter
                         </a>
                       )}
+                      {settings?.linkedin && (
+                        <a
+                          href={`https://${settings.linkedin}`}
+                          className="text-lg font-medium transition-all hover:underline"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          LinkedIn
+                        </a>
+                      )}
                     </div>
                   </Disclosure.Panel>
                 )}

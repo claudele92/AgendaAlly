@@ -3446,6 +3446,8 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'similar.products','value' => 'Similar products'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'with.this.product.also.buy','value' => 'Customers who bought this also bought'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'view.product','value' => 'View product'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'view.shop','value' => 'View shop'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'view.service','value' => 'View service'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'there.is.no.products','value' => 'There are no products'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'go.to.cart','value' => 'Go to cart'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'replaced.product','value' => 'Replaced product'),

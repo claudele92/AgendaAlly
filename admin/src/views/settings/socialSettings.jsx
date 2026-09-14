@@ -128,6 +128,11 @@ export default function SocialSettings() {
                 <Input />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item label={'LinkedIn'} name='linkedin'>
+                <Input />
+              </Form.Item>
+            </Col>
           </Row>
         </Card>
       ) : (
