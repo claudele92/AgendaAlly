@@ -89,6 +89,13 @@ class DatabaseSeeder extends Seeder
         // above; only needs the default Language.
         $this->call(CategoryCatalogExpansionSeeder::class);
 
+        // 3 example blog posts (spanning the full category range above,
+        // not just beauty) and a handful of example stories - needs
+        // UserSeeder's owner@githubit.com and DemoAfricaSeeder's/
+        // DemoExpansionSeeder's shops to already exist for author/shop
+        // attribution (see BlogStorySeeder's own docblock).
+        $this->call(BlogStorySeeder::class);
+
         // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
         // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
         // already exist, so it can't live inside SubscriptionSeeder::run()

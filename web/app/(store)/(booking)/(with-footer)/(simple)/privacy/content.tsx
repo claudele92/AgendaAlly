@@ -20,11 +20,18 @@ export const PrivacyContent = ({ data }: PrivacyContentProps) => {
   );
   return (
     <div className="xl:container px-4 py-7">
-      <h1 className="md:text-head text-xl font-semibold">{privacy?.data?.translation?.title}</h1>
-      <div
-        className="mt-4"
-        dangerouslySetInnerHTML={{ __html: privacy?.data?.translation?.description || "" }}
-      />
+      <div className="max-w-3xl mx-auto">
+        <h1 className="md:text-head text-xl font-semibold mb-6">
+          {privacy?.data?.translation?.title}
+        </h1>
+        <div
+          // See terms/content.tsx for why left-aligned (not justified) and
+          // why these arbitrary-variant rules are needed at all - same
+          // preflight-vs-dangerouslySetInnerHTML spacing gap applies here.
+          className="text-base leading-relaxed [&_p]:mb-4 [&_p:last-child]:mb-0 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_h2:first-child]:mt-0 [&_a]:underline [&_a]:font-medium [&_em]:text-gray-field"
+          dangerouslySetInnerHTML={{ __html: privacy?.data?.translation?.description || "" }}
+        />
+      </div>
     </div>
   );
 };
