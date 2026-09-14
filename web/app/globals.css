@@ -366,17 +366,31 @@
   --gradient-color-4: #ffba27;
 }
 
+/* Only used by home-4's hero heading. Plain CSS here sits outside
+   Tailwind's layers, so its font-size always won over any text-*
+   utility Tailwind generates for the same element, at every breakpoint -
+   the fixed 60px built for desktop was forcing that same size on mobile
+   too, where combined with longer real copy it wrapped to 3-4 lines and
+   ran into the section below. Mirroring Tailwind's own md: breakpoint
+   (768px) here, rather than leaning on a utility class, is what actually
+   takes effect given the layering above. */
 .text-shadow {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-stroke: 2px black;
   font-family: "Inter", sans-serif;
-  font-size: 60px;
+  font-size: 32px;
   font-style: normal;
   font-weight: 900;
   line-height: normal;
   letter-spacing: -0.6px;
+}
+
+@media (min-width: 768px) {
+  .text-shadow {
+    font-size: 60px;
+  }
 }
 
 .payfast_compact_payment_modal {

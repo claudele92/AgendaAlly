@@ -53,6 +53,15 @@ class SettingsSeeder extends Seeder
             // Same Yaoundé market as the default country/city below.
             'phone'       => '+237 677 123 456',
             'address'     => '123 Avenue Kennedy, Bastos, Yaoundé, Cameroon',
+            // web/components/footer/footer.tsx builds these as
+            // `https://${settings.X}` - bare host+path, no protocol - and
+            // now hides each link entirely when its setting is unset
+            // (see PR #116) rather than rendering a broken href. Real
+            // account handles once the platform has them; placeholder
+            // profile paths until then so the guard has something to show.
+            'instagram'   => 'instagram.com/agendaally',
+            'facebook'    => 'facebook.com/agendaally',
+            'twitter'     => 'twitter.com/agendaally',
             // Douala, Cameroon - same coordinates as the Cameroon demo shop
             // (see UserSeeder), a reasonable "platform home base" default
             // given this seed's demo geography is Cameroon/Burkina Faso.

@@ -65,19 +65,24 @@ class ContentPagesSeeder extends Seeder
         return [
             [
                 'type' => Page::ABOUT,
-                'img' => '/img/banner1.png',
+                // Unsplash - already on next.config.js's remotePatterns
+                // allowlist. Real, purpose-fitting photos (booking on a
+                // phone; a home-service visit; a small shop owner) instead
+                // of the generic /img/banner*.png site assets used at
+                // first pass, before real content existed to pair with.
+                'img' => 'https://images.unsplash.com/photo-1522125670776-3c7abb882bc2?auto=format&fit=crop&w=1200&h=600&q=80',
                 'title' => 'About AgendaAlly',
                 'description' => "<p>AgendaAlly was built to make booking beauty and wellness services as easy as it should be. Whether you're looking for a haircut, a manicure, a massage, or a full spa day, we connect you with trusted local salons and independent masters, so you can browse real availability and book in just a few taps.</p><p>No more phone tag or guessing whether your favorite salon has an opening - see who's available, compare services and prices, and confirm your appointment on the spot.</p>",
             ],
             [
                 'type' => Page::ABOUT_SECOND,
-                'img' => '/img/banner2.png',
+                'img' => 'https://images.unsplash.com/photo-1646980241033-cd7abda2ee88?auto=format&fit=crop&w=1200&h=600&q=80',
                 'title' => 'Our mission',
                 'description' => '<p>We believe booking a service should be simple, transparent, and reliable - for customers and professionals alike. That means clear pricing, real reviews, and a booking experience that respects your time.</p>',
             ],
             [
                 'type' => Page::ABOUT_THREE,
-                'img' => '/img/banner3.png',
+                'img' => 'https://images.unsplash.com/photo-1531058240690-006c446962d8?auto=format&fit=crop&w=1200&h=600&q=80',
                 'title' => 'Built for the community',
                 'description' => "<p>Every booking made through AgendaAlly supports a local salon or independent professional. We're proud to help small beauty and wellness businesses reach more customers and grow, one appointment at a time.</p>",
             ],

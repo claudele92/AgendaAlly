@@ -45,7 +45,7 @@ export const AboutPageContent = ({ initialData }: AboutPageContentProps) => {
         <div>
           <div
             dangerouslySetInnerHTML={{ __html: mainSection?.translation?.description || "" }}
-            className="text-base"
+            className="text-base leading-relaxed [&_p]:mb-4 [&_p:last-child]:mb-0"
           />
         </div>
       </div>
@@ -66,7 +66,7 @@ export const AboutPageContent = ({ initialData }: AboutPageContentProps) => {
             <h2 className="md:text-xl text-lg font-semibold">{section.translation?.title}</h2>
             <div
               dangerouslySetInnerHTML={{ __html: section?.translation?.description || "" }}
-              className="text-base my-3"
+              className="text-base leading-relaxed my-3 [&_p]:mb-4 [&_p:last-child]:mb-0"
             />
             <div className="flex items-center gap-3">
               {section.buttons?.app_store_button_link && (
