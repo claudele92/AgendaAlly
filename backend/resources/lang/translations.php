@@ -3401,4 +3401,21 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'payment.error','value' => 'Payment error'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'payment.failed','value' => 'Payment failed'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'payment.success','value' => 'Payment successful'),
+
+  // i18n web/ sweep, group 5/9: parcels & delivery.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'active.parcels','value' => 'Active parcels'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'are.you.sure.want.to.cancel','value' => 'Are you sure you want to cancel this?'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'change.address','value' => 'Change address'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'completed.parcels','value' => 'Completed parcels'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'delivery.location','value' => 'Delivery location'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'delivery.to','value' => 'Deliver to'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'dont.notify.a.receipt','value' => 'Don\'t notify the recipient'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'door.to.door.delivery','value' => 'Door-to-door delivery'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'item.description','value' => 'Item description'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'item.value.qr','value' => 'Item value (for QR code)'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.active.parcels','value' => 'You have no active parcels'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.parcel.history','value' => 'No parcel history'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'parcel.order.created.successfully','value' => 'Your parcel order has been created successfully'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'pickup.from','value' => 'Pick up from'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'remain.anonymous','value' => 'Remain anonymous'),
 );
