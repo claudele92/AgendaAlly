@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
         // on every fresh install (is_demo/google_map_key included), despite
         // this seeder existing and being kept up to date.
         $this->call(SettingsSeeder::class);
+        // Terms & Conditions / Privacy Policy / About pages had no seeder
+        // at all until now - every fresh install had zero rows for any of
+        // them (see ContentPagesSeeder's own docblock).
+        $this->call(ContentPagesSeeder::class);
         $this->call(NotificationSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(ShopPermissionSeeder::class);

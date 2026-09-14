@@ -37,13 +37,17 @@ export const Footer = ({ settings }: FooterProps) => {
             <p className="text-base font-medium">{settings?.description}</p>
           </div>
           <div className="md:flex items-center gap-2.5 hidden mb-8 md:mb-0">
-            <Link href={settings?.customer_app_ios || ""} target="_blank">
-              <Image src="/img/apple_store.png" alt="applestore" width={147} height={55} />
-            </Link>
+            {settings?.customer_app_ios && (
+              <Link href={settings.customer_app_ios} target="_blank">
+                <Image src="/img/apple_store.png" alt="applestore" width={147} height={55} />
+              </Link>
+            )}
 
-            <Link href={settings?.customer_app_android || ""} target="_blank">
-              <Image src="/img/play_market.png" alt="playmarket" width={147} height={55} />
-            </Link>
+            {settings?.customer_app_android && (
+              <Link href={settings.customer_app_android} target="_blank">
+                <Image src="/img/play_market.png" alt="playmarket" width={147} height={55} />
+              </Link>
+            )}
           </div>
         </div>
         <div className="md:gap-28 gap-3 justify-between lg:justify-start w-full lg:max-w-max lg:flex grid sm:grid-cols-2 grid-cols-1 flex-wrap xl:flex-nowrap">
@@ -151,30 +155,36 @@ export const Footer = ({ settings }: FooterProps) => {
                 {(isMobile ? open : true) && (
                   <Disclosure.Panel static>
                     <div className="flex flex-col  md:gap-6 gap-2">
-                      <a
-                        href={`https://${settings?.instagram}`}
-                        className="text-lg font-medium transition-all hover:underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Instagram
-                      </a>
-                      <a
-                        href={`https://${settings?.facebook}`}
-                        className="text-lg font-medium transition-all hover:underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Facebook
-                      </a>
-                      <a
-                        href={`https://${settings?.twitter}`}
-                        className="text-lg font-medium transition-all hover:underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Twitter
-                      </a>
+                      {settings?.instagram && (
+                        <a
+                          href={`https://${settings.instagram}`}
+                          className="text-lg font-medium transition-all hover:underline"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Instagram
+                        </a>
+                      )}
+                      {settings?.facebook && (
+                        <a
+                          href={`https://${settings.facebook}`}
+                          className="text-lg font-medium transition-all hover:underline"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Facebook
+                        </a>
+                      )}
+                      {settings?.twitter && (
+                        <a
+                          href={`https://${settings.twitter}`}
+                          className="text-lg font-medium transition-all hover:underline"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Twitter
+                        </a>
+                      )}
                     </div>
                   </Disclosure.Panel>
                 )}
@@ -183,26 +193,30 @@ export const Footer = ({ settings }: FooterProps) => {
           </Disclosure>
         </div>
         <div className="grid grid-cols-2 items-center gap-6 md:hidden mt-10 w-full">
-          <div className="md:h-16 h-12 relative flex items-start">
-            <Link href={settings?.customer_app_ios || ""} target="_blank">
-              <Image
-                fill
-                src="/img/apple_store.png"
-                alt="applestore"
-                style={{ objectPosition: "left", objectFit: "contain" }}
-              />
-            </Link>
-          </div>
-          <div className="md:h-16 h-12 relative">
-            <Link href={settings?.customer_app_android || ""} target="_blank">
-              <Image
-                fill
-                src="/img/play_market.png"
-                alt="playmarket"
-                style={{ objectPosition: "left", objectFit: "contain" }}
-              />
-            </Link>
-          </div>
+          {settings?.customer_app_ios && (
+            <div className="md:h-16 h-12 relative flex items-start">
+              <Link href={settings.customer_app_ios} target="_blank">
+                <Image
+                  fill
+                  src="/img/apple_store.png"
+                  alt="applestore"
+                  style={{ objectPosition: "left", objectFit: "contain" }}
+                />
+              </Link>
+            </div>
+          )}
+          {settings?.customer_app_android && (
+            <div className="md:h-16 h-12 relative">
+              <Link href={settings.customer_app_android} target="_blank">
+                <Image
+                  fill
+                  src="/img/play_market.png"
+                  alt="playmarket"
+                  style={{ objectPosition: "left", objectFit: "contain" }}
+                />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
       <div className="xl:container px-4 md:mt-12 mt-6">
