@@ -14,7 +14,7 @@ class CartServiceTest extends TestCase
      */
     public function testCreate(): void
     {
-        $this->actingAs(User::first());
+        $this->actingAs(User::factory()->create(), 'sanctum');
         $this->withoutMiddleware();
         $response = $this->get('api/v1/dashboard/user/profile/show');
         $response->assertStatus(200);
