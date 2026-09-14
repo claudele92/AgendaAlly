@@ -50,13 +50,11 @@ const CareersPage = () => {
               ))
             : careerList?.map((career) => (
                 <Link
+                  key={career.id}
                   href={`/careers/${career.id}`}
                   className="border md:border-none border-gray-link rounded-button md:rounded-none"
                 >
-                  <div
-                    key={career.id}
-                    className="flex items-center justify-between flex-wrap gap-5 md:border-b px-3 md:px-0 border-gray-link py-3 ralative"
-                  >
+                  <div className="flex items-center justify-between flex-wrap gap-5 md:border-b px-3 md:px-0 border-gray-link py-3 ralative">
                     <div>
                       <p className="text-lg font-semibold">{career.translation?.title}</p>
                       <span className="text-sm text-gray-field">
