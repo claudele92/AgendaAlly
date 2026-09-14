@@ -3418,4 +3418,18 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'parcel.order.created.successfully','value' => 'Your parcel order has been created successfully'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'pickup.from','value' => 'Pick up from'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'remain.anonymous','value' => 'Remain anonymous'),
+
+  // i18n web/ sweep, group 6/9: group orders & reviews.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'cant.open.group.order','value' => 'This group order can\'t be opened'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'error.occurred.while.copying','value' => 'An error occurred while copying'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'group.owners.country.not.found','value' => 'Couldn\'t find the group owner\'s country'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'successfully.joined.group.order','value' => 'You\'ve successfully joined the group order'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'you.cannot.join.your.group.order','value' => 'You cannot join your own group order'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'your.country.is.not.same.with.owners','value' => 'Your country isn\'t the same as the group owner\'s:'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.review','value' => 'Add review'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'edit.review','value' => 'Edit review'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'rate.your.experience.at','value' => 'Rate your experience at'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'review.img','value' => 'Review photo'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'review.successfully.added','value' => 'Your review has been added successfully'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'review.successfully.changed','value' => 'Your review has been updated successfully'),
 );
