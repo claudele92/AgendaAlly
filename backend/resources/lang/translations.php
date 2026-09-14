@@ -3284,4 +3284,36 @@ return array(
   // Superadmin panel's Country Staff menu item (admin/src/configs/menu-config.js) -
   // never had a translation at all, rendering the raw key as its label.
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'country.staff','value' => 'Country Staff'),
+
+  // i18n web/ sweep, group 1/9: cart, checkout & tips. Found by diffing
+  // every t()/<Translate value=> call site (plus indirect text=/title=
+  // props resolved by their receiving component) against the DB - 212
+  // missing keys total, split into 9 reviewable groups by area.
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.payment.method','value' => 'Add payment method'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'add.tips','value' => 'Add tip'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'are.you.sure.want.to.clear','value' => 'Are you sure you want to clear this?'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'are.you.sure.want.to.delete','value' => 'Are you sure you want to delete this?'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'change.point','value' => 'Change pickup point'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'comment.for.order.product','value' => 'Write a comment for this product...'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'comment.for.product','value' => 'Leave a comment for this product'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'create.new.address','value' => 'Create new address'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'delivery.addresses','value' => 'Delivery addresses'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'edit.address','value' => 'Edit address'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'first.name','value' => 'First name'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'fitting.rooms','value' => 'Fitting rooms'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'go.to.checkout','value' => 'Go to checkout'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'group.cart.is.empty','value' => 'This group cart is empty'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'last.name','value' => 'Last name'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'last.step','value' => 'Last step'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'next.step','value' => 'Next step'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.fitting.rooms','value' => 'No fitting rooms'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'no.saved.addresses.found','value' => 'No saved addresses found'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'order.detail','value' => 'Order details'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'order.success.message','value' => 'Your order has been placed successfully'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'select.on.map','value' => 'Select on map'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'we.are.not.available.here','value' => 'We\'re not available in this area yet'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'you.cannot.add.more.than','value' => 'You cannot add more than'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'your.cart.is.empty','value' => 'Your cart is empty'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'enter.custom.tip','value' => 'Enter custom tip'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'please.enter.a.valid.tip','value' => 'Please enter a valid tip amount'),
 );
