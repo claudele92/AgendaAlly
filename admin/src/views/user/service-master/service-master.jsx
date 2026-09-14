@@ -75,7 +75,7 @@ function ServiceMasterTable({ setVisibleComponent, setEditId }) {
       dataIndex: 'discount',
       is_show: true,
       key: 'discount',
-      render: (discount) => numberToPrice(discount),
+      render: (discount) => numberToPrice(discount, '%', 'after'),
     },
     {
       title: t('gender'),
