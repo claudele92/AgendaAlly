@@ -6,6 +6,13 @@ import storyService from "@/services/story";
 import { HomePage4Content } from "./content";
 import { resolveDefaultLocation } from "@/utils/resolve-default-location";
 
+// Reads cookies() below, which should already force dynamic rendering per
+// Next's docs - but empirically this route was still observed serving a
+// frozen SSR snapshot (same shop list regardless of country_id/city_id
+// cookie) until the dev server recompiled. Explicit and unambiguous beats
+// relying on auto-detection that isn't holding up in practice.
+export const dynamic = "force-dynamic";
+
 const HomePage = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
   const cookieCountryId = (await cookies()).get("country_id")?.value || undefined;

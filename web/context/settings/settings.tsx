@@ -29,6 +29,7 @@ const SettingsProvider = ({
 }: SettingsProviderProps) => {
   const selectedCurrency = useSettingsStore((state) => state.selectedCurrency);
   const selectedCountry = useAddressStore((state) => state.country);
+  const hasAddressHydrated = useAddressStore((state) => state.hasHydrated);
   const updateCurrency = useSettingsStore((state) => state.updateSelectedCurrency);
   const updateCountry = useAddressStore((state) => state.updateCountry);
   // const openCountrySelectModal = useAddressStore((state) => state.openCountrySelectModal);
@@ -49,13 +50,6 @@ const SettingsProvider = ({
     tempSettings.longitude = coordinate.longitude;
   }
 
-  if (!selectedCountry?.id && defaultCountry?.id) {
-    updateCountry(defaultCountry);
-    if (defaultCountry?.city) {
-      updateCity(defaultCountry.city);
-    }
-  }
-
   const memoizedValues = useMemo(
     () => ({ defaultLanguage, defaultCurrency, settings: tempSettings }),
     []
@@ -67,6 +61,25 @@ const SettingsProvider = ({
     }
     setCookie("currency_id", tempSelectedCurrency?.id ?? defaultCurrency?.id);
   }, []);
+
+  // Seed the platform default country/city only once we actually know
+  // whether the visitor already has one persisted - not merely whether
+  // `country` currently reads as null. Address-store hydration from
+  // localStorage is necessarily asynchronous (see hasHydrated's doc
+  // comment in global-store/address.ts), so on every page's first render
+  // `selectedCountry` is null regardless of what's actually persisted -
+  // running this unconditionally on that basis silently overwrote a real,
+  // already-selected non-default country back to the default on every
+  // single page load. Waiting for hasHydrated makes "no country selected"
+  // an actual fact about the visitor rather than a timing artifact.
+  useEffect(() => {
+    if (hasAddressHydrated && !selectedCountry?.id && defaultCountry?.id) {
+      updateCountry(defaultCountry);
+      if (defaultCountry?.city) {
+        updateCity(defaultCountry.city);
+      }
+    }
+  }, [hasAddressHydrated, selectedCountry?.id, defaultCountry, updateCountry, updateCity]);
 
   return <SettingsContext.Provider value={memoizedValues}>{children}</SettingsContext.Provider>;
 };

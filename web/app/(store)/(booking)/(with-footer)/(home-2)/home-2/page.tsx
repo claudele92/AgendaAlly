@@ -5,7 +5,7 @@ import { shopService } from "@/services/shop";
 import { globalService } from "@/services/global";
 import { parseSettings } from "@/utils/parse-settings";
 import React from "react";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import Image from "next/image";
 import clsx from "clsx";
 import { Header } from "@/components/header";
@@ -17,7 +17,14 @@ import { Services } from "./components/services";
 import { MobileCard } from "./components/mobile-card";
 import { resolveDefaultLocation } from "@/utils/resolve-default-location";
 
-const NearYou = dynamic(
+// Reads cookies() below, which should already force dynamic rendering per
+// Next's docs - but empirically this route was still observed serving a
+// frozen SSR snapshot (same shop list regardless of country_id/city_id
+// cookie) until the dev server recompiled. Explicit and unambiguous beats
+// relying on auto-detection that isn't holding up in practice.
+export const dynamic = "force-dynamic";
+
+const NearYou = nextDynamic(
   () =>
     import("./components/near-you").then((component) => ({
       default: component.NearYou,
@@ -35,12 +42,12 @@ const NearYou = dynamic(
     ),
   }
 );
-const Salons = dynamic(() =>
+const Salons = nextDynamic(() =>
   import("./components/salons").then((component) => ({
     default: component.Salons,
   }))
 );
-const Stories = dynamic(() => import("../../../components/stories"), {
+const Stories = nextDynamic(() => import("../../../components/stories"), {
   loading: () => (
     <div className=" mt-10">
       <div className="flex sm:gap-4 gap-2.5 animate-pulse overflow-x-hidden flex-nowrap">
@@ -52,7 +59,7 @@ const Stories = dynamic(() => import("../../../components/stories"), {
   ),
 });
 
-const Recommended = dynamic(
+const Recommended = nextDynamic(
   () => import("./components/recomended").then((component) => ({ default: component.Recommended })),
   {
     loading: () => (
