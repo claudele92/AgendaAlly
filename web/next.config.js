@@ -12,6 +12,19 @@ const nextConfig = {
     // untrusted uploads, which doesn't apply here since these are our own
     // build-time assets, not user-supplied files.
     dangerouslyAllowSVG: true,
+    // The 127.0.0.1 entry below fixes the wrong-loopback-family bug (see
+    // its own comment) but next/image has a second, separate guard that
+    // still blocks it: it refuses to fetch from ANY private/loopback IP
+    // outright ("resolved to private ip"), independent of remotePatterns -
+    // a dev/VPS backend on 127.0.0.1 trips this even once it's correctly
+    // allowlisted by host. This flag disables only that specific check;
+    // remotePatterns above still restricts which host is fetchable at all
+    // (exactly 127.0.0.1:8000, nothing attacker-suppliable), so this isn't
+    // a broad SSRF opt-out, just removing a redundant second check on a
+    // source already locked down by hostname. Once a real deploy sets
+    // IMG_HOST to a public domain, the private-IP branch this flag
+    // disables never triggers anyway - safe to leave in permanently.
+    dangerouslyAllowLocalIP: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
