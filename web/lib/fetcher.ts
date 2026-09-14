@@ -21,6 +21,15 @@ const fetcher = async <T>(input: string | string[], init?: CustomRequestInit): P
   });
   if (!res.ok) {
     const errorResponse = (await res.json()) as ErrorResponse;
+    // TEMPORARY - investigating the "Item's not found" report (finding
+    // #3). ERROR_404 is a generic message used by ~200 backend call sites,
+    // so logging the exact URL/method here is the fastest way to pin the
+    // actual failing request the next time it happens. Remove once
+    // that's identified and the real fix (or no-op, if it's just a stale
+    // client-side id) is in.
+    if (res.status === 404) {
+      console.log("[TEMP-404-DEBUG]", init?.method || "GET", url, errorResponse?.message);
+    }
     // eslint-disable-next-line
     let errorMessage = errorResponse.message;
     if (errorResponse?.params) {
