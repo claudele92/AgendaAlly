@@ -39,7 +39,7 @@ export const StoryBubble = ({
         <div className="w-full h-full bg-white dark:bg-darkBg rounded-full overflow-hidden relative">
           <ImageWithFallBack
             src={stories?.[0]?.logo_img}
-            alt={stories?.[0].product_title || ""}
+            alt={stories?.[0]?.model_title || stories?.[0]?.title || "Story"}
             fill
             className="w-full h-full rounded-full"
           />

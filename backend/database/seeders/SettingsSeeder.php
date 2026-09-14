@@ -62,6 +62,7 @@ class SettingsSeeder extends Seeder
             'instagram'   => 'instagram.com/agendaally',
             'facebook'    => 'facebook.com/agendaally',
             'twitter'     => 'twitter.com/agendaally',
+            'linkedin'    => 'linkedin.com/company/agendaally',
             // Douala, Cameroon - same coordinates as the Cameroon demo shop
             // (see UserSeeder), a reasonable "platform home base" default
             // given this seed's demo geography is Cameroon/Burkina Faso.

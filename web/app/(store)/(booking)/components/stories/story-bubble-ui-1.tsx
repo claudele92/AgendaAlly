@@ -43,7 +43,7 @@ export const StoryBubbleUi1 = ({ stories, isPost, storyIndex }: StoryBubbleProps
       </div>
       <Image
         src={stories?.[0].url}
-        alt={stories?.[0].product_title || ""}
+        alt={stories?.[0]?.model_title || stories?.[0]?.title || "Story"}
         fill
         className="w-full h-full object-cover"
       />

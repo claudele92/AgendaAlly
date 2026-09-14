@@ -89,6 +89,12 @@ class DatabaseSeeder extends Seeder
         // above; only needs the default Language.
         $this->call(CategoryCatalogExpansionSeeder::class);
 
+        // Education and Tattoo & Piercing - two new top-level categories,
+        // each with a real bookable demo shop (not catalog-only like the
+        // one above) - needs DemoAfricaSeeder's Cameroon/Douala/Yaoundé and
+        // DemoExpansionSeeder's Bafoussam to already exist.
+        $this->call(EducationTattooDemoSeeder::class);
+
         // 3 example blog posts (spanning the full category range above,
         // not just beauty) and a handful of example stories - needs
         // UserSeeder's owner@githubit.com and DemoAfricaSeeder's/
