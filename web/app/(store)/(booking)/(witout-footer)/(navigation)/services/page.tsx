@@ -61,7 +61,7 @@ const ServicesPage = () => {
         <InfiniteLoader hasMore={hasNextPage} loadMore={fetchNextPage} loading={isFetchingNextPage}>
           <div className="grid xl:grid-cols-6 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 lg:gap-7 sm:gap-4 gap-2.5 overflow-x-hidden flex-nowrap">
             {serviceList.map((service, idx) => (
-              <Link href={`/search?category_id=${service?.id}`}>
+              <Link key={service?.id} href={`/search?category_id=${service?.id}`}>
                 <ServiceCard data={service} index={idx} length={serviceList.length} />
               </Link>
             ))}

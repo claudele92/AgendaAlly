@@ -91,7 +91,15 @@ class TranslationService extends CoreService
     {
         foreach (Translation::whereIn('key', is_array($ids) ? $ids : [])->get() as $model) {
             /** @var Translation $model */
+            $locale = $model->locale;
+
             $model->delete();
+
+            try {
+                cache()->forget('language-' . $locale);
+            } catch (Throwable $e) {
+                $this->error($e);
+            }
         }
 
         return ['status' => true, 'code' => ResponseError::NO_ERROR];

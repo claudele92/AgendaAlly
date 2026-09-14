@@ -46,6 +46,13 @@ class SettingsSeeder extends Seeder
             'title'       => 'AgendaAlly',
             'description' => 'Book beauty and wellness appointments near you.',
             'footer_text' => '© ' . date('Y') . ' AgendaAlly. All rights reserved.',
+            // Also previously blank - web/app/.../contact/page.tsx renders
+            // these directly (phone as a tel: link, address as the map
+            // link's label), so a fresh install showed an empty Contact
+            // page even after that page's own null-safety crash was fixed.
+            // Same Yaoundé market as the default country/city below.
+            'phone'       => '+237 677 123 456',
+            'address'     => '123 Avenue Kennedy, Bastos, Yaoundé, Cameroon',
             // Douala, Cameroon - same coordinates as the Cameroon demo shop
             // (see UserSeeder), a reasonable "platform home base" default
             // given this seed's demo geography is Cameroon/Burkina Faso.
