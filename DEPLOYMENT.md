@@ -72,6 +72,30 @@ real, deliberate value in production:
   obviously so. Don't let the next value become the same kind of stale
   placeholder once a real production domain is in place - update it again
   at that point, port included if it's not the default for its scheme.
+
+  **On the dev server (`php artisan serve`) specifically, use `127.0.0.1`
+  in `IMG_HOST`, never the literal hostname `localhost`, and keep
+  `web/next.config.js`'s matching `images.remotePatterns` entry in sync
+  with whichever one you pick.** `next/image` fetches the source image
+  server-side, from the Next.js process itself, not the browser - and
+  Node resolves `localhost` to the IPv6 loopback (`::1`) first.
+  `php artisan serve --host=0.0.0.0` binds the IPv4 wildcard only; it
+  never listens on `::1`. The result is a 400 from `/_next/image` that
+  looks identical to a hostname-allowlist gap (same visible symptom as
+  the placeholder-`IMG_HOST` bug above) but has a different cause and
+  fix - confirmed via `curl http://[::1]:8000` (connection refused) vs.
+  `curl http://127.0.0.1:8000` (200 OK) on a real VPS. curl silently
+  falls back to IPv4 after an IPv6 failure, which is why this only shows
+  up in the image optimizer's own server-side fetch and not in ordinary
+  API testing with curl/Postman. **This is specific to the `artisan
+  serve` dev server's single-stack bind** - PHP's built-in server can't
+  listen on both IPv4 and IPv6 at once. A real production stack
+  (PHP-FPM behind Nginx or Apache) doesn't have this limitation, but
+  isn't automatically safe either - confirm whatever reverse proxy you
+  deploy behind actually has a `listen [::]:PORT` (or equivalent
+  dual-stack) directive before assuming this class of bug can't recur
+  there, and prefer setting `IMG_HOST`/`APP_URL` to the real public
+  domain in production anyway rather than any loopback address.
 - `APP_URL` - same category of host-mismatch risk, and `FileHelper::
   uploadFile()` falls back to it when `IMG_HOST` is unset. Laravel's own
   default when `APP_URL` is unset is the literal string `http://localhost`

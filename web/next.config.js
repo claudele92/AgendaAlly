@@ -22,8 +22,22 @@ const nextConfig = {
         // not configured", which looks identical to the malformed-URL
         // crash this same header/logo path had before, but is a
         // completely separate cause (an allowlist gap, not a bad string).
+        //
+        // Must be "127.0.0.1", not "localhost", and IMG_HOST must be set
+        // to match: next/image's optimizer runs its own server-side fetch
+        // of this URL from the Next.js process itself (not the browser),
+        // and Node resolves the literal string "localhost" to the IPv6
+        // loopback (::1) first. `php artisan serve --host=0.0.0.0` only
+        // binds the IPv4 wildcard - it never listens on ::1 - so that
+        // fetch hits a dead end and next/image returns 400, even though
+        // curl (which falls back to IPv4 automatically) and every other
+        // client reach the backend fine. See DEPLOYMENT.md's IMG_HOST
+        // note. Confirmed on the VPS: `curl http://[::1]:8000` ->
+        // connection refused; `curl http://127.0.0.1:8000` -> 200 OK;
+        // `node -e "dns.lookup('localhost',{all:true},...)"` lists ::1
+        // before 127.0.0.1.
         protocol: "http",
-        hostname: "localhost",
+        hostname: "127.0.0.1",
         port: "8000",
       },
       {
