@@ -5,7 +5,7 @@ import { shopService } from "@/services/shop";
 import { globalService } from "@/services/global";
 import { parseSettings } from "@/utils/parse-settings";
 import React from "react";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { brandService } from "@/services/brand";
 import storyService from "@/services/story";
 import { MobileCard } from "@/app/(store)/(booking)/components/mobile-card";
@@ -15,7 +15,14 @@ import { SlidableProductList } from "@/components/slidable-product-list";
 import { Brands } from "./components/brands";
 import { resolveDefaultLocation } from "@/utils/resolve-default-location";
 
-const Stories = dynamic(() => import("../../components/stories"), {
+// Reads cookies() below, which should already force dynamic rendering per
+// Next's docs - but empirically this route was still observed serving a
+// frozen SSR snapshot (same shop list regardless of country_id/city_id
+// cookie) until the dev server recompiled. Explicit and unambiguous beats
+// relying on auto-detection that isn't holding up in practice.
+export const dynamic = "force-dynamic";
+
+const Stories = nextDynamic(() => import("../../components/stories"), {
   loading: () => (
     <div className=" mt-10">
       <div className="flex lg:gap-7 sm:gap-4 gap-2.5 animate-pulse overflow-x-hidden flex-nowrap">
@@ -26,7 +33,7 @@ const Stories = dynamic(() => import("../../components/stories"), {
     </div>
   ),
 });
-const Deals = dynamic(
+const Deals = nextDynamic(
   () => import("./components/deals").then((component) => ({ default: component.Deals })),
   {
     loading: () => (
@@ -41,7 +48,7 @@ const Deals = dynamic(
     ),
   }
 );
-const NearYou = dynamic(
+const NearYou = nextDynamic(
   () => import("./components/near-you").then((component) => ({ default: component.NearYou })),
   {
     loading: () => (
@@ -59,10 +66,10 @@ const NearYou = dynamic(
     ),
   }
 );
-const Salons = dynamic(() =>
+const Salons = nextDynamic(() =>
   import("./components/salons").then((component) => ({ default: component.Salons }))
 );
-const Masters = dynamic(
+const Masters = nextDynamic(
   () => import("./components/masters").then((component) => ({ default: component.Masters })),
   {
     loading: () => (
@@ -77,7 +84,7 @@ const Masters = dynamic(
     ),
   }
 );
-const Services = dynamic(
+const Services = nextDynamic(
   () => import("../../components/services").then((component) => ({ default: component.Services })),
   {
     loading: () => (
@@ -95,7 +102,7 @@ const Services = dynamic(
     ),
   }
 );
-const Recommended = dynamic(
+const Recommended = nextDynamic(
   () => import("./components/recomended").then((component) => ({ default: component.Recommended })),
   {
     loading: () => (
