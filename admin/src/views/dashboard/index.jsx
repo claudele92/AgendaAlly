@@ -120,6 +120,16 @@ export default function Dashboard() {
         dispatch(fetchSellerStatisticsCount(statisticsCountParams));
         break;
 
+      case 'master':
+      case 'deliveryman':
+        // Neither role's dashboard (see General.jsx) renders anything
+        // driven by this statistics-count fetch - it's admin/seller-only.
+        // Falling through to default below would fire the admin-only
+        // endpoint and 403, which the global response interceptor treats
+        // as "log the user out" (see services/request.js), producing a
+        // login-then-immediate-kickout loop for these roles.
+        break;
+
       default:
         dispatch(fetchStatistics(statisticsCountParams));
         break;
@@ -143,6 +153,10 @@ export default function Dashboard() {
 
       case 'moderator':
         dispatch(fetchSellerOrderCounts(orderCountsParams));
+        break;
+
+      case 'master':
+      case 'deliveryman':
         break;
 
       default:
@@ -170,6 +184,10 @@ export default function Dashboard() {
         dispatch(fetchSellerOrderSales(orderSalesParams));
         break;
 
+      case 'master':
+      case 'deliveryman':
+        break;
+
       default:
         dispatch(fetchOrderSales(orderSalesParams));
         break;
@@ -195,6 +213,10 @@ export default function Dashboard() {
         dispatch(fetchSellerTopProducts(topProductsParams));
         break;
 
+      case 'master':
+      case 'deliveryman':
+        break;
+
       default:
         dispatch(fetchTopProducts(topProductsParams));
         break;
@@ -218,6 +240,10 @@ export default function Dashboard() {
 
       case 'moderator':
         dispatch(fetchSellerTopCustomers(topCustomersParams));
+        break;
+
+      case 'master':
+      case 'deliveryman':
         break;
 
       default:

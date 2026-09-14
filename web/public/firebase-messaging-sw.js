@@ -17,15 +17,30 @@ const firebaseConfig = {
   measurementId: "MEASUREMENT ID",
 };
 
-firebase.initializeApp(firebaseConfig);
+// firebaseConfig above is a placeholder (no real Firebase project has been
+// wired into this deployment - see web/lib/firebase.ts, whose
+// NEXT_PUBLIC_* values are the same kind of placeholder). Both
+// initializeApp() and messaging() can throw once a real getToken() call
+// on the main thread actually registers this worker and it validates that
+// config against Firebase's Installations API. This runs in its own
+// worker context, separate from the main thread's JS - a try/catch there
+// (see components/push-notification/push-notification.tsx) can't catch a
+// throw here. Guarding it the same way keeps a misconfigured project from
+// failing worker install/activation instead of just leaving push
+// notifications unavailable.
+try {
+  firebase.initializeApp(firebaseConfig);
 
-const messaging = firebase.messaging();
+  const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function (payload) {
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-  };
+  messaging.onBackgroundMessage(function (payload) {
+    const notificationTitle = payload.notification.title;
+    const notificationOptions = {
+      body: payload.notification.body,
+    };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
-});
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  });
+} catch (error) {
+  console.log("Push notifications unavailable:", error);
+}

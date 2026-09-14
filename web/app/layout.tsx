@@ -19,19 +19,27 @@ import { ReactNode } from "react";
 import ThemeProvider from "./theme-provider";
 import Providers from "./providers";
 import TranslationsProvider from "./translations-provider";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 
-const CountrySelect = dynamic(() =>
+const CountrySelect = nextDynamic(() =>
   import("@/components/country-select").then((mod) => mod.CountrySelect)
 );
-const LanguageSelect = dynamic(() =>
+const LanguageSelect = nextDynamic(() =>
   import("@/components/language-select").then((mod) => mod.LanguageSelect)
 );
-const CurrencySelect = dynamic(() =>
+const CurrencySelect = nextDynamic(() =>
   import("@/components/currency-select").then((mod) => mod.CurrencySelect)
 );
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
+
+// Reads cookies() below, which should already force dynamic rendering per
+// Next's docs - but this exact codebase has already shown that
+// auto-detection doesn't reliably hold (see the homepage page.tsx files'
+// identical directive from PR #102). Since every page in the app renders
+// through this root layout, a stale render here - locale-driven settings,
+// translations - would silently propagate everywhere.
+export const dynamic = "force-dynamic";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const settings = await globalService.settings().catch((e) => console.log(e));
