@@ -56,7 +56,7 @@ const hasStaleLangCookie = async (request: NextRequest): Promise<boolean> => {
   }
 };
 
-export const proxy = async (request: NextRequest) => {
+export const middleware = async (request: NextRequest) => {
   const { pathname } = request.nextUrl;
   const settings = await fetch(`http://${request.nextUrl.host}/api/cache/settings`).then(
     (res) => res.json() as Promise<ReturnType<typeof parseSettings>>
