@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { SearchField } from "@/components/main-search-field";
 import { useModal } from "@/hook/use-modal";
 import { Drawer } from "@/components/drawer";
@@ -9,12 +8,12 @@ import { useSearchParams } from "next/navigation";
 import { useQueryParams } from "@/hook/use-query-params";
 import { Shops } from "./components/shops";
 import { ShopsInMap } from "./components/shops-in-map";
-
-const Filters = dynamic(() =>
-  import("../components/filters/filter-list").then((component) => ({
-    default: component.FilterList,
-  }))
-);
+// Statically imported (not next/dynamic) to match the already-stable
+// /products pattern - lazy-loading this as a separate chunk raced with
+// hydration's useId() allocation for every RadioGroup inside it, flipping
+// the "headlessui-radiogroup-*" ids between the server-rendered HTML and
+// the client's first render (a timing race, not deterministic per-load).
+import { FilterList as Filters } from "../components/filters/filter-list";
 const SearchPage = () => {
   const [isFilterModalOpen, openFilterModal, closeFilterModal] = useModal();
   const searchParams = useSearchParams();

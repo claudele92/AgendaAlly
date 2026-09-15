@@ -13,27 +13,13 @@ import { ShopCard } from "@/components/shop-card";
 import { IconButton } from "@/components/icon-button";
 import FilterLineIcon from "remixicon-react/FilterLineIcon";
 import { useDebounce } from "@/hook/use-debounce";
+// Statically imported (not next/dynamic) to match the already-stable
+// /products pattern - lazy-loading this as a separate chunk raced with
+// hydration's useId() allocation for every RadioGroup inside it, flipping
+// the "headlessui-radiogroup-*" ids between the server-rendered HTML and
+// the client's first render (a timing race, not deterministic per-load).
+import { FilterList as Filters } from "../components/filters/filter-list";
 
-const Filters = dynamic(
-  () =>
-    import("../components/filters/filter-list").then((component) => ({
-      default: component.FilterList,
-    })),
-  {
-    loading: () => (
-      <div className="py-8">
-        <div className="h-5 rounded-full bg-gray-300 w-40" />
-        <div className="border border-gray-link rounded-button py-4 px-3">
-          <div className="h-6 rounded-full bg-gray-300 w-2/5" />
-          <div className="h-5 rounded-full bg-gray-300 w-3/5 mt-2.5" />
-          <div className="h-5 rounded-full bg-gray-300 w-full mt-2.5" />
-          <div className="h-5 rounded-full bg-gray-300 w-3/5 mt-2.5" />
-          <div className="h-5 rounded-full bg-gray-300 w-2/5 mt-2.5" />
-        </div>
-      </div>
-    ),
-  }
-);
 const ErrorFallback = dynamic(() => import("@/components/error-fallback"));
 const Empty = dynamic(() =>
   import("@/components/empty").then((component) => ({ default: component.Empty }))

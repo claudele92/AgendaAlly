@@ -1,6 +1,10 @@
 export const PROJECT_NAME = 'Demand24 marketplace';
 export const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://api.demand24.org';
-export const WEBSITE_URL = 'https://demand24.org';
+// The deployed storefront's own URL (used by the UI-type preview link and
+// the order-tracking QR code below) - was hardcoded to the original
+// vendor's live demo site, so both features silently sent visitors there
+// instead of this deployment's real storefront.
+export const WEBSITE_URL = import.meta.env.VITE_WEBSITE_URL || 'https://demand24.org';
 export const api_url = BASE_URL + '/api/v1/';
 export const api_url_admin = BASE_URL + '/api/v1/dashboard/admin/';
 export const api_url_admin_dashboard = BASE_URL + '/api/v1/dashboard/';
