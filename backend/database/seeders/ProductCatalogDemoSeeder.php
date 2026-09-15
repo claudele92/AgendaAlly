@@ -31,12 +31,22 @@ use Throwable;
  * the one precondition the seller-side "Product location" wizard step
  * checks for, so no new seller/location bootstrapping is needed.
  *
- * A minimal, real product taxonomy: this template's product categories
+ * A real product taxonomy: this template's product categories
  * (Category::MAIN/SUB_MAIN/CHILD - a completely separate 3-level tree from
  * the service categories used everywhere else this session) had exactly
  * one placeholder row of each level ("main"/"sub_main"/"child") before this,
  * matching the same "boilerplate, never replaced" state products_enabled
- * itself was in.
+ * itself was in. Builds out two real MAIN branches reflecting the two
+ * service domains with an obvious retail-product angle (Beauty & Personal
+ * Care, Tailoring & Apparel Supplies) - deliberately not forcing categories
+ * onto service-only domains like Education/Dental/Handyman/Laundry, which
+ * have no natural product counterpart. Only the 2 leaves the 5 demo
+ * products actually use have products in them; the rest are catalog-only
+ * breadth (same pattern as CategoryCatalogExpansionSeeder's service
+ * categories), all shop_id=null/active/published as if admin-created and
+ * pre-approved (see CategoryService::create()'s category_auto_approve
+ * gate - shop_id=null keeps these visible/selectable by every seller, not
+ * just shop 501).
  *
  * Prices are written as "real-world $ * 600" (600 = the currency:rebase-to
  * -xaf factor, see CurrencySeeder), same convention as every other price in
@@ -171,22 +181,58 @@ class ProductCatalogDemoSeeder extends Seeder
      */
     private function categories(string $locale): array
     {
-        $main = $this->category('Beauty Products', Category::MAIN, null, $locale);
+        // Renamed in place (not recreated) so the 5 existing products'
+        // category_id chain, and the shop's already-verified price range,
+        // stay attached to the same MAIN row rather than forking onto a
+        // second, orphaned "Beauty Products" tree.
+        $main = $this->category('Beauty Products', Category::MAIN, null, $locale, renameTo: 'Beauty & Personal Care');
 
         $hairCareSubMain = $this->category('Hair Care', Category::SUB_MAIN, $main, $locale);
         $skinCareSubMain = $this->category('Skin Care', Category::SUB_MAIN, $main, $locale);
+        $makeupSubMain = $this->category('Makeup', Category::SUB_MAIN, $main, $locale);
+        $bathBodySubMain = $this->category('Bath & Body', Category::SUB_MAIN, $main, $locale);
+
+        $tailoringMain = $this->category('Tailoring & Apparel Supplies', Category::MAIN, null, $locale);
+
+        $fabricsSubMain = $this->category('Fabrics', Category::SUB_MAIN, $tailoringMain, $locale);
+        $notionsSubMain = $this->category('Sewing Notions', Category::SUB_MAIN, $tailoringMain, $locale);
+        $accessoriesSubMain = $this->category('Ready-to-Wear Accessories', Category::SUB_MAIN, $tailoringMain, $locale);
 
         return [
+            // Existing leaves - the 5 seeded products already point here.
             'Hair Care Essentials' => $this->category('Hair Care Essentials', Category::CHILD, $hairCareSubMain, $locale),
             'Skincare Serums'      => $this->category('Skincare Serums', Category::CHILD, $skinCareSubMain, $locale),
+
+            // New catalog-only leaves - real breadth for the category
+            // picker/filters, no demo products forced into them (that's a
+            // separate ask; see class docblock).
+            'Combs & Brushes'          => $this->category('Combs & Brushes', Category::CHILD, $hairCareSubMain, $locale),
+            'Lipstick'                 => $this->category('Lipstick', Category::CHILD, $makeupSubMain, $locale),
+            'Foundation & Concealer'   => $this->category('Foundation & Concealer', Category::CHILD, $makeupSubMain, $locale),
+            'Body Wash & Soap'         => $this->category('Body Wash & Soap', Category::CHILD, $bathBodySubMain, $locale),
+            'Body Lotion & Moisturizer' => $this->category('Body Lotion & Moisturizer', Category::CHILD, $bathBodySubMain, $locale),
+            'Cotton & Linen Fabrics'   => $this->category('Cotton & Linen Fabrics', Category::CHILD, $fabricsSubMain, $locale),
+            'Embroidered & Lace Fabrics' => $this->category('Embroidered & Lace Fabrics', Category::CHILD, $fabricsSubMain, $locale),
+            'Thread & Needles'         => $this->category('Thread & Needles', Category::CHILD, $notionsSubMain, $locale),
+            'Buttons & Zippers'        => $this->category('Buttons & Zippers', Category::CHILD, $notionsSubMain, $locale),
+            'Headwraps & Scarves'      => $this->category('Headwraps & Scarves', Category::CHILD, $accessoriesSubMain, $locale),
+            'Belts & Bags'             => $this->category('Belts & Bags', Category::CHILD, $accessoriesSubMain, $locale),
         ];
     }
 
-    private function category(string $title, int $type, ?Category $parent, string $locale): Category
+    private function category(string $title, int $type, ?Category $parent, string $locale, ?string $renameTo = null): Category
     {
         $category = Category::whereHas('translation', fn($q) => $q->where('locale', $locale)->where('title', $title))
             ->where('type', $type)
             ->first();
+
+        if (!$category && $renameTo) {
+            // Already renamed on a previous run - look it up by the new
+            // title instead of creating a second, duplicate MAIN row.
+            $category = Category::whereHas('translation', fn($q) => $q->where('locale', $locale)->where('title', $renameTo))
+                ->where('type', $type)
+                ->first();
+        }
 
         if (!$category) {
             $category = Category::create([
@@ -195,8 +241,11 @@ class ProductCatalogDemoSeeder extends Seeder
                 'active'    => true,
                 'status'    => Category::PUBLISHED,
             ]);
-            $category->translations()->create(['title' => $title, 'locale' => $locale]);
-            $this->command?->info("category: $title");
+            $category->translations()->create(['title' => $renameTo ?? $title, 'locale' => $locale]);
+            $this->command?->info('category: ' . ($renameTo ?? $title));
+        } elseif ($renameTo) {
+            $category->translation?->update(['title' => $renameTo]);
+            $this->command?->info("category: $title -> $renameTo");
         }
 
         return $category;

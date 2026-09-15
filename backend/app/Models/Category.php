@@ -367,7 +367,18 @@ class Category extends Model
 
                     $query->where('shop_id', $filter['shop_id']);
 
-                    if (request()->is('api/v1/rest/*')) {
+                    // Global (admin-owned, shop_id=null) categories should
+                    // be valid choices anywhere a seller is *picking* a
+                    // category for their own shop/product/subcategory
+                    // parent - not just on the public REST endpoints. This
+                    // was scoped to REST only, so Seller\CategoryController
+                    // (the only other place that sets shop_id on this
+                    // filter) silently excluded every global category from
+                    // the seller's own category pickers - e.g. the "Add
+                    // product" Category field and the "Parent category"
+                    // tree-select both came back empty for a shop with no
+                    // categories of its own yet.
+                    if (request()->is('api/v1/rest/*') || request()->is('api/v1/dashboard/seller/*')) {
                         $query->orWhereNull('shop_id');
                     }
 

@@ -101,6 +101,11 @@ class DatabaseSeeder extends Seeder
         // to already exist.
         $this->call(ProductCatalogDemoSeeder::class);
 
+        // A handful of admin-panel/storefront translation keys the
+        // original template's dump never included - independent of every
+        // other seeder, only needs the default Language to exist.
+        $this->call(MissingTranslationsSeeder::class);
+
         // 3 example blog posts (spanning the full category range above,
         // not just beauty) and a handful of example stories - needs
         // UserSeeder's owner@githubit.com and DemoAfricaSeeder's/

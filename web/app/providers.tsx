@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/lib/query-client";
+import { createQueryClient } from "@/lib/query-client";
 import SettingsProvider from "@/context/settings/settings";
 import { Country, Currency, Language } from "@/types/global";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -23,7 +23,7 @@ const Providers = ({
   currencies,
   defaultCountry,
 }: ProviderProps) => {
-  const [client] = useState(() => queryClient);
+  const [client] = useState(() => createQueryClient());
 
   return (
     <QueryClientProvider client={client}>
