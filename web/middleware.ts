@@ -6,6 +6,25 @@ import { BASE_URL } from "@/config/global";
 import { DefaultResponse, Language } from "@/types/global";
 // import { DefaultResponse, Setting } from "@/types/global";
 
+// Runs once per server/edge cold start, not per request - this module is
+// only ever loaded once per process. NEXT_PUBLIC_UI_TYPE silently
+// overrides the admin panel's `ui_type` setting below and in
+// app/layout.tsx (which reads it separately - keep both warnings if you
+// ever remove one), freezing the homepage on one view regardless of what
+// Settings > UI type is set to. See DEPLOYMENT.md's "web/ (storefront)
+// environment variables" section for the full story - this was the root
+// cause of two reports that looked like unrelated bugs (stuck on View 1;
+// later, stuck on a different single view) before being traced to this
+// one env var at two different values.
+if (process.env.NEXT_PUBLIC_UI_TYPE) {
+  console.warn(
+    `[middleware] NEXT_PUBLIC_UI_TYPE="${process.env.NEXT_PUBLIC_UI_TYPE}" is set - ` +
+      "this overrides the admin panel's UI type setting everywhere and freezes the " +
+      "homepage on one view regardless of Settings > UI type. Unset it (and rebuild) " +
+      "if the admin setting is supposed to control this. See DEPLOYMENT.md."
+  );
+}
+
 // const getSettings = async () => {
 //   try {
 //     const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings", {

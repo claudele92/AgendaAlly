@@ -33,6 +33,21 @@ const CurrencySelect = nextDynamic(() =>
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
+// Runs once per server cold start, not per request - this module is only
+// ever loaded once per process. NEXT_PUBLIC_UI_TYPE silently overrides the
+// admin panel's `ui_type` setting below and in middleware.ts (which reads
+// it separately - keep both warnings if you ever remove one), freezing
+// the homepage on one view regardless of Settings > UI type. See
+// DEPLOYMENT.md's "web/ (storefront) environment variables" section.
+if (process.env.NEXT_PUBLIC_UI_TYPE) {
+  console.warn(
+    `[layout] NEXT_PUBLIC_UI_TYPE="${process.env.NEXT_PUBLIC_UI_TYPE}" is set - ` +
+      "this overrides the admin panel's UI type setting everywhere and freezes the " +
+      "homepage on one view regardless of Settings > UI type. Unset it (and rebuild) " +
+      "if the admin setting is supposed to control this. See DEPLOYMENT.md."
+  );
+}
+
 // Reads cookies() below, which should already force dynamic rendering per
 // Next's docs - but this exact codebase has already shown that
 // auto-detection doesn't reliably hold (see the homepage page.tsx files'
