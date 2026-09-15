@@ -95,6 +95,12 @@ class DatabaseSeeder extends Seeder
         // DemoExpansionSeeder's Bafoussam to already exist.
         $this->call(EducationTattooDemoSeeder::class);
 
+        // Enables products_enabled and seeds a minimal real product catalog
+        // (5 products, 1 brand) on shop 501 - needs UserSeeder/
+        // DemoAfricaSeeder's shop 501 (with its PRODUCT-type ShopLocation)
+        // to already exist.
+        $this->call(ProductCatalogDemoSeeder::class);
+
         // 3 example blog posts (spanning the full category range above,
         // not just beauty) and a handful of example stories - needs
         // UserSeeder's owner@githubit.com and DemoAfricaSeeder's/
