@@ -107,6 +107,41 @@ real, deliberate value in production:
   safety net, not a reason to skip setting `APP_URL` correctly. Set it
   explicitly, port included, the same as `IMG_HOST`.
 
+## web/ (storefront) environment variables
+
+`web/.env`/`web/.env.local` are not committed either, and one variable in
+particular is worth checking for explicitly on every environment:
+
+- `NEXT_PUBLIC_UI_TYPE` - if this is set to *anything*, it silently
+  overrides the platform's `ui_type` setting (Settings > UI type in the
+  admin panel) everywhere, in both `web/middleware.ts` (the rewrite that
+  picks which `/home-N` page serves `/`) and `web/app/layout.tsx`. There
+  is no warning in the UI when this happens - the admin setting just
+  stops doing anything, and the homepage freezes on whichever view this
+  variable resolves to (or, if it's set to something that isn't literally
+  `"2"`, `"3"`, or `"4"`, on View 1 always, since the rewrite's
+  `["2","3","4"].find(...)` then matches nothing). Confirmed by
+  reproducing directly: with this set, the DB's `ui_type` was changed
+  through several different values and even deleted entirely, and every
+  request kept serving the exact same frozen view regardless - this is
+  what happened on a real deployment, and is likely why "UI type doesn't
+  work" resurfaced twice, presenting as two different-looking bugs (stuck
+  on View 1; later, stuck on a different single view) that were actually
+  the same misconfiguration at two different values.
+
+  This is intended as a way to force one fixed homepage variant
+  site-wide, deliberately overriding admin control - it should only be
+  set if that's genuinely what you want. If the admin panel's UI-type
+  control is supposed to work at all, make sure this variable is unset
+  everywhere the app actually runs (`.env`, `.env.local`, and any
+  process manager/container env config, not just the repo's own files).
+
+  Like `NEXT_PUBLIC_BASE_URL` and every other `NEXT_PUBLIC_*` variable,
+  this is inlined into the compiled bundle at **build time**, not read
+  from live process env per request - changing or removing it requires a
+  full rebuild (`next build`), not just a restart, the same as the
+  `VITE_WEBSITE_URL` build-time-baking gotcha on the admin panel side.
+
 ## Why this matters here
 
 Two bugs found in this codebase were only reachable because a stale or
