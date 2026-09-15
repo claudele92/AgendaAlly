@@ -134,6 +134,18 @@ export const ProductDetail = ({ initialData, fullPage }: ProductDetailProps) => 
         });
       }
     });
+    // Neither source above is populated for a product with no uploaded
+    // gallery images (e.g. one created without going through the seller
+    // wizard's Gallery step, which normally guarantees at least one) - fall
+    // back to the product's own base photo rather than rendering nothing,
+    // matching how the listing card and every other product image already
+    // degrade via ImageWithFallBack.
+    if (tempGalleries.length === 0) {
+      const fallbackImg = data?.img || data?.stocks?.[0]?.img;
+      if (fallbackImg && data?.stocks?.[0]) {
+        tempGalleries.push({ stock: data.stocks[0], img: fallbackImg });
+      }
+    }
     return tempGalleries;
   }, [data]);
 

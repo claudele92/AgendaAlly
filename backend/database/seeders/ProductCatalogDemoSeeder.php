@@ -279,6 +279,22 @@ class ProductCatalogDemoSeeder extends Seeder
             $this->command?->info("product: {$definition['title']}");
         }
 
+        // Real seller-created products always have at least one Gallery
+        // row - the "Gallery" step is a required part of the product-add
+        // wizard (see admin/src/views/seller-views/products/steps.js).
+        // Without one, web's product-detail gallery swiper (which only
+        // ever reads Product.galleries/Stock.galleries, never the plain
+        // Product.img/Stock.img this seeder sets) renders nothing at all -
+        // confirmed live: a genuinely blank space, not even the usual
+        // broken-image fallback.
+        if ($product->galleries()->count() === 0) {
+            $product->galleries()->create([
+                'title' => $definition['title'],
+                'path'  => $definition['img'],
+                'type'  => 'products',
+            ]);
+        }
+
         $stock = Stock::where('product_id', $product->id)->first();
 
         if (!$stock) {
