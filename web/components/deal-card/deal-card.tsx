@@ -8,7 +8,13 @@ interface DealCardProps {
   data: Shop;
 }
 
-export const DealCard = ({ data }: DealCardProps) => (
+export const DealCard = ({ data }: DealCardProps) => {
+  const displayAddress =
+    data.matched_location?.address ||
+    data.matched_location?.city?.translation?.title ||
+    data?.translation?.address;
+
+  return (
   <Link href={`/shops/${data.slug}`}>
     <div className="relative rounded-button overflow-hidden aspect-[313/300] w-full">
       <ImageWithFallBack
@@ -23,7 +29,7 @@ export const DealCard = ({ data }: DealCardProps) => (
           <div className="flex items-center gap-1">
             <MapPinIcon />
             <span className="text-sm text-opacity-50 line-clamp-1">
-              {data?.translation?.address}
+              {displayAddress}
             </span>
           </div>
         </div>
@@ -38,4 +44,5 @@ export const DealCard = ({ data }: DealCardProps) => (
       </div>
     </div>
   </Link>
-);
+  );
+};

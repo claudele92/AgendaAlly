@@ -59,6 +59,17 @@ export interface Shop {
   };
   phone?: string;
   socials?: ShopSocial[];
+  // Present only when the request carried a region/country/city/area
+  // filter and this shop has a branch location matching it - see
+  // ShopResource::toArray(). A shop with branches in more than one city
+  // can legitimately match a filter through a branch other than the one
+  // 'translation.address' describes; this is that matched branch.
+  matched_location?: {
+    address?: string;
+    city?: { translation?: { title: string } };
+    region?: { translation?: { title: string } };
+    country?: { translation?: { title: string } };
+  };
 }
 
 export interface IDelivery {
