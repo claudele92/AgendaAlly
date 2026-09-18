@@ -474,6 +474,26 @@ class BaseService extends CoreService
     }
 
     /**
+     * Gateways that keep their credentials in a single global PaymentPayload
+     * row (Stripe, Flutterwave, PayStack, ZainCash - unlike MTN/Orange,
+     * which resolve a per-shop/per-platform GatewayConfig via
+     * resolveGatewayConfig()) need the same "not configured yet" check
+     * those two already do, rather than either a raw TypeError from
+     * getPayload()'s non-nullable array param (when $payload is null) or
+     * an undefined-array-key crash further down (when it's an empty array).
+     *
+     * @throws Exception
+     */
+    public function requireConfiguredPayload(?array $payload, string $gatewayLabel): array
+    {
+        if (empty($payload)) {
+            throw new Exception("$gatewayLabel has not been configured for this transaction yet");
+        }
+
+        return $payload;
+    }
+
+    /**
      * @param array $data
      * @param array|null $payload
      * @return array

@@ -32,7 +32,7 @@ class FlutterWaveService extends BaseService
 
         $paymentPayload = PaymentPayload::where('payment_id', $payment?->id)->first();
 
-        $payload        = $paymentPayload?->payload;
+        $payload        = $this->requireConfiguredPayload($paymentPayload?->payload, 'Flutterwave');
 
         $host = request()->getSchemeAndHttpHost();
 

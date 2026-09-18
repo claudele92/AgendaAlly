@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 
 use Cache;
 use App\Models\Shop;
+use App\Models\ShopLocation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\Bonus\BonusResource;
@@ -27,6 +28,25 @@ class ShopResource extends JsonResource
         $isRecommended  = in_array($this->id, array_keys(Cache::get('shop-recommended-ids', [])));
         $locales        = $this->relationLoaded('translations')
             ? $this->translations->pluck('locale')->toArray()
+            : null;
+
+        // A shop with branches in more than one region/country/city (see
+        // Shop::scopeFilter()'s whereHas('locations', ...)) correctly
+        // matches a region/country/city-filtered search via ANY of its
+        // locations, but 'translation.address' is a single flat string set
+        // once for the whole shop - it can describe a different branch
+        // than the one that actually matched, making a correct result look
+        // like a leak (e.g. a Yaoundé-filtered search returning a shop
+        // whose card still shows its Douala street address). When the
+        // request carries the same region/country/city/area params the
+        // filter used, resolve and expose the specific location that
+        // matched, so the frontend can show that branch instead.
+        $filterParams = array_filter($request->only(['region_id', 'country_id', 'city_id', 'area_id']));
+        $matchedLocation = $filterParams
+            ? ShopLocation::with(['region.translation', 'country.translation', 'city.translation', 'area.translation'])
+                ->where('shop_id', $this->id)
+                ->filter($filterParams)
+                ->first()
             : null;
 
         return [
@@ -92,7 +112,8 @@ class ShopResource extends JsonResource
             'shop_working_days' => ShopWorkingDayResource::collection($this->whenLoaded('workingDays')),
             'shop_closed_date'  => ShopClosedDateResource::collection($this->whenLoaded('closedDates')),
             'location'          => ShopLocationResource::make($this->whenLoaded('location')),
-            'locations'         => ShopLocationResource::collection($this->whenLoaded('locations'))
+            'locations'         => ShopLocationResource::collection($this->whenLoaded('locations')),
+            'matched_location'  => $this->when($matchedLocation, ShopLocationResource::make($matchedLocation)),
         ];
     }
 }

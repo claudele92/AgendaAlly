@@ -21,6 +21,10 @@ export const ShopCard = ({ data }: ShopCardProps) => {
   const { t } = useTranslation();
   const { isLiked, handleLikeDisLike } = useLike("shop", data.id);
   const { settings } = useSettings();
+  const displayAddress =
+    data.matched_location?.address ||
+    data.matched_location?.city?.translation?.title ||
+    data?.translation?.address;
   return (
     <div className="relative rounded-button overflow-hidden group shadow-storeCard justify-start">
       <div className="absolute top-3 left-3 z-[1] text-dark">
@@ -75,7 +79,7 @@ export const ShopCard = ({ data }: ShopCardProps) => {
           <div className="flex items-center gap-1">
             <MapPinIcon />
             <span className="text-xs text-gray-field line-clamp-1">
-              {data?.translation?.address}
+              {displayAddress}
             </span>
           </div>
           {settings?.shop_reviews_enabled === "1" && (

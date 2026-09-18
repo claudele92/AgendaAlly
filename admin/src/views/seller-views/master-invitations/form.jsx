@@ -8,7 +8,7 @@ import MasterBranch from './master-branch';
 
 const { TabPane } = Tabs;
 
-const FormDeliveryman = ({ form, handleSubmit }) => {
+const FormDeliveryman = ({ form, handleSubmit, masterId }) => {
   const { t } = useTranslation();
   const { uuid } = useParams();
   return (
@@ -27,7 +27,7 @@ const FormDeliveryman = ({ form, handleSubmit }) => {
             <DisabledTimes />
           </TabPane>
           <TabPane key='branch' tab={t('assign.to.branch')}>
-            <MasterBranch />
+            <MasterBranch masterId={masterId} />
           </TabPane>
         </Tabs>
       )}

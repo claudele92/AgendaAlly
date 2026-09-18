@@ -11,6 +11,8 @@ const emailService = {
     request.put(`dashboard/admin/email-settings/${id}`, data, {}),
   delete: (params) =>
     request.delete(`dashboard/admin/email-settings/delete`, { params }),
+  sendTest: (id, data) =>
+    request.post(`dashboard/admin/email-settings/${id}/send-test`, data),
 };
 
 export default emailService;

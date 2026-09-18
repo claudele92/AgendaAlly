@@ -31,7 +31,7 @@ class ZainCashService extends BaseService
             ->where('tag', Payment::TAG_ZAIN_CASH)
             ->first();
 
-        $payload = $payment?->paymentPayload?->payload ?? [];
+        $payload = $this->requireConfiguredPayload($payment?->paymentPayload?->payload, 'ZainCash');
 
         [$key, $before] = $this->getPayload($data, $payload);
 

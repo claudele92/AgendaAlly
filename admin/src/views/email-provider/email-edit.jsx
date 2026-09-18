@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button, Card, Col, Form, Input, InputNumber, Row, Switch } from 'antd';
+import { Alert, Button, Card, Col, Form, Input, InputNumber, Row, Switch } from 'antd';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import {
   disableRefetch,
@@ -16,12 +16,33 @@ import { fetchEmailProvider } from 'redux/slices/emailProvider';
 const EmailProviderEdit = () => {
   const { t } = useTranslation();
   const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
+  const { user } = useSelector((state) => state.auth, shallowEqual);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams();
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [testEmail, setTestEmail] = useState(user?.email || '');
+  const [testingBtn, setTestingBtn] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+
+  const handleSendTest = () => {
+    setTestingBtn(true);
+    setTestResult(null);
+    emailService
+      .sendTest(id, { email: testEmail })
+      .then(() => {
+        setTestResult({ type: 'success', message: t('test.email.sent.successfully') });
+      })
+      .catch((err) => {
+        setTestResult({
+          type: 'error',
+          message: err?.response?.data?.message || t('test.email.failed'),
+        });
+      })
+      .finally(() => setTestingBtn(false));
+  };
 
   useEffect(() => {
     return () => {
@@ -233,6 +254,33 @@ const EmailProviderEdit = () => {
               >
                 <Switch />
               </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={12} className='mt-3'>
+            <Col span={24}>
+              <Form.Item label={t('send.test.email')}>
+                <Input.Group compact style={{ display: 'flex', maxWidth: 420 }}>
+                  <Input
+                    value={testEmail}
+                    onChange={(e) => setTestEmail(e.target.value)}
+                    placeholder={t('email')}
+                    style={{ flex: 1 }}
+                  />
+                  <Button loading={testingBtn} onClick={handleSendTest}>
+                    {t('send.test.email')}
+                  </Button>
+                </Input.Group>
+              </Form.Item>
+              {testResult && (
+                <Alert
+                  className='mb-3'
+                  type={testResult.type}
+                  showIcon
+                  message={testResult.message}
+                  closable
+                  onClose={() => setTestResult(null)}
+                />
+              )}
             </Col>
           </Row>
           <div className='flex-grow-1 d-flex flex-column justify-content-end'>
