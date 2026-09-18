@@ -54,13 +54,21 @@ export const StaffSelect = ({
         <InfiniteLoader hasMore={hasNextPage} loadMore={fetchNextPage} loading={isFetchingNextPage}>
           <div className="grid md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-4 mt-6">
             {masterList?.map((master) => (
-              <button key={master.id} onClick={() => onSelect(master)}>
-                <MasterCard
-                  selected={selectedMasterId === master.id}
-                  data={master}
-                  key={master.id}
-                />
-              </button>
+              <div
+                key={master.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => onSelect(master)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelect(master);
+                  }
+                }}
+                className="cursor-pointer"
+              >
+                <MasterCard selected={selectedMasterId === master.id} data={master} />
+              </div>
             ))}
           </div>
         </InfiniteLoader>

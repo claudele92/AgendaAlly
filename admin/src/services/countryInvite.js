@@ -8,6 +8,8 @@ const countryInviteService = {
       params: { ...params, query },
     }),
   create: (data) => request.post('dashboard/admin/country-invites', data),
+  createAccount: (data) =>
+    request.post('dashboard/admin/country-invites/create-account', data),
   changeStatus: (id, status, params) =>
     request.post(
       `dashboard/admin/country-invites/${id}/status/change`,

@@ -8,9 +8,11 @@ use App\Helpers\ResponseError;
 use App\Http\Requests\CountryAdmin\StoreRequest;
 use App\Http\Requests\FilterParamsRequest;
 use App\Http\Resources\CountryAdminResource;
+use App\Http\Resources\UserResource;
 use App\Models\CountryAdmin;
 use App\Models\User;
 use App\Repositories\CountryAdminRepository\CountryAdminRepository;
+use App\Repositories\UserRepository\UserRepository;
 use App\Services\CountryAdminService\CountryAdminService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -42,6 +44,20 @@ class CountryAdminController extends AdminBaseController
     public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
         return CountryAdminResource::collection($this->repository->paginate($request->all()));
+    }
+
+    /**
+     * Candidate search for the "Add Country Admin" form - restricted to
+     * users who already hold accepted country-staff status, not the
+     * entire platform user base (sellers, masters, customers, etc.).
+     */
+    public function searchUser(FilterParamsRequest $request): AnonymousResourceCollection
+    {
+        $users = (new UserRepository)->usersSearch(
+            $request->merge(['eligible_for_country_admin' => true])->all()
+        );
+
+        return UserResource::collection($users);
     }
 
     public function show(CountryAdmin $countryAdmin): JsonResponse

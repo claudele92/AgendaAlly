@@ -11,6 +11,7 @@ use App\Models\Referral;
 use App\Models\Settings;
 use App\Models\Transaction;
 use App\Models\Notification;
+use App\Models\CountryInvitation;
 use App\Repositories\CoreRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -251,6 +252,18 @@ class UserRepository extends CoreRepository
 
         return $this->model()
             ->filter($filter)
+            // Scopes results to users who already hold accepted country-staff
+            // status (an accepted CountryInvitation with a country_role_id) -
+            // the only people eligible to become a country admin. Opt-in via
+            // this flag so the shared users/search endpoint's other 10+
+            // unrelated callers (order assignment, transactions, etc.) keep
+            // searching the full user base as before.
+            ->when(data_get($filter, 'eligible_for_country_admin'), function ($q) {
+                $q->whereHas('countryInvitations', function ($q) {
+                    $q->where('status', CountryInvitation::ACCEPTED)
+                        ->whereNotNull('country_role_id');
+                });
+            })
             ->with([
                 'roles' => fn($q) => $q->when(data_get($filter, 'roles'), function ($q, $roles) {
                     $q->whereIn('name', is_array($roles) ? $roles : [$roles]);

@@ -50,6 +50,10 @@ export const useAuth = () => {
             router.replace("/");
             await handleLogoutLocal();
           },
+          onError: async () => {
+            router.replace("/");
+            await handleLogoutLocal();
+          },
         }
       );
       return;

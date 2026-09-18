@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\API\v1\Dashboard\Admin;
 
 use App\Helpers\ResponseError;
+use App\Http\Requests\CountryInvitation\CreateAccountRequest;
 use App\Http\Requests\CountryInvitation\StatusRequest;
 use App\Http\Requests\CountryInvitation\StoreRequest;
 use App\Http\Requests\FilterParamsRequest;
@@ -108,6 +109,24 @@ class CountryInviteController extends CountryBaseController
         }
 
         $result = $this->service->create($this->countryId, $request->validated());
+
+        if (!data_get($result, 'status')) {
+            return $this->onErrorResponse($result);
+        }
+
+        return $this->successResponse(
+            __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
+            CountryInvitationResource::make(data_get($result, 'data'))
+        );
+    }
+
+    public function createAccount(CreateAccountRequest $request): JsonResponse
+    {
+        if (!$this->countryId) {
+            return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
+        }
+
+        $result = $this->service->createAccount($this->countryId, $request->validated());
 
         if (!data_get($result, 'status')) {
             return $this->onErrorResponse($result);

@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Alert, Button, Form, Input, Modal, Select } from 'antd';
+import { Alert, Button, Form, Input, Modal, Radio, Select } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import countryInviteService from 'services/countryInvite';
 import { addMenu } from 'redux/slices/menu';
+import CreateAccountForm from './create-account-form';
 
-// Mirrors seller-views/staff/invite-modal.jsx's two-step flow (resolve an
-// exact email/phone to an existing user, then pick a role) — country
-// invites have no branch/location concept, so there's no second select.
+// Mirrors seller-views/staff/invite-modal.jsx's two modes: resolve an
+// exact email/phone to an existing user (then pick a role), or create a
+// brand-new account for someone who doesn't have one yet — country
+// invites have no branch/location concept, so there's no second select
+// in the search path, unlike the seller side.
 export default function InviteModal({
   countryRoles,
   countryId,
@@ -21,6 +24,7 @@ export default function InviteModal({
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [mode, setMode] = useState('search');
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
@@ -107,68 +111,88 @@ export default function InviteModal({
       onCancel={handleCancel}
       footer={null}
     >
-      <Form layout='vertical'>
-        <Form.Item label={t('email.or.phone')}>
-          <Input.Group compact style={{ display: 'flex' }}>
-            <Input
-              value={query}
-              placeholder={t('enter.email.or.phone')}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setResolvedUser(null);
-                setSearchError(null);
-              }}
-              onPressEnter={handleSearch}
-              style={{ flex: 1 }}
-            />
-            <Button
-              icon={<SearchOutlined />}
-              onClick={handleSearch}
-              loading={searching}
-            >
-              {t('search')}
-            </Button>
-          </Input.Group>
-        </Form.Item>
+      <Radio.Group
+        className='mb-3'
+        optionType='button'
+        buttonStyle='solid'
+        value={mode}
+        onChange={(e) => setMode(e.target.value)}
+        options={[
+          { label: t('invite.existing.user'), value: 'search' },
+          { label: t('create.new.staff.account'), value: 'create' },
+        ]}
+      />
 
-        {searchError && (
-          <Alert className='mb-3' type='error' showIcon message={searchError} />
-        )}
-
-        {resolvedUser && (
-          <>
-            <Alert
-              className='mb-3'
-              type='success'
-              showIcon
-              message={resolvedUser.name}
-              description={[resolvedUser.email, resolvedUser.phone]
-                .filter(Boolean)
-                .join(' · ')}
-            />
-            <Form.Item label={t('role')}>
-              <Select
-                allowClear
-                placeholder={t('select.role')}
-                value={roleId}
-                onChange={setRoleId}
-                options={countryRoles.map((role) => ({
-                  value: role.id,
-                  label: role.name,
-                }))}
+      {mode === 'create' ? (
+        <CreateAccountForm
+          countryRoles={countryRoles}
+          handleCancel={handleCancel}
+          onInvited={onInvited}
+        />
+      ) : (
+        <Form layout='vertical'>
+          <Form.Item label={t('email.or.phone')}>
+            <Input.Group compact style={{ display: 'flex' }}>
+              <Input
+                value={query}
+                placeholder={t('enter.email.or.phone')}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setResolvedUser(null);
+                  setSearchError(null);
+                }}
+                onPressEnter={handleSearch}
+                style={{ flex: 1 }}
               />
-            </Form.Item>
-            <Button
-              type='primary'
-              disabled={!roleId}
-              loading={submitting}
-              onClick={handleInvite}
-            >
-              {t('send.invite')}
-            </Button>
-          </>
-        )}
-      </Form>
+              <Button
+                icon={<SearchOutlined />}
+                onClick={handleSearch}
+                loading={searching}
+              >
+                {t('search')}
+              </Button>
+            </Input.Group>
+          </Form.Item>
+
+          {searchError && (
+            <Alert className='mb-3' type='error' showIcon message={searchError} />
+          )}
+
+          {resolvedUser && (
+            <>
+              <Alert
+                className='mb-3'
+                type='success'
+                showIcon
+                message={resolvedUser.name}
+                description={[resolvedUser.email, resolvedUser.phone]
+                  .filter(Boolean)
+                  .join(' · ')}
+              />
+              <Form.Item label={t('role')}>
+                <Select
+                  allowClear
+                  placeholder={t('select.role')}
+                  value={roleId}
+                  onChange={setRoleId}
+                  options={countryRoles.map((role) => ({
+                    value: role.id,
+                    label: role.name,
+                  }))}
+                />
+              </Form.Item>
+              <Button
+                type='primary'
+                disabled={!roleId}
+                loading={submitting}
+                onClick={handleInvite}
+              >
+                {t('send.invite')}
+              </Button>
+            </>
+          )}
+        </Form>
+      )}
     </Modal>
   );
 }

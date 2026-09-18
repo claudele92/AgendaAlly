@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { removeFromMenu } from 'redux/slices/menu';
 import countryAdminService from 'services/countryAdmin';
-import userService from 'services/user';
 import countryService from 'services/deliveryzone/country';
 import { InfiniteSelect } from 'components/infinite-select';
 import { SuperAdminRoute } from 'context/superadmin-route';
@@ -20,8 +19,8 @@ export default function CountryAdminAdd() {
   const [loadingBtn, setLoadingBtn] = useState(false);
 
   const fetchUser = ({ search, page }) =>
-    userService
-      .search({ search: !!search?.length ? search : undefined, page })
+    countryAdminService
+      .searchUser({ search: !!search?.length ? search : undefined, page })
       .then((res) =>
         res.data.map((user) => ({
           label:

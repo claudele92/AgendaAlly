@@ -89,25 +89,34 @@ export const StaffSelect = ({ shopId }: StaffSelectProps) => {
             <UserAddLineIcon />
             <span className="text-sm font-medium">{t("select.master.per.service")}</span>
           </button>
-          {masterList?.map((master) => (
-            <button
-              key={master.id}
-              onClick={() =>
-                dispatch({
-                  type: Types.SetOnlyMaster,
-                  payload: { master, serviceMasterInfo: serviceMasterInfo?.data },
-                })
-              }
-              disabled={!!state?.unsupportedMastersByServices?.includes(master.id)}
-              className={clsx(
-                state?.unsupportedMastersByServices?.includes(master.id)
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              )}
-            >
-              <MasterCard selected={state.master?.id === master.id} data={master} key={master.id} />
-            </button>
-          ))}
+          {masterList?.map((master) => {
+            const isUnsupported = !!state?.unsupportedMastersByServices?.includes(master.id);
+            const selectMaster = () => {
+              if (isUnsupported) return;
+              dispatch({
+                type: Types.SetOnlyMaster,
+                payload: { master, serviceMasterInfo: serviceMasterInfo?.data },
+              });
+            };
+            return (
+              <div
+                key={master.id}
+                role="button"
+                tabIndex={isUnsupported ? -1 : 0}
+                aria-disabled={isUnsupported}
+                onClick={selectMaster}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    selectMaster();
+                  }
+                }}
+                className={clsx(isUnsupported ? "opacity-50 cursor-not-allowed" : "cursor-pointer")}
+              >
+                <MasterCard selected={state.master?.id === master.id} data={master} />
+              </div>
+            );
+          })}
         </div>
       </InfiniteLoader>
     </div>
