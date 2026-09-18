@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Payment;
 
-use ReflectionClass;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\BaseRequest;
 use App\Http\Requests\Order\StoreRequest;
@@ -33,8 +32,11 @@ class PaymentRequest extends BaseRequest
             $rules = (new StoreRequest)->rules();
         }
 
-        $reflectionClass = new ReflectionClass('Iyzipay\Model\PaymentChannel');
-        $constants = $reflectionClass->getConstants();
+        // Iyzipay\Model\PaymentChannel's constants, inlined: the iyzico/iyzipay
+        // package isn't a composer dependency of this project, so reflecting on
+        // that class threw "Class does not exist" for every payment request
+        // (any gateway), not just Iyzico's.
+        $constants = ['MOBILE', 'WEB', 'MOBILE_WEB', 'MOBILE_IOS', 'MOBILE_ANDROID', 'MOBILE_WINDOWS', 'MOBILE_TABLET'];
 
         return [
             'cart_id' => [
