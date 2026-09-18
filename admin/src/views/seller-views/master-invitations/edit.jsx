@@ -19,6 +19,7 @@ export default function EditMasterInvitation() {
   const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
 
   const [loading, setLoading] = useState(false);
+  const [masterId, setMasterId] = useState(null);
 
   const getMaster = () => {
     setLoading(true);
@@ -30,6 +31,7 @@ export default function EditMasterInvitation() {
           birthday: res?.data?.birthday ? moment(res?.data?.birthday) : null,
         };
         form.setFieldsValue(body);
+        setMasterId(res?.data?.id ?? null);
         dispatch(
           setMenuData({
             activeMenu,
@@ -65,7 +67,7 @@ export default function EditMasterInvitation() {
 
   return (
     <Card title={t('edit.master')} loading={loading}>
-      <FormMaster form={form} handleSubmit={handleSubmit} />
+      <FormMaster form={form} handleSubmit={handleSubmit} masterId={masterId} />
     </Card>
   );
 }

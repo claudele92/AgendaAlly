@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { shallowEqual, useSelector } from 'react-redux';
 import { Alert, Button, Card, Form, Spin } from 'antd';
 import { toast } from 'react-toastify';
 import staffInviteService from '../../../services/seller/staffInvite';
@@ -12,10 +11,18 @@ import { BranchSelect } from '../staff/role-branch-selects';
 // inline Invitation row (see UserService::create()), so this tab just
 // needs to find that invitation by user_id before it can update it, since
 // this screen is keyed by the master's user uuid, not the invitation id.
-export default function MasterBranch() {
+//
+// masterId comes directly from edit.jsx as a prop (resolved from the
+// route's uuid via sellerUserServices.getById()) rather than through
+// Redux's activeMenu.data - reading it from Redux meant this tab's own
+// data-fetch could fire before edit.jsx's sibling fetch had dispatched
+// the master's id (or, worse, while activeMenu.data still held a
+// *different* master's id left over from a previously-viewed one),
+// intermittently loading nothing or the wrong master's invitation. A
+// direct prop removes that race entirely - same reason staff-edit.jsx
+// never had this bug: it reads its id straight from the URL, no relay.
+export default function MasterBranch({ masterId }) {
   const { t } = useTranslation();
-  const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
-  const masterId = activeMenu?.data?.master_id;
 
   const [invitationId, setInvitationId] = useState(null);
   const [shopLocations, setShopLocations] = useState([]);
@@ -37,7 +44,13 @@ export default function MasterBranch() {
       sellerShopLocationService.getAll(),
     ])
       .then(([invitesRes, locationsRes]) => {
-        const invitation = invitesRes.data?.data?.[0];
+        // request.js's response interceptor already unwraps to
+        // response.data, so invitesRes here IS the paginate payload
+        // ({data: [...], meta, links}) - invitesRes.data[0] is the first
+        // invite, not invitesRes.data.data[0]. This extra .data was
+        // silently always producing undefined, so the "no invitation
+        // found" branch fired unconditionally regardless of masterId.
+        const invitation = invitesRes.data?.[0];
         setInvitationId(invitation?.id ?? null);
         setShopLocations(locationsRes.data || []);
         setLocationIds((invitation?.shop_locations || []).map((l) => l.id));
