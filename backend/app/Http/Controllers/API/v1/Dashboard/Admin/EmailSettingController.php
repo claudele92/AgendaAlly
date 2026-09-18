@@ -5,10 +5,12 @@ namespace App\Http\Controllers\API\v1\Dashboard\Admin;
 
 use App\Helpers\ResponseError;
 use App\Http\Requests\FilterParamsRequest;
+use App\Http\Requests\EmailSetting\SendTestRequest;
 use App\Http\Requests\EmailSetting\StoreRequest;
 use App\Http\Resources\EmailSettingResource;
 use App\Models\EmailSetting;
 use App\Repositories\EmailSettingRepository\EmailSettingRepository;
+use App\Services\EmailSettingService\EmailSendService;
 use App\Services\EmailSettingService\EmailSettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -109,6 +111,24 @@ class EmailSettingController extends AdminBaseController
 
         return $this->successResponse(
             __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_DELETED, locale: $this->language),
+            []
+        );
+    }
+
+    /**
+     * Sends a test email using this provider's own credentials, so it can
+     * be verified before (or without) switching it to active.
+     */
+    public function sendTest(EmailSetting $emailSetting, SendTestRequest $request): JsonResponse
+    {
+        $result = (new EmailSendService)->sendTest($emailSetting, $request->validated('email'));
+
+        if (!data_get($result, 'status')) {
+            return $this->onErrorResponse($result);
+        }
+
+        return $this->successResponse(
+            __('errors.' . ResponseError::NO_ERROR, locale: $this->language),
             []
         );
     }

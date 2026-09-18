@@ -332,4 +332,57 @@ class EmailSendService extends CoreService
 
         return $mail;
     }
+
+    /**
+     * Sends a plain test message using this exact provider row's own
+     * credentials, regardless of whether it's marked active - so an admin
+     * can verify a new SMTP configuration before switching to it, rather
+     * than only finding out it's broken once it becomes "the" active
+     * provider (see emailBaseAuth()'s active-only fallback, which this
+     * intentionally bypasses).
+     */
+    public function sendTest(EmailSetting $emailSetting, string $recipientEmail): array
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isHTML();
+            $mail->CharSet = 'UTF-8';
+            $mail->isSMTP();
+            // A bad host/port otherwise hangs for PHPMailer's default
+            // ~5 minute timeout before this ever responds - unacceptable
+            // for a "test this now" button an admin is actively waiting on.
+            $mail->Timeout     = 15;
+            $mail->SMTPAuth    = $emailSetting->smtp_auth;
+            $mail->Host        = $emailSetting->host;
+            $mail->Port        = $emailSetting->port;
+            $mail->Username    = $emailSetting->from_to;
+            $mail->Password    = $emailSetting->password;
+            $mail->SMTPSecure  = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->SMTPOptions = data_get($emailSetting, 'ssl.ssl.verify_peer') ? $emailSetting->ssl : [
+                'ssl' => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true,
+                ]
+            ];
+
+            $mail->setFrom($emailSetting->from_to, $emailSetting->from_site);
+            $mail->addAddress($recipientEmail);
+            $mail->Subject = 'Test email from ' . ($emailSetting->from_site ?: 'your platform');
+            $mail->Body    = 'This is a test email confirming your SMTP configuration works.';
+            $mail->AltBody = $mail->Body;
+
+            $mail->send();
+
+            return ['status' => true, 'code' => ResponseError::NO_ERROR];
+        } catch (Exception $e) {
+            $this->error($e);
+            return [
+                'status'  => false,
+                'code'    => ResponseError::ERROR_504,
+                'message' => $mail->ErrorInfo ?: $e->getMessage(),
+            ];
+        }
+    }
 }

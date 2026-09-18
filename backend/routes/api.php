@@ -1242,6 +1242,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::apiResource('email-settings',  Admin\EmailSettingController::class);
             Route::get('email-settings/set-active/{id}',    [Admin\EmailSettingController::class, 'setActive']);
             Route::get('email-settings/drop/all',           [Admin\EmailSettingController::class, 'dropAll']);
+            Route::post('email-settings/{emailSetting}/send-test', [Admin\EmailSettingController::class, 'sendTest']);
 
             /* Email Subscriptions */
             Route::get('email-subscriptions',          [Admin\EmailSubscriptionController::class, 'emailSubscriptions']);
