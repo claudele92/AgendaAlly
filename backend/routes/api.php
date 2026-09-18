@@ -409,6 +409,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('moya-sar-process',      [Payment\MoyasarController::class,      'processTransaction']);
             Route::post('mollie-process',        [Payment\MollieController::class,       'processTransaction']);
             Route::post('zain-cash-process',     [Payment\ZainCashController::class,     'processTransaction']);
+            Route::post('orange-process',        [Payment\OrangeController::class,       'processTransaction']);
             Route::post('maksekeskus-process',   [Payment\MaksekeskusController::class,  'processTransaction']);
             Route::post('iyzico-process',        [Payment\IyzicoController::class,       'processTransaction']);
             Route::post('pay-fast-process',      [Payment\PayFastController::class, 	 'processTransaction']);

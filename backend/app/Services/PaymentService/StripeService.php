@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services\PaymentService;
 
+use Exception;
 use Str;
 use Throwable;
 use Stripe\Stripe;
@@ -44,7 +45,7 @@ class StripeService extends BaseService
             ->where('tag', Payment::TAG_STRIPE)
             ->first();
 
-        $payload = $payment?->paymentPayload?->payload;
+        $payload = $this->requireConfiguredPayload($payment?->paymentPayload?->payload, 'Stripe');
 
         Stripe::setApiKey(data_get($payload, 'stripe_sk'));
 

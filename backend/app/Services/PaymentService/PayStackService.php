@@ -30,7 +30,7 @@ class PayStackService extends BaseService
         $payment = Payment::where('tag', Payment::TAG_PAY_STACK)->first();
 
         $paymentPayload = PaymentPayload::where('payment_id', $payment?->id)->first();
-        $payload        = $paymentPayload?->payload;
+        $payload        = $this->requireConfiguredPayload($paymentPayload?->payload, 'PayStack');
 
         $transaction    = new Transaction(data_get($payload, 'paystack_sk'));
 
