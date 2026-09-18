@@ -1543,6 +1543,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::delete('invitations/delete',       [Admin\InviteController::class, 'delete']);
 
             /* Country admin assignment — superadmin only, self-guarded in the controller */
+            // search-user must precede the apiResource below - it's a static
+            // segment that {country_admin}'s route-model binding would
+            // otherwise swallow (same class of bug as task #12's sweep).
+            Route::get('country-admins/search-user', [Admin\CountryAdminController::class, 'searchUser']);
             Route::apiResource('country-admins', Admin\CountryAdminController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
             /* Platform Orange Money/MTN Mobile Money config — superadmin only, self-guarded in the controller */

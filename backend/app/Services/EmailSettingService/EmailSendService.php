@@ -267,7 +267,7 @@ class EmailSendService extends CoreService
         )->render();
 
         try {
-            $mail           = $this->emailBaseAuth(EmailSetting::first(), $order->user);
+            $mail           = $this->emailBaseAuth(null, $order->user);
             $mail->Subject  = $title;
             $mail->Body     = $pdf;
             $mail->addCustomHeader('MIME-Version', '1.0');
@@ -294,7 +294,11 @@ class EmailSendService extends CoreService
     {
 
         if (empty($emailSetting)) {
-            $emailSetting = EmailSetting::first();
+            $emailSetting = EmailSetting::where('active', true)->latest('updated_at')->first();
+        }
+
+        if (empty($emailSetting)) {
+            throw new Exception('No active email provider is configured');
         }
 
         $mail = new PHPMailer(true);
