@@ -101,7 +101,10 @@ class EmailSendService extends CoreService
 
             // Тело письма
             $mail->isHTML();
-            $mail->Body    = $emailTemplate->body; // <p><strong>«Hello, world!» </strong></p>
+            $mail->Body    = View::make('emails.layout', [
+                'title'   => $emailTemplate->subject,
+                'content' => $emailTemplate->body,
+            ])->render();
             $mail->AltBody = $emailTemplate->alt_body; // Hello, world!
 
             // Приложение
@@ -145,7 +148,10 @@ class EmailSendService extends CoreService
             $body           = data_get($emailTemplate, 'body', $default);
             $altBody        = data_get($emailTemplate, 'alt_body', $default);
 
-            $mail->Body     = str_replace('$verify_code', $user->verify_token, $body);
+            $mail->Body     = View::make('emails.layout', [
+                'title'   => $mail->Subject,
+                'content' => str_replace('$verify_code', $user->verify_token, $body),
+            ])->render();
             $mail->AltBody  = str_replace('$verify_code', $user->verify_token, $altBody);
 
             if (!empty(data_get($emailTemplate, 'galleries'))) {
@@ -192,7 +198,10 @@ class EmailSendService extends CoreService
             $body           = data_get($emailTemplate, 'body', $default);
             $altBody        = data_get($emailTemplate, 'alt_body', $default);
 
-            $mail->Body     = str_replace('$verify_code', $str, $body);
+            $mail->Body     = View::make('emails.layout', [
+                'title'   => $mail->Subject,
+                'content' => str_replace('$verify_code', $str, $body),
+            ])->render();
             $mail->AltBody  = str_replace('$verify_code', $str, $altBody);
 
             if (!empty(data_get($emailTemplate, 'galleries'))) {
@@ -392,8 +401,11 @@ class EmailSendService extends CoreService
             $mail->setFrom($emailSetting->from_to, $emailSetting->from_site);
             $mail->addAddress($recipientEmail);
             $mail->Subject = 'Test email from ' . ($emailSetting->from_site ?: 'your platform');
-            $mail->Body    = 'This is a test email confirming your SMTP configuration works.';
-            $mail->AltBody = $mail->Body;
+            $mail->AltBody = 'This is a test email confirming your SMTP configuration works.';
+            $mail->Body    = View::make('emails.layout', [
+                'title'   => $mail->Subject,
+                'content' => '<p>' . $mail->AltBody . '</p>',
+            ])->render();
 
             $mail->send();
 
