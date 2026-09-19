@@ -44,7 +44,7 @@ class SettingsSeeder extends Seeder
         // a later reseed must not silently overwrite their value.
         $firstOrCreateItems = [
             'title'       => 'AgendaAlly',
-            'description' => 'Book beauty and wellness appointments near you.',
+            'description' => 'The smart marketplace for seamless appointment booking! 📅 Connect with top service providers in healthcare, beauty, and other professional services effortlessly. Streamline scheduling, enhance client satisfaction & grow your business!',
             'footer_text' => '© ' . date('Y') . ' AgendaAlly. All rights reserved.',
             // Also previously blank - web/app/.../contact/page.tsx renders
             // these directly (phone as a tel: link, address as the map

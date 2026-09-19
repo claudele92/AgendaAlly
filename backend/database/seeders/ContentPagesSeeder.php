@@ -66,23 +66,27 @@ class ContentPagesSeeder extends Seeder
             [
                 'type' => Page::ABOUT,
                 // Unsplash - already on next.config.js's remotePatterns
-                // allowlist. Real, purpose-fitting photos (booking on a
-                // phone; a home-service visit; a small shop owner) instead
-                // of the generic /img/banner*.png site assets used at
-                // first pass, before real content existed to pair with.
-                'img' => 'https://images.unsplash.com/photo-1522125670776-3c7abb882bc2?auto=format&fit=crop&w=1200&h=600&q=80',
+                // allowlist. Purpose-fitting photos (booking on a phone;
+                // using a laptop for business; a small shop owner),
+                // deliberately sourced from Africa-based photographers/
+                // libraries (Ninthgrid/Lagos, Oluwatobi Fasipe/Lagos, Ali
+                // Mkumbwa/Dar es Salaam) to match the platform's own
+                // Africa-first positioning - the original picks here were
+                // generic stock that happened to feature white subjects,
+                // inconsistent with the About Us copy above.
+                'img' => 'https://images.unsplash.com/photo-1739271933163-8dcc7c8e8a3e?auto=format&fit=crop&w=1200&h=600&q=80',
                 'title' => 'About AgendaAlly',
                 'description' => "<p>In much of Africa, booking an appointment still means phone calls, guesswork, and hoping someone picks up. Many talented businesses and professionals don't have the online presence they need to be found, manage their schedules, or grow beyond word of mouth.</p><p>AgendaAlly is a marketplace booking platform built to close that gap. We give businesses and independent professionals an easy way to build a professional online presence - no website required - and give customers a simple, reliable way to find them and book, with real availability, secure payments, and everything in between.</p>",
             ],
             [
                 'type' => Page::ABOUT_SECOND,
-                'img' => 'https://images.unsplash.com/photo-1646980241033-cd7abda2ee88?auto=format&fit=crop&w=1200&h=600&q=80',
+                'img' => 'https://images.unsplash.com/photo-1594077810908-9ffd89d704ac?auto=format&fit=crop&w=1200&h=600&q=80',
                 'title' => 'Built to work for everyone',
                 'description' => "<p>AgendaAlly is designed to be genuinely easy to use, whatever your comfort level with technology - a booking platform should remove friction, not add it.</p><p>Customizable profiles let any business build a professional presence in minutes. Efficient booking means customers see real availability and book in a few taps, no back-and-forth. Secure payments, adapted to local currencies and methods, mean businesses get paid the way that works for them. Automated reminders and notifications cut down on missed appointments for everyone. Analytics give businesses real insight into booking patterns and customer behavior. And beyond appointments, sellers can list products and schedule deliveries - all from the same platform.</p>",
             ],
             [
                 'type' => Page::ABOUT_THREE,
-                'img' => 'https://images.unsplash.com/photo-1531058240690-006c446962d8?auto=format&fit=crop&w=1200&h=600&q=80',
+                'img' => 'https://images.unsplash.com/photo-1687422808311-a776f467a468?auto=format&fit=crop&w=1200&h=600&q=80',
                 'title' => 'Built for Africa, ready for the world',
                 'description' => "<p>AgendaAlly was built with Africa first in mind - starting with Cameroon, Ivory Coast, Nigeria, Burkina Faso, Ghana, Senegal, and Kenya - regions where accessible, affordable digital tools for booking and scheduling are still hard to come by. Every part of the platform, from its interface to its payment options, is designed to work here first.</p><p>At the same time, the problems AgendaAlly solves aren't unique to one region. Anywhere a business needs a simple way to manage bookings and reach customers online, AgendaAlly is built to help - which is why the platform is designed for a global audience from day one.</p>",
             ],
