@@ -35,6 +35,9 @@ export const HeaderLinks = () => {
       <Link href="/shops?column=b_count&sort=desc" className="text-base font-medium">
         <Translate value="deals" />
       </Link>
+      <Link href="/blogs" className="text-base font-medium">
+        <Translate value="blog" />
+      </Link>
       <Link href={user ? "/appointments" : "/login"} className="text-base font-medium">
         <div className="flex items-center gap-1.5">
           <Translate value="my.appointments" />

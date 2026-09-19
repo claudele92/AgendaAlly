@@ -195,7 +195,7 @@ function ServiceMasterForm({ form, onSubmit, setVisibleComponent }) {
             <Select>
               {serviceTypes.map((item, idx) => (
                 <Select.Option key={item} value={item}>
-                  {item}
+                  {t(item)}
                 </Select.Option>
               ))}
             </Select>
