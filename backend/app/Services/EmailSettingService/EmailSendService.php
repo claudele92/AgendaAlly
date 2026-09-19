@@ -17,6 +17,7 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Exception;
 use Log;
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use Storage;
 use Throwable;
 use View;
@@ -31,6 +32,29 @@ class EmailSendService extends CoreService
         return EmailSetting::class;
     }
 
+    /**
+     * Port 465 is implicit TLS (SMTPS) - STARTTLS on that port never
+     * completes the handshake and PHPMailer just times out with a
+     * generic "Could not connect to SMTP host". Every other port (25,
+     * 587, 2525, ...) expects the STARTTLS upgrade instead. PHPMailer's
+     * own SMTPDebug only echoes to stdout, which is discarded in a
+     * web/API request, so route it into Laravel's log instead whenever
+     * the setting's smtp_debug flag is on.
+     */
+    private function configureSmtpSecurity(PHPMailer $mail, EmailSetting $emailSetting): void
+    {
+        $mail->SMTPSecure = (int) $emailSetting->port === 465
+            ? PHPMailer::ENCRYPTION_SMTPS
+            : PHPMailer::ENCRYPTION_STARTTLS;
+
+        if ($emailSetting->smtp_debug) {
+            $mail->SMTPDebug   = SMTP::DEBUG_CONNECTION;
+            $mail->Debugoutput = function (string $str, int $level) {
+                Log::channel('single')->debug("SMTP[$level]: " . trim($str));
+            };
+        }
+    }
+
     public function sendSubscriptions(EmailTemplate $emailTemplate): array
     {
         $mail = new PHPMailer(true);
@@ -43,13 +67,12 @@ class EmailSendService extends CoreService
             // Настройки SMTP
             $mail->isSMTP();
             $mail->SMTPAuth     = $emailSetting->smtp_auth;
-            /*$mail->SMTPDebug    = $emailSetting->smtp_debug;*/
 
             $mail->Host         = $emailSetting->host;
             $mail->Port         = $emailSetting->port;
             $mail->Username     = $emailSetting->from_to;
             $mail->Password     = $emailSetting->password;
-            $mail->SMTPSecure   = PHPMailer::ENCRYPTION_STARTTLS;
+            $this->configureSmtpSecurity($mail, $emailSetting);
             $mail->SMTPOptions  = $emailSetting->ssl ?: [
                 'ssl' => [
                     'verify_peer' => false,
@@ -306,12 +329,11 @@ class EmailSendService extends CoreService
         $mail->CharSet = 'UTF-8';
         $mail->isSMTP();
         $mail->SMTPAuth     = $emailSetting->smtp_auth;
-        /*$mail->SMTPDebug    = $emailSetting->smtp_debug;*/
         $mail->Host         = $emailSetting->host;
         $mail->Port         = $emailSetting->port;
         $mail->Username     = $emailSetting?->from_to;
         $mail->Password     = $emailSetting?->password;
-        $mail->SMTPSecure   = PHPMailer::ENCRYPTION_STARTTLS;
+        $this->configureSmtpSecurity($mail, $emailSetting);
         $mail->SMTPOptions  = data_get($emailSetting, 'ssl.ssl.verify_peer') ? $emailSetting->ssl : [
             'ssl' => [
                 'verify_peer' => false,
@@ -358,7 +380,7 @@ class EmailSendService extends CoreService
             $mail->Port        = $emailSetting->port;
             $mail->Username    = $emailSetting->from_to;
             $mail->Password    = $emailSetting->password;
-            $mail->SMTPSecure  = PHPMailer::ENCRYPTION_STARTTLS;
+            $this->configureSmtpSecurity($mail, $emailSetting);
             $mail->SMTPOptions = data_get($emailSetting, 'ssl.ssl.verify_peer') ? $emailSetting->ssl : [
                 'ssl' => [
                     'verify_peer'       => false,
