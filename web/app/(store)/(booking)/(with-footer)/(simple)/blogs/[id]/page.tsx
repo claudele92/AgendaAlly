@@ -68,7 +68,14 @@ const BlogDetailPage = async (props: { params: Promise<{ id: string }> }) => {
         <div className="xl:col-span-5 lg:col-span-4 col-span-7">
           <div
             dangerouslySetInnerHTML={{ __html: blog?.data.translation?.description || "" }}
-            className="text-base"
+            // Same treatment as terms/privacy's content div: Preflight
+            // zeroes default <p>/<h2> margins, so without these
+            // arbitrary-variant rules every paragraph and heading rendered
+            // back-to-back with no visual separation at all. Left-aligned,
+            // not justified, for the same reason as there - justified text
+            // without real hyphenation reads worse than ragged-right at
+            // this column width.
+            className="text-base leading-relaxed [&_p]:mb-4 [&_p:last-child]:mb-0 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_h2:first-child]:mt-0 [&_a]:underline [&_a]:font-medium [&_em]:text-gray-field"
           />
           <div className="mt-10">
             <ReviewList title="comments" type="blogs" id={params.id} />
