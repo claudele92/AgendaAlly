@@ -6,8 +6,12 @@
 /** @var string $lang */
 
 use App\Models\Order;
+use App\Models\Settings;
 use App\Models\Transaction;
 use App\Models\Translation;
+
+$socials = Settings::whereIn('key', ['instagram', 'facebook', 'twitter', 'linkedin'])
+    ->pluck('value', 'key');
 
 $keys = [
     'order.summary',
@@ -151,6 +155,21 @@ if ($order->delivery_type !== Order::DELIVERY) {
         .footer {
             text-align: center;
             margin-top: 20px;
+        }
+
+        .social-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            border-radius: 50%;
+            background-color: #3f3f46;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 0 4px;
         }
 
         .order-number {
@@ -301,6 +320,15 @@ if ($order->delivery_type !== Order::DELIVERY) {
         </div>
     </div>
     <div class="footer">
+        @if(collect($socials)->filter()->isNotEmpty())
+            <p>
+                @foreach(['IG' => 'instagram', 'FB' => 'facebook', 'X' => 'twitter', 'in' => 'linkedin'] as $label => $key)
+                    @if($socials->get($key))
+                        <a href="https://{{ $socials->get($key) }}" class="social-icon">{{ $label }}</a>
+                    @endif
+                @endforeach
+            </p>
+        @endif
         <p>&copy; {{ date('Y') }} {{ $appName }}</p>
     </div>
 </div>
