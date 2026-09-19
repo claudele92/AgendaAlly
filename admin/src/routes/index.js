@@ -110,6 +110,7 @@ import MasterServiceNotificationsRoutes from './master/service-notifications';
 import AdminServiceNotificationsRoutes from './admin/service-notifications';
 import SellerServiceNotificationsRoutes from './seller/service-notifications';
 import SellerServiceMasterRoutes from './seller/service-master';
+import SellerServiceExtraRoutes from './seller/service-extra';
 import ShopSubscriptionsRoutes from './admin/shop-subscriptions';
 import SellerMySubscriptionsRoutes from './seller/my-subscriptions';
 import SellerStaffRoutes from './seller/staff';
@@ -216,6 +217,7 @@ const AllRoutes = [
   ...SellerUserMembershipsRoutes,
   ...SellerServiceNotificationsRoutes,
   ...SellerServiceMasterRoutes,
+  ...SellerServiceExtraRoutes,
   ...SellerMySubscriptionsRoutes,
   ...SellerStaffRoutes,
   // ...SellerDeliverymenRoutes,

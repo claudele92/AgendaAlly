@@ -2008,6 +2008,13 @@ const sellerRoutes = [
         id: 'service-master',
         type: 'single',
       },
+      {
+        name: 'service.extra',
+        icon: 'appStoreAdd',
+        url: 'seller/service-extra',
+        id: 'seller-service-extra',
+        type: 'single',
+      },
     ],
   },
   {
