@@ -7,6 +7,8 @@ import { useCallback } from "react";
 import { DefaultResponse } from "@/types/global";
 import dynamic from "next/dynamic";
 import useUserStore from "@/global-store/user";
+import { useTranslation } from "react-i18next";
+import Link from "next/link";
 
 const ReviewCreate = dynamic(
   () => import("@/app/(store)/(booking)/components/reviews/create-review")
@@ -17,6 +19,7 @@ interface ProductReviewCreateProps {
 }
 
 export const BlogReviewCreate = ({ id }: ProductReviewCreateProps) => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const user = useUserStore((state) => state.user);
   const { mutate, isLoading } = useMutation({
@@ -45,7 +48,16 @@ export const BlogReviewCreate = ({ id }: ProductReviewCreateProps) => {
     mutate(body);
   }, []);
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="my-4 flex items-center justify-between gap-4 border border-gray-border dark:border-gray-bold rounded-2xl p-5">
+        <span className="text-sm font-medium">{t("please.login.first")}</span>
+        <Link href="/login" className="text-sm font-semibold underline shrink-0">
+          {t("login")}
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <ReviewCreate

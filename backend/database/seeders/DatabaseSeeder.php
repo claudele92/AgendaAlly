@@ -113,6 +113,13 @@ class DatabaseSeeder extends Seeder
         // attribution (see BlogStorySeeder's own docblock).
         $this->call(BlogStorySeeder::class);
 
+        // Real business hours for every demo shop - shop_working_days had
+        // 0 rows for all 9 shops before this, so the storefront's working-
+        // hours widget had nothing to render. Needs every shop-creating
+        // seeder above (UserSeeder, DemoAfricaSeeder, DemoExpansionSeeder,
+        // EducationTattooDemoSeeder) to already have run.
+        $this->call(ShopWorkingDaysDemoSeeder::class);
+
         // Subscribes the Cameroon demo seller (shop 501) to the Growth plan —
         // needs both SubscriptionSeeder's plans and DemoAfricaSeeder's shop to
         // already exist, so it can't live inside SubscriptionSeeder::run()
