@@ -140,6 +140,7 @@ const Services = () => {
       dataIndex: 'type',
       key: 'type',
       is_show: true,
+      render: (type) => t(type),
     },
     {
       title: t('category'),

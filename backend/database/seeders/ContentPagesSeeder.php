@@ -72,19 +72,19 @@ class ContentPagesSeeder extends Seeder
                 // first pass, before real content existed to pair with.
                 'img' => 'https://images.unsplash.com/photo-1522125670776-3c7abb882bc2?auto=format&fit=crop&w=1200&h=600&q=80',
                 'title' => 'About AgendaAlly',
-                'description' => "<p>AgendaAlly was built to make booking beauty and wellness services as easy as it should be. Whether you're looking for a haircut, a manicure, a massage, or a full spa day, we connect you with trusted local salons and independent masters, so you can browse real availability and book in just a few taps.</p><p>No more phone tag or guessing whether your favorite salon has an opening - see who's available, compare services and prices, and confirm your appointment on the spot.</p>",
+                'description' => "<p>In much of Africa, booking an appointment still means phone calls, guesswork, and hoping someone picks up. Many talented businesses and professionals don't have the online presence they need to be found, manage their schedules, or grow beyond word of mouth.</p><p>AgendaAlly is a marketplace booking platform built to close that gap. We give businesses and independent professionals an easy way to build a professional online presence - no website required - and give customers a simple, reliable way to find them and book, with real availability, secure payments, and everything in between.</p>",
             ],
             [
                 'type' => Page::ABOUT_SECOND,
                 'img' => 'https://images.unsplash.com/photo-1646980241033-cd7abda2ee88?auto=format&fit=crop&w=1200&h=600&q=80',
-                'title' => 'Our mission',
-                'description' => '<p>We believe booking a service should be simple, transparent, and reliable - for customers and professionals alike. That means clear pricing, real reviews, and a booking experience that respects your time.</p>',
+                'title' => 'Built to work for everyone',
+                'description' => "<p>AgendaAlly is designed to be genuinely easy to use, whatever your comfort level with technology - a booking platform should remove friction, not add it.</p><p>Customizable profiles let any business build a professional presence in minutes. Efficient booking means customers see real availability and book in a few taps, no back-and-forth. Secure payments, adapted to local currencies and methods, mean businesses get paid the way that works for them. Automated reminders and notifications cut down on missed appointments for everyone. Analytics give businesses real insight into booking patterns and customer behavior. And beyond appointments, sellers can list products and schedule deliveries - all from the same platform.</p>",
             ],
             [
                 'type' => Page::ABOUT_THREE,
                 'img' => 'https://images.unsplash.com/photo-1531058240690-006c446962d8?auto=format&fit=crop&w=1200&h=600&q=80',
-                'title' => 'Built for the community',
-                'description' => "<p>Every booking made through AgendaAlly supports a local salon or independent professional. We're proud to help small beauty and wellness businesses reach more customers and grow, one appointment at a time.</p>",
+                'title' => 'Built for Africa, ready for the world',
+                'description' => "<p>AgendaAlly was built with Africa first in mind - starting with Cameroon, Ivory Coast, Nigeria, Burkina Faso, Ghana, Senegal, and Kenya - regions where accessible, affordable digital tools for booking and scheduling are still hard to come by. Every part of the platform, from its interface to its payment options, is designed to work here first.</p><p>At the same time, the problems AgendaAlly solves aren't unique to one region. Anywhere a business needs a simple way to manage bookings and reach customers online, AgendaAlly is built to help - which is why the platform is designed for a global audience from day one.</p>",
             ],
         ];
     }

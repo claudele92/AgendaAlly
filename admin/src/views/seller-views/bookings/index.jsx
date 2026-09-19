@@ -106,6 +106,7 @@ export default function Booking() {
       dataIndex: 'type',
       key: 'type',
       is_show: false,
+      render: (type) => t(type),
     },
     {
       title: t('order.status'),

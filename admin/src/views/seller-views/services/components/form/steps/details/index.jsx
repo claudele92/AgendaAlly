@@ -258,7 +258,7 @@ const ServiceFormDetails = ({ handleSubmit }) => {
                 { type: 'number', min: 0, message: t('min.0') },
               ]}
             >
-              <InputNumber className='w-100' />
+              <InputNumber className='w-100' addonAfter={t('minutes')} />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -273,7 +273,7 @@ const ServiceFormDetails = ({ handleSubmit }) => {
                 { type: 'number', min: 0, message: t('min.0') },
               ]}
             >
-              <InputNumber className='w-100' />
+              <InputNumber className='w-100' addonAfter={t('minutes')} />
             </Form.Item>
           </Col>
           <Col span={12}>
