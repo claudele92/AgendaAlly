@@ -325,7 +325,7 @@ const ServiceFormDetails = ({ handleSubmit }) => {
               <Select labelInValue={true}>
                 {serviceTypes.map((item, idx) => (
                   <Select.Option value={item} key={item + idx}>
-                    {item}
+                    {t(item)}
                   </Select.Option>
                 ))}
               </Select>

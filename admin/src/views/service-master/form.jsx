@@ -203,7 +203,7 @@ function ServiceMasterForm({ form, onSubmit, initialValues = {} }) {
             <Select>
               {serviceTypes.map((item, idx) => (
                 <Select.Option key={item} value={item}>
-                  {item}
+                  {t(item)}
                 </Select.Option>
               ))}
             </Select>
