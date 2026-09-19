@@ -96,7 +96,7 @@ function ServiceMasterTable({ setVisibleComponent, setEditId }) {
       dataIndex: 'type',
       is_show: true,
       key: 'type',
-      render: (type) => <Tag>{type}</Tag>,
+      render: (type) => <Tag>{t(type)}</Tag>,
     },
     {
       title: t('options'),
