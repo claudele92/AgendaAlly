@@ -63,6 +63,12 @@ class SettingsSeeder extends Seeder
             'facebook'    => 'facebook.com/agendaally',
             'twitter'     => 'twitter.com/agendaally',
             'linkedin'    => 'linkedin.com/company/agendaally',
+            // Same reasoning as the socials above - web/components/footer
+            // hides each store badge when its setting is unset, so these
+            // placeholder listing URLs let that guard be confirmed
+            // rendering rather than leaving both badges permanently hidden.
+            'customer_app_ios'     => 'https://apps.apple.com/app/agendaally/id0000000000',
+            'customer_app_android' => 'https://play.google.com/store/apps/details?id=com.agendaally.app',
             // Douala, Cameroon - same coordinates as the Cameroon demo shop
             // (see UserSeeder), a reasonable "platform home base" default
             // given this seed's demo geography is Cameroon/Burkina Faso.

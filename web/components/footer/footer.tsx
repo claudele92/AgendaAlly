@@ -34,7 +34,7 @@ export const Footer = ({ settings }: FooterProps) => {
                 )}
               </Link>
             </div>
-            <p className="text-base font-medium">{settings?.description}</p>
+            <p className="text-base font-medium max-w-sm">{settings?.description}</p>
           </div>
           <div className="md:flex items-center gap-2.5 hidden mb-8 md:mb-0">
             {settings?.customer_app_ios && (

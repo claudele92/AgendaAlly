@@ -90,6 +90,20 @@ const Footer = () => {
               <Input />
             </Form.Item>
           </Col>
+          <Col span={12}>
+            <Form.Item
+              label={t('description')}
+              name='description'
+              rules={[
+                {
+                  required: true,
+                  message: t('required'),
+                },
+              ]}
+            >
+              <Input.TextArea rows={2} />
+            </Form.Item>
+          </Col>
         </Row>
         <Button
           type='primary'
