@@ -6,7 +6,14 @@ import { Types } from "@/context/booking/booking.reducer";
 import { PaymentList } from "@/components/payment-list";
 import { useEffect } from "react";
 
-export const BookingPaymentList = () => {
+// ShopLocation::SERVICE in the backend
+const SERVICE_LOCATION_TYPE = 2;
+
+interface BookingPaymentListProps {
+  shopId?: number;
+}
+
+export const BookingPaymentList = ({ shopId }: BookingPaymentListProps) => {
   const { state, dispatch } = useBooking();
 
   const handleChangePayment = (value?: Payment) => {
@@ -31,6 +38,8 @@ export const BookingPaymentList = () => {
       fromWalletPrice={state.fromWalletPrice}
       onChange={handleChangePayment}
       onChangeWalletPrice={handleChangeFromWalletPrice}
+      shopId={shopId}
+      locationType={SERVICE_LOCATION_TYPE}
     />
   );
 };

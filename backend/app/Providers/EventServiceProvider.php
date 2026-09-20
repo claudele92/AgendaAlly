@@ -25,6 +25,7 @@ use App\Models\PropertyGroup;
 use App\Models\Shop;
 use App\Models\ShopLocation;
 use App\Models\Ticket;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserCart;
 use App\Observers\AreaObserver;
@@ -41,6 +42,7 @@ use App\Observers\PropertyGroupObserver;
 use App\Observers\ShopLocationObserver;
 use App\Observers\ShopObserver;
 use App\Observers\TicketObserver;
+use App\Observers\TransactionObserver;
 use App\Observers\UserCartObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
@@ -95,6 +97,7 @@ class EventServiceProvider extends ServiceProvider
         PropertyGroup::observe(PropertyGroupObserver::class);
         CartDetailProduct::observe(CartDetailProductObserver::class);
         UserCart::observe(UserCartObserver::class);
+        Transaction::observe(TransactionObserver::class);
     }
 
     /**

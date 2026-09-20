@@ -24,6 +24,15 @@ interface PaymentListProps {
   onChange: (value?: Payment) => void;
   onChangeWalletPrice: (value?: number) => void;
   filter?: (value: Payment) => boolean;
+  // Scopes the list to what this shop/cart actually accepts, per
+  // v1/rest/payments (PaymentController::index) — shopId+locationType
+  // for a single-shop checkout (booking, or a single-shop cart),
+  // cartId alone for a cart that may span multiple shops. Omit both
+  // for a platform-level purchase (gift card, membership) that has no
+  // owning shop.
+  shopId?: number;
+  locationType?: number;
+  cartId?: number;
 }
 
 export const PaymentList = ({
@@ -33,6 +42,9 @@ export const PaymentList = ({
   onChange,
   onChangeWalletPrice,
   filter,
+  shopId,
+  locationType,
+  cartId,
 }: PaymentListProps) => {
   const { currency } = useSettings();
   const user = useUserStore((state) => state.user);
@@ -42,8 +54,14 @@ export const PaymentList = ({
       signIn(res?.data);
     },
   });
-  const { data, isLoading } = useQuery(["payments"], () =>
-    orderService.paymentList({ active: 1, currency_id: currency?.id })
+  const { data, isLoading } = useQuery(["payments", shopId, locationType, cartId], () =>
+    orderService.paymentList({
+      active: 1,
+      currency_id: currency?.id,
+      shop_id: shopId,
+      location_type: locationType,
+      cart_id: cartId,
+    })
   );
   const { t } = useTranslation();
 

@@ -22,9 +22,10 @@ const Auth = dynamic(() => import("@/components/auth"), {
 
 interface ProtectedPaymentProps {
   shopSlug?: string;
+  shopId?: number;
 }
 
-export const ProtectedPayment = ({ shopSlug }: ProtectedPaymentProps) => {
+export const ProtectedPayment = ({ shopSlug, shopId }: ProtectedPaymentProps) => {
   const user = useUserStore((state) => state.user);
   const { state } = useBooking();
   const router = useRouter();
@@ -33,7 +34,7 @@ export const ProtectedPayment = ({ shopSlug }: ProtectedPaymentProps) => {
       router.replace(`/shops/${shopSlug}/booking`);
     }
   }, [state.services.length, shopSlug]);
-  if (user) return <PaymentList />;
+  if (user) return <PaymentList shopId={shopId} />;
   return (
     <div className="grid xl:grid-cols-2 grid-cols-1">
       <div className="lg:border lg:p-5 border-gray-link rounded-button">
