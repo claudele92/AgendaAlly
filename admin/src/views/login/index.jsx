@@ -159,7 +159,7 @@ const Login = () => {
                       layout='vertical'
                       form={form}
                       onFinish={handleLogin}
-                      style={{ width: '420px' }}
+                      style={{ width: '100%', maxWidth: '420px' }}
                     >
                       <Form.Item
                         name='email'

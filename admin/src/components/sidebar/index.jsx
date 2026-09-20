@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SearchOutlined } from '@ant-design/icons';
 import { Layout, Input } from 'antd';
-import { shallowEqual, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Scrollbars from 'react-custom-scrollbars';
 import { data } from 'configs/menu-config';
+import { setNavCollapsed } from 'redux/slices/theme';
 import SidebarHeader from './header';
 import MenuList from './menu-list';
 
@@ -58,6 +59,7 @@ function filterDisabledMenus(menuData, disabledMenuNames, isSuperAdmin) {
 const Sidebar = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth, shallowEqual);
   const { navCollapsed, parcelMode } = useSelector(
@@ -157,6 +159,9 @@ const Sidebar = () => {
         className='navbar-nav side-nav'
         width={250}
         collapsed={navCollapsed}
+        breakpoint='lg'
+        collapsedWidth={0}
+        onCollapse={(collapsed) => dispatch(setNavCollapsed(collapsed))}
         style={{ height: '100vh', top: 0 }}
       >
         <SidebarHeader navCollapsed={navCollapsed} />
