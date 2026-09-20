@@ -68,6 +68,16 @@ class Payment extends Model
     const TAG_PAY_FAST     = 'pay-fast';
     const TAG_PAYU         = 'payu';
 
+    /**
+     * Gateways whose merchant registration is done by the shop itself -
+     * these are the only tags ShopPayment ever holds a row for (see
+     * ShopPaymentService). Every other gateway settles at the platform
+     * level (a single global credential set, e.g. PayPal's PaymentPayload),
+     * so BaseService::resolveGatewayConfig() falls back to the platform's
+     * own per-country PlatformPaymentConfig for them instead.
+     */
+    const SHOP_CREDENTIAL_TAGS = [self::TAG_ORANGE, self::TAG_MTN];
+
     public function shopPayment(): BelongsTo
     {
         return $this->belongsTo(ShopPayment::class,'id','payment_id');

@@ -809,17 +809,24 @@ class BaseService extends CoreService
     }
 
     /**
-     * The single chokepoint deciding which credential source a gateway
-     * transaction resolves against: customer-facing checkout (bookings,
-     * carts/orders) uses the shop's own ShopPayment config; a
-     * platform-fee purchase (a Subscription plan, an ads package) uses
-     * the platform's own PlatformPaymentConfig for the paying shop's
-     * country instead — the platform, not the shop, is the merchant of
-     * record for its own fees. OrangeService/MtnService never see which
-     * one they got; both implement the same GatewayConfig contract.
+     * The single chokepoint deciding which credential/currency source a
+     * gateway transaction resolves against. For customer-facing checkout
+     * (bookings, carts/orders): Orange/MTN (Payment::SHOP_CREDENTIAL_TAGS)
+     * always resolve to the shop's own ShopPayment config, or null if the
+     * shop hasn't set one up — never a silent fallback to the platform's
+     * credentials. Every other gateway (PayPal) has no per-shop merchant
+     * account to configure, so it resolves to the platform's own
+     * PlatformPaymentConfig for the shop's country instead — used there
+     * purely for a currency override (PayPalService), since PayPal's
+     * actual credentials still come from PaymentPayload. A platform-fee
+     * purchase (a Subscription plan, an ads package) always uses that
+     * same PlatformPaymentConfig for the paying shop's country — the
+     * platform, not the shop, is the merchant of record for its own fees.
+     * Callers never see which source they got; every GatewayConfig
+     * implementation shares the same contract.
      *
      * The fallback throw is a plain Exception, caught the same way every
-     * other error in these two services already is: PaymentBaseController
+     * other error in these services already is: PaymentBaseController
      * ::processTransaction() wraps the whole call in try/catch and turns
      * any Throwable into a clean 400 JSON error response carrying the
      * message below — never a raw 500.
@@ -833,8 +840,25 @@ class BaseService extends CoreService
 
         if (in_array($modelType, [Booking::class, Cart::class], true)) {
             $shopId = $this->resolveGatewayShopId($modelType, $modelId);
+            $tag    = Payment::find($paymentId)?->tag;
 
-            return ShopPayment::forShopAndPayment($shopId, $paymentId);
+            // Orange/MTN always resolve through the shop's own
+            // ShopPayment (or nothing at all) - a missing row there must
+            // keep meaning "this shop hasn't configured it", never
+            // silently fall back to the platform's own credentials.
+            if (in_array($tag, Payment::SHOP_CREDENTIAL_TAGS, true)) {
+                return ShopPayment::forShopAndPayment($shopId, $paymentId);
+            }
+
+            // Every other gateway (PayPal) settles at the platform level -
+            // there is no per-shop merchant account to configure, so fall
+            // back to the platform's own per-country config (same source
+            // a platform-fee purchase resolves to below) purely so a
+            // currency override still applies.
+            $shop = Shop::find($shopId);
+            $country = $shop?->checkoutCountry(ShopLocation::PRODUCT) ?? $shop?->checkoutCountry(ShopLocation::SERVICE);
+
+            return $country ? PlatformPaymentConfig::forCountryAndPayment($country->id, $paymentId) : null;
         }
 
         if (in_array($modelType, [Subscription::class, ShopAdsPackage::class], true)) {

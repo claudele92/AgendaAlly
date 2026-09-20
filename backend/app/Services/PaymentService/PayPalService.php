@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services\PaymentService;
 
+use App\Models\Currency;
 use App\Models\Payment;
 use App\Models\PaymentPayload;
 use App\Models\PaymentProcess;
@@ -64,14 +65,16 @@ class PayPalService extends BaseService
         $host        = request()->getSchemeAndHttpHost();
         $title       = Settings::where('key', 'title')->first()?->title ?? env('APP_NAME');
 
+        [$settlementCurrency, $settlementAmount] = $this->resolveSettlementAmount($before, $payment->id);
+
         $response = $provider->post("$url/v2/checkout/orders", [
             'json' => [
                 'intent' => 'CAPTURE',
                 'purchase_units' => [
                     [
                         'amount' => [
-                            'currency_code' => Str::upper(data_get($before, 'currency')),
-                            'value' => ceil(data_get($before, 'total_price') / 100)
+                            'currency_code' => $settlementCurrency,
+                            'value' => ceil($settlementAmount / 100)
                         ]
                     ]
                 ],
@@ -126,6 +129,52 @@ class PayPalService extends BaseService
             ], $before)
         ]);
 
+    }
+
+    /**
+     * PayPal only accepts a fixed, short list of transaction currencies -
+     * XAF/XOF among others are not on it - and knows nothing about this
+     * platform's base-currency setting or a booking/cart's own
+     * country-derived currency, neither of which it can be relied on to
+     * accept. Resolves a settlement currency via the same per-country
+     * PlatformPaymentConfig override MTN/Orange already use (see
+     * BaseService::resolveGatewayConfig()), falling back to USD when
+     * nothing has been configured for this country yet, and converts
+     * total_price - stored in the booking/cart's own currency - into
+     * that currency so the amount actually charged stays correct.
+     *
+     * @return array{0: string, 1: float} [currency_code, amount_in_that_currency]
+     */
+    private function resolveSettlementAmount(array $before, int $paymentId): array
+    {
+        $totalPrice = (float) data_get($before, 'total_price');
+        $fromTitle  = Str::upper(data_get($before, 'currency'));
+
+        $config = null;
+
+        try {
+            $config = $this->resolveGatewayConfig($before, $paymentId);
+        } catch (Exception) {
+            // Not a booking/cart/subscription/ads-package payment (e.g. a
+            // gift card or membership purchase) - no country to resolve a
+            // currency override from, fall back to the native currency.
+        }
+
+        $toTitle = $config?->getCurrency() ? Str::upper($config->getCurrency()) : 'USD';
+
+        if ($toTitle === $fromTitle) {
+            return [$fromTitle, $totalPrice];
+        }
+
+        $currencies = Currency::currenciesList();
+        $from       = $currencies->firstWhere('title', $fromTitle);
+        $to         = $currencies->firstWhere('title', $toTitle);
+
+        if (!$from || !$to) {
+            return [$fromTitle, $totalPrice];
+        }
+
+        return [$toTitle, Currency::convert($totalPrice, $to->id, $from->id)];
     }
 
 }
