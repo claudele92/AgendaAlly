@@ -120,6 +120,7 @@ export interface Stock {
   o_count?: number;
   od_count?: number;
   sku?: string;
+  img?: string;
   gallery: ProductGallery | null;
   galleries: ProductGallery[] | null;
   stock_extras: Extra[];
