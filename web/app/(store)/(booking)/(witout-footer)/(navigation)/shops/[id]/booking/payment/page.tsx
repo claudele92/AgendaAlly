@@ -21,7 +21,7 @@ const ShopBookingPayment = async (props: { params: Promise<{ id: string }> }) =>
             <div className="text-base mt-5 mb-10">
               <Translate value="payment.description" />
             </div>
-            <ProtectedPayment shopSlug={shop?.data.slug} />
+            <ProtectedPayment shopSlug={shop?.data.slug} shopId={shop?.data.id} />
           </div>
         </div>
         <div>

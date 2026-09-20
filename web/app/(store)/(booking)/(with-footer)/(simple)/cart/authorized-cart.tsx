@@ -79,6 +79,17 @@ const AuthorizedCart = () => {
   const userCart = data?.data?.user_carts?.find(
     (userCartItem) => userCartItem.user_id === user?.id
   );
+  // A cart can span multiple shops (group orders); Orange/MTN settle into
+  // one shop's own merchant account, so those are only offerable when the
+  // whole cart belongs to a single shop - see PaymentController::index().
+  const cartShopIds = Array.from(
+    new Set(
+      data?.data.user_carts.flatMap((userCartItem) =>
+        userCartItem.cartDetails.map((detail) => detail.shop_id)
+      ) ?? []
+    )
+  );
+  const singleCartShopId = cartShopIds.length === 1 ? cartShopIds[0] : undefined;
 
   const { mutate: createOrder, isLoading: isOrderCreateLoading } = useMutation({
     mutationFn: (body: OrderCreateBody) => orderService.create(body),
@@ -160,8 +171,14 @@ const AuthorizedCart = () => {
   });
 
   const { data: payments, isLoading: isPaymentsLoading } = useQuery({
-    queryKey: ["payments"],
-    queryFn: () => orderService.paymentList(),
+    queryKey: ["payments", data?.data?.id, singleCartShopId],
+    queryFn: () =>
+      orderService.paymentList({
+        cart_id: data?.data?.id,
+        shop_id: singleCartShopId,
+        // ShopLocation::PRODUCT in the backend
+        location_type: singleCartShopId ? 1 : undefined,
+      }),
     onSuccess: (paymentsData) => {
       const defaultPayment = paymentsData?.data?.find((payment) => payment?.tag === "cash");
       if (defaultPayment) {
