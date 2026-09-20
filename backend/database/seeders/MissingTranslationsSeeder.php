@@ -26,6 +26,11 @@ class MissingTranslationsSeeder extends Seeder
         'shop.social'       => 'Social links',
         // web: (with-footer)/(home-2)/home-2/page.tsx hero subheading
         'home-2.hero.description' => 'Find trusted salons and book your next appointment in minutes.',
+        // admin: views/welcome/welcome.jsx button - the /welcome screen a
+        // fresh install redirects to (see checkInitFile()'s .catch() in
+        // context/path-logout.jsx), confirmed rendering as its raw key on
+        // a deployment whose translations table lacks this row entirely.
+        'Go.to.installation' => 'Go to installation',
     ];
 
     public function run(): void
