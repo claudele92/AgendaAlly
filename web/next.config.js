@@ -61,6 +61,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "api.agendaally.com",
+        port: "",
+        pathname: "/storage/**",
+      },
+      {
+        protocol: "https",
         hostname: "foodyman.s3.amazonaws.com",
         port: "",
         pathname: "/public/**",

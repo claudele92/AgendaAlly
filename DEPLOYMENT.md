@@ -34,6 +34,27 @@ pick up the new code (`php artisan queue:restart`).
   automation does and why. If you ever run composer with `--no-scripts`,
   run `php artisan storage:link` by hand afterwards - it's a no-op
   (exits 0) if the symlink already exists, so it's always safe to re-run.
+- `storage/` and `bootstrap/cache` must be writable by whichever user your
+  web server actually runs as. This only bites once you move off
+  `php artisan serve` (which runs as whoever started it - `root`, on a
+  VPS shell) onto a real PHP-FPM + Nginx/Apache stack, where PHP runs as
+  a dedicated, unprivileged user instead. Confirmed on a real VPS: after
+  that switch, file uploads failed with `Unable to create a directory at
+  .../storage/app/public/images/settings`, because `storage/` and
+  `bootstrap/cache` were still owned by `root` with restrictive `700`
+  permissions from the `artisan serve` days, and PHP-FPM had zero access
+  to them. Fix:
+
+  ```bash
+  chown -R www-data:www-data /path/to/backend/storage
+  chown -R www-data:www-data /path/to/backend/bootstrap/cache
+  chmod -R 775 /path/to/backend/storage
+  chmod -R 775 /path/to/backend/bootstrap/cache
+  ```
+
+  Don't assume `www-data` - confirm the actual user/group your PHP-FPM
+  pool runs as first, since it varies by distro/setup:
+  `grep -E "^user|^group" /etc/php/{version}/fpm/pool.d/www.conf`.
 
 ## Every deploy
 
