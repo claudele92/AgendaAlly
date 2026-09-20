@@ -122,12 +122,14 @@ export default function OrderList() {
       dataIndex: 'id',
       key: 'id',
       sorter: true,
+      width: 80,
     },
     {
       title: t('client'),
       is_show: true,
       dataIndex: 'user',
       key: 'user',
+      width: 160,
       render: (user) => {
         if (!user) {
           return <Tag color='red'>{t('deleted.user')}</Tag>;
@@ -144,6 +146,7 @@ export default function OrderList() {
       is_show: true,
       dataIndex: 'status',
       key: 'status',
+      width: 140,
       render: (status, row) => {
         const isCanEdit =
           status !== 'delivered' && status !== 'canceled' && row.type !== 2;
@@ -172,6 +175,7 @@ export default function OrderList() {
       is_show: true,
       dataIndex: 'deliveryman',
       key: 'deliveryman',
+      width: 160,
       render: (deliveryman, row) => (
         <div>
           {row.status === 'ready' &&
@@ -198,6 +202,7 @@ export default function OrderList() {
       dataIndex: 'order_details_count',
       key: 'order_details_count',
       is_show: true,
+      width: 150,
       render: (order_details_count) => {
         return (
           <div className='text-lowercase'>
@@ -211,6 +216,7 @@ export default function OrderList() {
       is_show: true,
       dataIndex: 'total_price',
       key: 'total_price',
+      width: 150,
       render: (total_price, row) => {
         const status = row.transaction?.status;
         return (
@@ -245,6 +251,7 @@ export default function OrderList() {
       is_show: true,
       dataIndex: 'transactions',
       key: 'transactions',
+      width: 140,
       render: (transactions) => (
         <div className={tableRowClasses.paymentStatuses}>
           {transactions?.map((transaction) => (
@@ -260,6 +267,7 @@ export default function OrderList() {
       is_show: true,
       dataIndex: 'created_at',
       key: 'created_at',
+      width: 160,
       render: (created_at) =>
         moment(created_at).format(`YYYY-MM-DD ${hourFormat}`),
     },
@@ -268,6 +276,7 @@ export default function OrderList() {
       is_show: true,
       dataIndex: 'delivery_date',
       key: 'delivery_date',
+      width: 160,
       render: (delivery_date) =>
         moment(delivery_date).format(`YYYY-MM-DD ${hourFormat}`),
     },
@@ -275,6 +284,7 @@ export default function OrderList() {
       title: t('options'),
       is_show: true,
       key: 'options',
+      width: 160,
       render: (_, row) => {
         return (
           <div className={tableRowClasses.options}>
@@ -776,7 +786,7 @@ export default function OrderList() {
               disabledDate={(current) => {
                 return current && current > moment().endOf('day');
               }}
-              style={{ width: '300px' }}
+              style={{ width: '100%', maxWidth: '300px' }}
             />
           </Col>
           <Col>
@@ -790,23 +800,35 @@ export default function OrderList() {
           </Col>
         </div>
         <Divider color='var(--divider)' />
-        <Space className='justify-content-between align-items-start w-100'>
-          <Tabs onChange={onChangeTab} type='card' activeKey={immutable}>
-            {statuses
-              .filter((ex) => ex?.active)
-              .map((item) => (
-                <TabPane tab={t(item?.name)} key={item?.name} />
-              ))}
-          </Tabs>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            width: '100%',
+            rowGap: '8px',
+            columnGap: '8px',
+          }}
+        >
+          <div style={{ minWidth: 0, flex: '1 1 auto', maxWidth: '100%' }}>
+            <Tabs onChange={onChangeTab} type='card' activeKey={immutable}>
+              {statuses
+                .filter((ex) => ex?.active)
+                .map((item) => (
+                  <TabPane tab={t(item?.name)} key={item?.name} />
+                ))}
+            </Tabs>
+          </div>
           <Space>
             <OutlinedButton onClick={allDelete} color='red'>
               {t('delete.selection')}
             </OutlinedButton>
             <FilterColumns columns={columns} setColumns={setColumns} />
           </Space>
-        </Space>
+        </div>
         <Table
-          scroll={{ x: true }}
+          scroll={{ x: 1460 }}
           rowSelection={rowSelection}
           columns={columns?.filter((items) => items.is_show)}
           dataSource={orders}

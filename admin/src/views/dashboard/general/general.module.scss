@@ -5,6 +5,7 @@
 
   .item {
     flex: 1;
+    min-width: 0;
     height: 100%;
     padding: 30px 20px;
     border-radius: 12px;
@@ -17,6 +18,10 @@
     grid-template-columns: 65% auto;
     align-items: flex-start;
     gap: 20px;
+
+    @media (max-width: 991px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .topSellingProductsContainer {
@@ -24,5 +29,9 @@
     grid-template-columns: repeat(2, 1fr);
     align-items: flex-start;
     gap: 20px;
+
+    @media (max-width: 991px) {
+      grid-template-columns: 1fr;
+    }
   }
 }
