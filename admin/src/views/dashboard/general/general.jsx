@@ -8,6 +8,7 @@ import TotalSalesOverview from '../total-sales-overview';
 import ToDo from '../to-do';
 import TopSellingProducts from '../top-selling-products';
 import TopCustomers from '../top-customers';
+import BookingsRevenueChart from '../bookings-revenue-chart';
 import { shallowEqual, useSelector } from 'react-redux';
 
 const General = ({ role }) => {
@@ -29,6 +30,14 @@ const General = ({ role }) => {
             <MainBookingCards />
           </Card>
         </>
+      )}
+      {/* Admin/superadmin platform-wide view needs a backend fix first
+          (ReportRepository::performanceDashboard requires shop_id and has
+          a pre-existing date-format bug) - seller only for now. */}
+      {role === 'seller' && (
+        <Card>
+          <BookingsRevenueChart />
+        </Card>
       )}
       {!!(
         role !== 'master' &&
