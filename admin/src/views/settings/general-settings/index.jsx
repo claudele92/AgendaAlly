@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Tabs } from 'antd';
+import { Card, Tabs, Grid } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import settingService from 'services/settings';
@@ -32,6 +32,7 @@ export default function GeneralSettings() {
   const onChange = (key) => setTab(key);
   const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
   const dispatch = useDispatch();
+  const screens = Grid.useBreakpoint();
   const [logo, setLogo] = useState(activeMenu.data?.logo || null);
   const [favicon, setFavicon] = useState(activeMenu.data?.favicon || null);
   const [adminFavicon, setAdminFavicon] = useState(
@@ -145,7 +146,7 @@ export default function GeneralSettings() {
         <Tabs
           activeKey={tab}
           onChange={onChange}
-          tabPosition='left'
+          tabPosition={screens.md ? 'left' : 'top'}
           size='small'
         >
           <TabPane key='settings' tab={t('settings')}>
