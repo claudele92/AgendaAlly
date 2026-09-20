@@ -15,6 +15,9 @@ const themeSlice = createSlice({
     navCollapseTrigger(state) {
       state.theme.navCollapsed = !state.theme.navCollapsed;
     },
+    setNavCollapsed(state, action) {
+      state.theme.navCollapsed = action.payload;
+    },
     themeChange(state, action) {
       state.theme.currentTheme = action.payload;
     },
@@ -24,6 +27,10 @@ const themeSlice = createSlice({
   },
 });
 
-export const { directionChange, navCollapseTrigger, setParcelMode } =
-  themeSlice.actions;
+export const {
+  directionChange,
+  navCollapseTrigger,
+  setNavCollapsed,
+  setParcelMode,
+} = themeSlice.actions;
 export default themeSlice.reducer;
