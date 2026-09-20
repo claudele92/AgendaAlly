@@ -73,7 +73,7 @@ const SingleShop = async (props: { params: Promise<{ id: string }> }) => {
   const shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
   return (
     <>
-      <section className="xl:container px-4 pt-7 pb-24 lg:pb-7">
+      <section className="xl:container px-4 pt-7 pb-28 lg:pb-7">
         <TopInfo data={shop} />
         <div className="grid lg:grid-cols-3 xl:gap-7 sm:gap-4 grid-cols-1 md:gap-7 gap-y-7 mt-6">
           <div className="flex flex-col gap-7 col-span-2">
