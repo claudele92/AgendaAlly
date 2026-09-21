@@ -8,6 +8,7 @@ import TotalSalesOverview from '../total-sales-overview';
 import ToDo from '../to-do';
 import TopSellingProducts from '../top-selling-products';
 import TopCustomers from '../top-customers';
+import BookingsRevenueChart from '../bookings-revenue-chart';
 import { shallowEqual, useSelector } from 'react-redux';
 
 const General = ({ role }) => {
@@ -29,6 +30,11 @@ const General = ({ role }) => {
             <MainBookingCards />
           </Card>
         </>
+      )}
+      {(role === 'seller' || role === 'admin') && (
+        <Card>
+          <BookingsRevenueChart isSeller={role === 'seller'} />
+        </Card>
       )}
       {!!(
         role !== 'master' &&

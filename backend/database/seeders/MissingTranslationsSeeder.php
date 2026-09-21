@@ -31,6 +31,10 @@ class MissingTranslationsSeeder extends Seeder
         // context/path-logout.jsx), confirmed rendering as its raw key on
         // a deployment whose translations table lacks this row entirely.
         'Go.to.installation' => 'Go to installation',
+        // admin: views/dashboard/bookings-revenue-chart.jsx - revenue-over-time
+        // widget added to the admin/seller dashboard
+        'revenue.over.time' => 'Revenue over time',
+        'total.revenue'     => 'Total revenue',
     ];
 
     public function run(): void

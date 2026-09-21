@@ -38,6 +38,11 @@ export const fetchStatisticsBookingsReportAdmin = createAsyncThunk(
   (params = {}) => bookingsReportService.getAllStatisticsBookings(params)
 );
 
+export const fetchPerformanceDashboardAdmin = createAsyncThunk(
+  'bookingsReport/fetchPerformanceDashboardAdmin',
+  (params = {}) => bookingsReportService.getPerformanceDashboard(params)
+);
+
 // master
 export const fetchStatisticsBookingsReportMaster = createAsyncThunk(
   'bookingsReport/fetchStatisticsBookingsReportMaster',
@@ -74,6 +79,11 @@ export const fetchSummaryBookingsReport = createAsyncThunk(
   (params = {}) => sellerBookingReportsServices.getAllSummaryBookings(params)
 );
 
+export const fetchChartBookingsReport = createAsyncThunk(
+  'bookingsReport/fetchChartBookingsReport',
+  (params = {}) => sellerBookingReportsServices.getAllChartBookings(params)
+);
+
 const bookingsReportSlice = createSlice({
   name: 'bookingsReport',
   initialState,
@@ -96,6 +106,26 @@ const bookingsReportSlice = createSlice({
       (state, action) => {
         state.loading = false;
         state.statisticsData = {};
+        state.error = action.error.message;
+      }
+    );
+    builder.addCase(fetchPerformanceDashboardAdmin.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(
+      fetchPerformanceDashboardAdmin.fulfilled,
+      (state, action) => {
+        const { payload } = action;
+        state.loading = false;
+        state.chartData = payload?.data?.bookings_chart || [];
+        state.error = '';
+      }
+    );
+    builder.addCase(
+      fetchPerformanceDashboardAdmin.rejected,
+      (state, action) => {
+        state.loading = false;
+        state.chartData = [];
         state.error = action.error.message;
       }
     );
@@ -199,6 +229,21 @@ const bookingsReportSlice = createSlice({
     builder.addCase(fetchSummaryBookingsReport.rejected, (state, action) => {
       state.seller.loading = false;
       state.seller.summaryData = [];
+      state.seller.error = action.error.message;
+    });
+    //chart
+    builder.addCase(fetchChartBookingsReport.pending, (state) => {
+      state.seller.loading = true;
+    });
+    builder.addCase(fetchChartBookingsReport.fulfilled, (state, action) => {
+      const { payload } = action;
+      state.seller.loading = false;
+      state.seller.chartData = payload;
+      state.seller.error = '';
+    });
+    builder.addCase(fetchChartBookingsReport.rejected, (state, action) => {
+      state.seller.loading = false;
+      state.seller.chartData = [];
       state.seller.error = action.error.message;
     });
   },

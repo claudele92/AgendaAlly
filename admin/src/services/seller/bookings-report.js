@@ -9,6 +9,7 @@ const sellerBookingReportsServices = {
   getAllStatisticsBookings: (params) =>
     request.get(`${url}/statistic`, { params }),
   getAllSummaryBookings: (params) => request.get(`${url}/summary`, { params }),
+  getAllChartBookings: (params) => request.get(`${url}/chart`, { params }),
 };
 
 export default sellerBookingReportsServices;

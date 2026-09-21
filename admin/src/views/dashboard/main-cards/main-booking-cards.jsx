@@ -13,6 +13,7 @@ import DeliveredOrdersIcon from 'assets/images/delivered-orders.svg';
 import CanceledOrdersIcon from 'assets/images/canceled-orders.svg';
 import { useNavigate } from 'react-router-dom';
 import BookingsPercentStatistics from '../bookings-percent';
+import BookingsTotalStatistics from '../bookings-total';
 
 export function MainBookingCards() {
   const { t } = useTranslation();
@@ -131,6 +132,10 @@ export function MainBookingCards() {
         {t('bookings.percent.statistics')}
       </Typography.Title>
       <BookingsPercentStatistics isSeller={user?.role === 'seller'} />
+      <Typography.Title level={2} className='my-4'>
+        {t('bookings.total.statistics')}
+      </Typography.Title>
+      <BookingsTotalStatistics isSeller={user?.role === 'seller'} />
     </div>
   );
 }
