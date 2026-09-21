@@ -97,11 +97,13 @@ const SingleShop = async (props: {
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
   const shopReviewsEnabled = parsedSettings?.shop_reviews_enabled === "1";
+  const shopLocationParams = extractShopLocationParams(searchParams);
   const shop = await shopService.getBySlug(params.id, {
     lang,
     currency_id: currencyId,
-    ...extractShopLocationParams(searchParams),
+    ...shopLocationParams,
   });
+  const shopLocationQuery = new URLSearchParams(shopLocationParams).toString();
   return (
     <>
       <section className="xl:container px-4 pt-7 pb-28 lg:pb-7">
@@ -143,7 +145,12 @@ const SingleShop = async (props: {
         <SellerChat receiverId={shop?.data.user_id} />
       </div>
       <div className="fixed bottom-0 w-full rounded-t-2xl px-4 py-5 lg:hidden bg-white z-[8] shadow-fixedBooking">
-        <Button color="black" fullWidth as={Link} href={`/shops/${params.id}/booking`}>
+        <Button
+          color="black"
+          fullWidth
+          as={Link}
+          href={`/shops/${params.id}/booking${shopLocationQuery ? `?${shopLocationQuery}` : ""}`}
+        >
           <Translate value="book.now" />
         </Button>
       </div>

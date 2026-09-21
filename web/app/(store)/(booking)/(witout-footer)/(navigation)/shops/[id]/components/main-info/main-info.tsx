@@ -68,12 +68,13 @@ export const MainInfo = ({ data, checkDate }: BookingProps) => {
 
   const handleButtonClick = () => {
     startTransition(() => {
-      router.push(`/shops/${data?.data.slug}/booking`);
-      // router.push(
-      //   `/shops/${data?.data.slug}/booking${
-      //     searchParams.toString() ? `?${searchParams.toString()}` : ""
-      //   }`
-      // );
+      // Carries the branch the customer matched on this page (see
+      // useShopLocationParams) into the booking flow, so BookingTotal's
+      // own matched_location lookup and each step-to-step "Continue"
+      // (which already forwards the current URL's params) keep resolving
+      // the same branch instead of falling back to the shop's flat one.
+      const query = new URLSearchParams(locationParams).toString();
+      router.push(`/shops/${data?.data.slug}/booking${query ? `?${query}` : ""}`);
       if (!pathname.includes("staff")) {
         dispatch({ type: Types.ResetBooking });
       }

@@ -52,16 +52,10 @@ export const Masters = ({ shopId, shopSlug }: MastersProps) => {
             : masterList?.map((master) => {
                 const goToMaster = () =>
                   router.push(
-                    buildUrlQueryParams(
-                      `/shops/${shopSlug}/booking`,
-                      //   {
-                      //   serviceId: master.service_master?.service_id,
-                      //   serviceMasterId: master.service_master?.id,
-                      // }
-                      {
-                        master_id: master.id,
-                      }
-                    )
+                    buildUrlQueryParams(`/shops/${shopSlug}/booking`, {
+                      master_id: master.id,
+                      ...locationParams,
+                    })
                   );
                 return (
                   <div
