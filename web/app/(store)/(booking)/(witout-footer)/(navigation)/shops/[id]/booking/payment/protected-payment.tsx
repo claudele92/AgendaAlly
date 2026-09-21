@@ -4,7 +4,7 @@ import useUserStore from "@/global-store/user";
 import dynamic from "next/dynamic";
 import { LoadingCard } from "@/components/loading";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useBooking } from "@/context/booking";
 
 const PaymentList = dynamic(
@@ -29,9 +29,11 @@ export const ProtectedPayment = ({ shopSlug, shopId }: ProtectedPaymentProps) =>
   const user = useUserStore((state) => state.user);
   const { state } = useBooking();
   const router = useRouter();
+  const searchParams = useSearchParams();
   useEffect(() => {
     if (state.services.length > state.dateAndTimes.length && shopSlug) {
-      router.replace(`/shops/${shopSlug}/booking`);
+      const query = searchParams.toString();
+      router.replace(`/shops/${shopSlug}/booking${query ? `?${query}` : ""}`);
     }
   }, [state.services.length, shopSlug]);
   if (user) return <PaymentList shopId={shopId} />;

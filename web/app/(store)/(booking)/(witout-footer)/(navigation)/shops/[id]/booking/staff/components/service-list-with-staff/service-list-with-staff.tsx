@@ -2,7 +2,7 @@
 
 import { useBooking } from "@/context/booking";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { StaffSelectCard } from "../staff-select-card";
 
 interface ServiceListWithStaffProps {
@@ -12,9 +12,11 @@ interface ServiceListWithStaffProps {
 export const ServiceListWithStaff = ({ shopSlug }: ServiceListWithStaffProps) => {
   const { state } = useBooking();
   const router = useRouter();
+  const searchParams = useSearchParams();
   useEffect(() => {
     if (state.services.length === 0) {
-      router.replace(`/shops/${shopSlug}/booking`);
+      const query = searchParams.toString();
+      router.replace(`/shops/${shopSlug}/booking${query ? `?${query}` : ""}`);
     }
   }, [state.services.length]);
   return (

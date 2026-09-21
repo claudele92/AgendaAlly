@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { TextArea } from "@/components/text-area";
 import { Types } from "@/context/booking/booking.reducer";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { LoadingCard } from "@/components/loading";
 import { Modal } from "@/components/modal";
@@ -36,6 +36,7 @@ export const BookingNotes = ({ shopSlug }: BookingNoteProps) => {
   const { state, dispatch } = useBooking();
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isMembershipModalOpen, openMembershipModal, closeMembershipModal] = useModal();
   const [selectedServiceId, setSelectedServiceId] = useState<number | undefined>();
   const user = useUserStore((localState) => localState.user);
@@ -49,7 +50,8 @@ export const BookingNotes = ({ shopSlug }: BookingNoteProps) => {
 
   useEffect(() => {
     if (state.services.length > state.dateAndTimes.length && shopSlug) {
-      router.replace(`/shops/${shopSlug}/booking`);
+      const query = searchParams.toString();
+      router.replace(`/shops/${shopSlug}/booking${query ? `?${query}` : ""}`);
     }
   }, [state.dateAndTimes.length, shopSlug]);
   if (!user)

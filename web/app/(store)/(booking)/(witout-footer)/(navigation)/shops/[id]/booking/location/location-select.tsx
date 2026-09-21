@@ -10,7 +10,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Map } from "@/components/map";
 import { useSettings } from "@/hook/use-settings";
 import { useSearchAddress } from "@/hook/use-search-address";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface LocationSelectProps {
   shopSlug?: string;
@@ -18,6 +18,7 @@ interface LocationSelectProps {
 
 export const LocationSelect = ({ shopSlug }: LocationSelectProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { state, dispatch } = useBooking();
   const { settings } = useSettings();
   const autoComplete = useRef<google.maps.places.Autocomplete>(null);
@@ -42,7 +43,8 @@ export const LocationSelect = ({ shopSlug }: LocationSelectProps) => {
 
   useEffect(() => {
     if (!state.time && shopSlug) {
-      router.replace(`/shops/${shopSlug}/booking`);
+      const query = searchParams.toString();
+      router.replace(`/shops/${shopSlug}/booking${query ? `?${query}` : ""}`);
     }
   }, [state.time, shopSlug]);
 
