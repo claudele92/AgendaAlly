@@ -65,7 +65,15 @@ export interface Shop {
   // can legitimately match a filter through a branch other than the one
   // 'translation.address' describes; this is that matched branch.
   matched_location?: {
+    id?: number;
+    region_id?: number;
+    country_id?: number;
+    city_id?: number;
+    area_id?: number;
+    type?: number;
     address?: string;
+    latitude?: number;
+    longitude?: number;
     city?: { translation?: { title: string } };
     region?: { translation?: { title: string } };
     country?: { translation?: { title: string } };

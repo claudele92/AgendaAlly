@@ -27,6 +27,7 @@ import { Types } from "@/context/booking/booking.reducer";
 import useUserStore from "@/global-store/user";
 import VerifiedIcon from "@/assets/icons/verified";
 import checkTimeConflicts from "@/utils/check-service-time-conflicts";
+import { useShopLocationParams } from "@/hook/use-shop-location-params";
 
 const GiftCartSelect = dynamic(
   () => import("./gift-cart-select").then((component) => ({ default: component.GiftCartSelect })),
@@ -80,13 +81,23 @@ export const BookingTotal = ({
   const router = useRouter();
   const [isNavigating, startTransition] = useTransition();
   const [isGiftCartModalOpen, openGiftCartModal, closeGiftCartModal] = useModal();
+  const locationParams = useShopLocationParams();
   const { data: shopDetail } = useQuery(
-    ["shop", data?.data.id, language?.locale],
-    () => shopService.getById(data?.data.id, { lang: language?.locale, currency_id: currency?.id }),
+    ["shop", data?.data.id, language?.locale, locationParams],
+    () =>
+      shopService.getById(data?.data.id, {
+        lang: language?.locale,
+        currency_id: currency?.id,
+        ...locationParams,
+      }),
     {
       initialData: data,
     }
   );
+  const matchedLocation = shopDetail?.data.matched_location;
+  const displayAddress = matchedLocation?.address || shopDetail?.data.translation?.address;
+  const displayLatitude = matchedLocation?.latitude ?? shopDetail?.data.lat_long.latitude;
+  const displayLongitude = matchedLocation?.longitude ?? shopDetail?.data.lat_long.longitude;
   const calculateBody = {
     data: state.services.map((service) => {
       const startDateTime = state.dateAndTimes.find(
@@ -240,14 +251,11 @@ export const BookingTotal = ({
           </div>
           <Link
             className="flex items-start gap-1"
-            href={createMapUrl(
-              shopDetail?.data.lat_long.latitude,
-              shopDetail?.data.lat_long.longitude
-            )}
+            href={createMapUrl(displayLatitude, displayLongitude)}
             target="_blank"
           >
             <MapPinIcon />
-            <p className="text-sm line-clamp-2">{shopDetail?.data.translation?.address}</p>
+            <p className="text-sm line-clamp-2">{displayAddress}</p>
           </Link>
         </div>
       </div>

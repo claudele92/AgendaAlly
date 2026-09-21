@@ -14,6 +14,7 @@ import { serviceService } from "@/services/service";
 import { LoadingCard } from "@/components/loading";
 import { useSettings } from "@/hook/use-settings";
 import { error } from "@/components/alert";
+import { useShopLocationParams } from "@/hook/use-shop-location-params";
 
 interface StaffSelectProps {
   shopId?: number;
@@ -24,18 +25,20 @@ export const StaffSelect = ({ shopId }: StaffSelectProps) => {
   const { t } = useTranslation();
   const { currency } = useSettings();
   const serviceIds = state.services.map((service) => service.id);
+  const locationParams = useShopLocationParams();
   const {
     data: masters,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    ["masters", shopId, serviceIds],
+    ["masters", shopId, serviceIds, locationParams],
     () =>
       masterService.list({
         shop_id: shopId,
         service_ids: serviceIds,
         currency_id: currency?.id,
+        ...locationParams,
       }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

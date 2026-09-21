@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { InfiniteLoader } from "@/components/infinite-loader";
 import { Master } from "@/types/master";
 import { useSettings } from "@/hook/use-settings";
+import { useShopLocationParams } from "@/hook/use-shop-location-params";
 
 const Empty = dynamic(() =>
   import("@/components/empty").then((component) => ({ default: component.Empty }))
@@ -27,18 +28,20 @@ export const StaffSelect = ({
   serviceId,
 }: StaffSelectProps) => {
   const { currency } = useSettings();
+  const locationParams = useShopLocationParams();
   const {
     data: masters,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    ["masters", shopId, serviceId],
+    ["masters", shopId, serviceId, locationParams],
     () =>
       masterService.list({
         shop_id: shopId,
         service_id: serviceId,
         currency_id: currency?.id,
+        ...locationParams,
       }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

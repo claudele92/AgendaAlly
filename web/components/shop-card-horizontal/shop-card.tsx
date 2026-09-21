@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { createRatingText } from "@/utils/create-rating-text";
 import clsx from "clsx";
 import VerifiedIcon from "@/assets/icons/verified";
+import { buildShopLocationQuery } from "@/utils/build-shop-location-query";
 
 interface ShopCardProps {
   data: Shop;
@@ -22,7 +23,7 @@ export const ShopCard = memo(
     return (
       <div className="relative group border-b border-gray-link pb-4">
         <Link
-          href={`/shops/${data.slug}`}
+          href={`/shops/${data.slug}${buildShopLocationQuery(data)}`}
           className="flex gap-3 flex-col sm:flex-row"
           target="_blank"
         >

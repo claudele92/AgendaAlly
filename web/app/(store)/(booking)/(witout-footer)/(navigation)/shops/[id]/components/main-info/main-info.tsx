@@ -27,6 +27,7 @@ import { Types } from "@/context/booking/booking.reducer";
 import { useTransition } from "react";
 import VerifiedIcon from "@/assets/icons/verified";
 import clsx from "clsx";
+import { useShopLocationParams } from "@/hook/use-shop-location-params";
 
 const ShopReviewPanel = dynamic(() => import("../shop-review-panel"), {
   loading: () => <LoadingCard />,
@@ -46,9 +47,15 @@ export const MainInfo = ({ data, checkDate }: BookingProps) => {
   const pathname = usePathname();
   // const searchParams = useSearchParams();
   const [isReviewPanelOpen, openReviewPanel, closeReviewPanel] = useModal();
+  const locationParams = useShopLocationParams();
   const { data: shopDetail } = useQuery(
-    ["shop", data?.data.id, language?.locale],
-    () => shopService.getById(data?.data.id, { lang: language?.locale, currency_id: currency?.id }),
+    ["shop", data?.data.id, language?.locale, locationParams],
+    () =>
+      shopService.getById(data?.data.id, {
+        lang: language?.locale,
+        currency_id: currency?.id,
+        ...locationParams,
+      }),
     {
       initialData: data,
     }
@@ -61,12 +68,13 @@ export const MainInfo = ({ data, checkDate }: BookingProps) => {
 
   const handleButtonClick = () => {
     startTransition(() => {
-      router.push(`/shops/${data?.data.slug}/booking`);
-      // router.push(
-      //   `/shops/${data?.data.slug}/booking${
-      //     searchParams.toString() ? `?${searchParams.toString()}` : ""
-      //   }`
-      // );
+      // Carries the branch the customer matched on this page (see
+      // useShopLocationParams) into the booking flow, so BookingTotal's
+      // own matched_location lookup and each step-to-step "Continue"
+      // (which already forwards the current URL's params) keep resolving
+      // the same branch instead of falling back to the shop's flat one.
+      const query = new URLSearchParams(locationParams).toString();
+      router.push(`/shops/${data?.data.slug}/booking${query ? `?${query}` : ""}`);
       if (!pathname.includes("staff")) {
         dispatch({ type: Types.ResetBooking });
       }
