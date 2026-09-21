@@ -120,10 +120,10 @@ class AdminShopRepository extends CoreRepository
 
         $shop = Shop::where('uuid', $uuid)
             ->select('*')
-            ->when($locationExists, function (Builder $query) use ($latitude, $longitude) {
+            ->when($locationExists, function (Builder $query) use ($latitude, $longitude, $filter) {
                 $query
                     ->addSelect([
-                        DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                        DB::raw($this->distanceSelectRaw($filter ?? [], (float)$longitude, (float)$latitude) . ' AS distance'),
                     ]);
             })
             ->first();
@@ -131,10 +131,10 @@ class AdminShopRepository extends CoreRepository
         if (empty($shop) || $shop->uuid !== $uuid) {
             $shop = Shop::where('id', (int)$uuid)
                 ->select('*')
-                ->when($locationExists, function (Builder $query) use ($latitude, $longitude) {
+                ->when($locationExists, function (Builder $query) use ($latitude, $longitude, $filter) {
                     $query
                         ->addSelect([
-                            DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                            DB::raw($this->distanceSelectRaw($filter ?? [], (float)$longitude, (float)$latitude) . ' AS distance'),
                         ]);
                 })
                 ->first();

@@ -134,7 +134,7 @@ class ShopRepository extends CoreRepository
 //                    ->where('latitude', '>', 0)
 //                    ->where('longitude', '>', 0)
                     ->addSelect([
-                        DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                        DB::raw($this->distanceSelectRaw($filter, (float)$longitude, (float)$latitude) . ' AS distance'),
                     ])
                     ->when(data_get($filter, 'column') === 'distance', function ($q) use ($filter) {
                         $q->orderBy('distance', $filter['sort'] ?? 'desc');
@@ -181,7 +181,7 @@ class ShopRepository extends CoreRepository
                     ->addSelect([
                         'latitude',
                         'longitude',
-                        DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                        DB::raw($this->distanceSelectRaw($filter, (float)$longitude, (float)$latitude) . ' AS distance'),
                         //(6371 * acos(cos(radians($latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($longitude)) + sin(radians($latitude)) * sin(radians(latitude)))) AS distance
                     ])
                     ->when(data_get($filter, 'column') === 'distance', function ($q) use ($filter) {
@@ -204,21 +204,21 @@ class ShopRepository extends CoreRepository
 
         $shop = Shop::where('uuid', $uuid)
             ->select('*')
-            ->when($locationExists, function (Builder $query) use ($latitude, $longitude) {
+            ->when($locationExists, function (Builder $query) use ($latitude, $longitude, $filter) {
                 $query
                     ->addSelect([
-                        DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                        DB::raw($this->distanceSelectRaw($filter ?? [], (float)$longitude, (float)$latitude) . ' AS distance'),
                     ]);
             })
             ->first();
 
         if (empty($shop) || $shop->uuid !== $uuid) {
             $shop = Shop::where('id', (int)$uuid)
-                ->when($locationExists, function (Builder $query) use ($latitude, $longitude) {
+                ->when($locationExists, function (Builder $query) use ($latitude, $longitude, $filter) {
                     $query
                         ->select('*')
                         ->addSelect([
-                            DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                            DB::raw($this->distanceSelectRaw($filter ?? [], (float)$longitude, (float)$latitude) . ' AS distance'),
                         ]);
                 })
                 ->first();
@@ -245,10 +245,10 @@ class ShopRepository extends CoreRepository
 
         return $shop->with($this->with())
             ->where(fn($q) => $q->where('slug', $slug))
-            ->when($locationExists, function (Builder $query) use ($latitude, $longitude) {
+            ->when($locationExists, function (Builder $query) use ($latitude, $longitude, $filter) {
                 $query
                     ->addSelect([
-                        DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                        DB::raw($this->distanceSelectRaw($filter ?? [], (float)$longitude, (float)$latitude) . ' AS distance'),
                     ]);
             })
             ->first();
@@ -320,7 +320,7 @@ class ShopRepository extends CoreRepository
                     ->addSelect([
                         'latitude',
                         'longitude',
-                        DB::raw("round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1) AS distance"),
+                        DB::raw($this->distanceSelectRaw($filter, (float)$longitude, (float)$latitude) . ' AS distance'),
                     ])
                     ->when(data_get($filter, 'column') === 'distance', function ($q) use ($filter) {
                         $q->orderBy('distance', $filter['sort'] ?? 'desc');

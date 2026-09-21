@@ -15,6 +15,10 @@ interface ShopCardProps {
 export const ShopCard = memo(
   ({ data }: ShopCardProps) => {
     const { t } = useTranslation();
+    const displayAddress =
+      data.matched_location?.address ||
+      data.matched_location?.city?.translation?.title ||
+      data?.translation?.address;
     return (
       <div className="relative group border-b border-gray-link pb-4">
         <Link
@@ -67,7 +71,9 @@ export const ShopCard = memo(
             <div>
               <div className="flex items-center gap-1">
                 <MapPinIcon />
-                <span className="text-xs text-gray-field">
+                <span className="text-xs text-gray-field line-clamp-1">
+                  {displayAddress}
+                  {displayAddress && " · "}
                   {data?.distance} {t("km.away.from.you")}
                 </span>
               </div>
