@@ -99,25 +99,35 @@ trait ByLocation
      * far apart the two branches are. This is the same root cause
      * ShopResource::matched_location works around for the address string;
      * mirrors its exact matching (region/country/city/area, first match by
-     * id) so the two never describe different locations for the same shop,
-     * falling back to the shop's own flat pair when no location filter was
-     * given, or no location happens to match one that was.
+     * id, and - critically - the same location_type a search already
+     * required the shop to have a matching location for, so this never
+     * measures from a same-city location of the WRONG type, e.g. a shop's
+     * empty PRODUCT-type placeholder instead of its real SERVICE branch;
+     * see DemoAfricaSeeder) so the two never describe different locations
+     * for the same shop, falling back to the shop's own flat pair when no
+     * location filter was given, or no location happens to match one that
+     * was.
      */
     public function distanceSelectRaw(array $filter, float $longitude, float $latitude): string
     {
-        $conditions = collect([
+        $geoConditions = collect([
             'region_id'  => data_get($filter, 'region_id'),
             'country_id' => data_get($filter, 'country_id'),
             'city_id'    => data_get($filter, 'city_id'),
             'area_id'    => data_get($filter, 'area_id'),
-        ])
-            ->filter()
-            ->map(fn($id, $column) => "$column = " . (int)$id)
-            ->implode(' AND ');
+        ])->filter();
 
-        if (!$conditions) {
+        if ($geoConditions->isEmpty()) {
             return "round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1)";
         }
+
+        if ($locationType = data_get($filter, 'location_type')) {
+            $geoConditions->put('type', $locationType);
+        }
+
+        $conditions = $geoConditions
+            ->map(fn($id, $column) => "$column = " . (int)$id)
+            ->implode(' AND ');
 
         $matchedLongitude = "(SELECT longitude FROM shop_locations WHERE shop_id = shops.id AND $conditions ORDER BY id LIMIT 1)";
         $matchedLatitude  = "(SELECT latitude FROM shop_locations WHERE shop_id = shops.id AND $conditions ORDER BY id LIMIT 1)";

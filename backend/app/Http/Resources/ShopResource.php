@@ -41,7 +41,19 @@ class ShopResource extends JsonResource
         // request carries the same region/country/city/area params the
         // filter used, resolve and expose the specific location that
         // matched, so the frontend can show that branch instead.
+        //
+        // location_type must be read the same way Shop::scopeFilter()
+        // reads it for the outer whereHas('locations', ...) that decided
+        // this shop qualifies at all - a shop with separate PRODUCT and
+        // SERVICE ShopLocation rows for the same city (see DemoAfricaSeeder)
+        // can otherwise resolve to the wrong row here: one that shares the
+        // matched geography but not the type the search actually asked
+        // for, silently showing that row's (possibly empty) address/
+        // coordinates instead of the branch that actually matched.
         $filterParams = array_filter($request->only(['region_id', 'country_id', 'city_id', 'area_id']));
+        if ($filterParams && ($locationType = $request->input('location_type'))) {
+            $filterParams['type'] = $locationType;
+        }
         $matchedLocation = $filterParams
             ? ShopLocation::with(['region.translation', 'country.translation', 'city.translation', 'area.translation'])
                 ->where('shop_id', $this->id)
