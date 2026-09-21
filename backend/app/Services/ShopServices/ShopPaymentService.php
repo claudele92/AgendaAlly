@@ -18,14 +18,6 @@ class ShopPaymentService extends CoreService
         return ShopPayment::class;
     }
 
-    /**
-     * Gateways whose merchant registration is done by the receiving shop
-     * itself — there's no platform-level alternative, so a shop's config
-     * for these is mandatory, gated on their country actually offering
-     * the gateway, and defaults its currency from that country.
-     */
-    private const SHOP_CREDENTIAL_TAGS = [Payment::TAG_ORANGE, Payment::TAG_MTN];
-
     // Encrypted-at-rest, never returned in plaintext — a blank value on
     // update means "leave unchanged", not "clear it" (see UpdateRequest).
     private const SECRET_KEYS = ['merchant_key', 'subscription_key', 'api_user', 'api_key'];
@@ -106,7 +98,7 @@ class ShopPaymentService extends CoreService
             ];
         }
 
-        if (!in_array($payment->tag, self::SHOP_CREDENTIAL_TAGS, true)) {
+        if (!in_array($payment->tag, Payment::SHOP_CREDENTIAL_TAGS, true)) {
             return ['status' => true, 'data' => $data];
         }
 
