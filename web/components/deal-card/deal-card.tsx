@@ -12,8 +12,8 @@ interface DealCardProps {
 export const DealCard = ({ data }: DealCardProps) => {
   const displayAddress =
     data.matched_location?.address ||
-    data.matched_location?.city?.translation?.title ||
-    data?.translation?.address;
+    data?.translation?.address ||
+    data.matched_location?.city?.translation?.title;
 
   return (
   <Link href={`/shops/${data.slug}${buildShopLocationQuery(data)}`}>

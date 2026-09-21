@@ -49,10 +49,15 @@ class ShopResource extends JsonResource
         // can otherwise resolve to the wrong row here: one that shares the
         // matched geography but not the type the search actually asked
         // for, silently showing that row's (possibly empty) address/
-        // coordinates instead of the branch that actually matched.
+        // coordinates instead of the branch that actually matched. Most
+        // callers (the storefront's own listings) already send
+        // location_type=2, but default to SERVICE rather than leaving this
+        // type-agnostic when a caller omits it - this is a booking
+        // marketplace, so an empty PRODUCT placeholder is never the
+        // branch a customer meant to match.
         $filterParams = array_filter($request->only(['region_id', 'country_id', 'city_id', 'area_id']));
-        if ($filterParams && ($locationType = $request->input('location_type'))) {
-            $filterParams['type'] = $locationType;
+        if ($filterParams) {
+            $filterParams['type'] = (int) ($request->input('location_type') ?: ShopLocation::SERVICE);
         }
         $matchedLocation = $filterParams
             ? ShopLocation::with(['region.translation', 'country.translation', 'city.translation', 'area.translation'])

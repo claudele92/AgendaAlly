@@ -35,6 +35,7 @@ export const Recommended = ({ data }: RecommendedProps) => {
         region_id: country?.region_id || undefined,
         country_id: country?.id || undefined,
         city_id: city?.id || undefined,
+        location_type: "2",
       }),
     {
       initialData: data ? { pages: [data], pageParams: [1] } : undefined,

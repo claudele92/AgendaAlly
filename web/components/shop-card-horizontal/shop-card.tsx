@@ -18,8 +18,8 @@ export const ShopCard = memo(
     const { t } = useTranslation();
     const displayAddress =
       data.matched_location?.address ||
-      data.matched_location?.city?.translation?.title ||
-      data?.translation?.address;
+      data?.translation?.address ||
+      data.matched_location?.city?.translation?.title;
     return (
       <div className="relative group border-b border-gray-link pb-4">
         <Link

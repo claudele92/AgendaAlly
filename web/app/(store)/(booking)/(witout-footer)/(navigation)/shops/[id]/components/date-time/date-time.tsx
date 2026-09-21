@@ -13,7 +13,7 @@ import CalendarCheckLineIcon from "remixicon-react/CalendarTodoLineIcon";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import CrossIcon from "@/assets/icons/cross";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Button } from "@/components/button";
 import { BookingDate } from "@/types/booking";
@@ -67,6 +67,7 @@ export const BookingDateTime = ({
   master,
 }: BookingDateTimeProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
   const { hourFormat } = useHourFormat();
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
@@ -182,7 +183,8 @@ export const BookingDateTime = ({
 
   useEffect(() => {
     if (serviceMasters.length === 0 && !serviceMasterId && shopSlug) {
-      router.replace(`/shops/${shopSlug}/booking`);
+      const query = searchParams.toString();
+      router.replace(`/shops/${shopSlug}/booking${query ? `?${query}` : ""}`);
     }
   }, [serviceMasterId, serviceMasters.length, shopSlug]);
 

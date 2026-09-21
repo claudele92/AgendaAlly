@@ -148,6 +148,7 @@ const HomePage = async () => {
     sort: "desc",
     country_id: countryId,
     city_id: cityId,
+    location_type: "2",
   });
   const dealShops = await shopService.getAll({
     lang,
@@ -156,12 +157,14 @@ const HomePage = async () => {
     sort: "desc",
     country_id: countryId,
     city_id: cityId,
+    location_type: "2",
   });
   const nearByShops = await shopService.getAll({
     lang,
     perPage: 8,
     country_id: countryId,
     city_id: cityId,
+    location_type: "2",
   });
   const stories = await storyService.getAll({ lang });
   return (

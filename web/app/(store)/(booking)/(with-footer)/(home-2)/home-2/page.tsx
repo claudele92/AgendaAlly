@@ -108,6 +108,7 @@ const HomePage = async () => {
     perPage: 8,
     country_id: countryId,
     city_id: cityId,
+    location_type: "2",
   });
   const stories = await storyService.getAll({ lang });
   return (

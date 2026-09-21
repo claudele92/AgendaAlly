@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Booking;
 use App\Models\Settings;
 use App\Models\Invitation;
+use App\Models\ShopLocation;
 use Illuminate\Support\Str;
 use App\Models\ServiceMaster;
 use App\Helpers\ResponseError;
@@ -44,16 +45,24 @@ class MasterRepository extends CoreRepository
                 // Services are shop-wide, so a master's invitation_shop_locations
                 // pivot (same one User::bookingBranchScope() uses) is the only
                 // place a customer's branch context can narrow this list.
+                // Assigning a branch is opt-in (see admin's "assign to
+                // branch (optional)") - a master with no pivot rows at all
+                // was never restricted to a branch, so they're available at
+                // every one of them, not excluded from all of them. Only a
+                // master who WAS given specific branches, but not this one,
+                // should be filtered out.
                 ->when(
                     collect($filter)->only(['region_id', 'country_id', 'city_id', 'area_id'])->filter()->isNotEmpty(),
                     function ($query) use ($filter) {
                         $locationFilter = collect($filter)->only(['region_id', 'country_id', 'city_id', 'area_id'])->filter()->all();
+                        // Default to SERVICE the same way ShopResource::matched_location
+                        // does - a master list is never about a shop's PRODUCT locations.
+                        $locationFilter['type'] = (int) (data_get($filter, 'location_type') ?: ShopLocation::SERVICE);
 
-                        if ($locationType = data_get($filter, 'location_type')) {
-                            $locationFilter['type'] = $locationType;
-                        }
-
-                        $query->whereHas('shopLocations', fn ($q2) => $q2->filter($locationFilter));
+                        $query->where(fn ($q2) => $q2
+                            ->whereHas('shopLocations', fn ($q3) => $q3->filter($locationFilter))
+                            ->orWhereDoesntHave('shopLocations')
+                        );
                     }
                 )
             )

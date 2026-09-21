@@ -27,6 +27,7 @@ export const Salons = () => {
         region_id: country?.region_id,
         country_id: country?.id,
         city_id: city?.id,
+        location_type: "2",
       }),
     {}
   );
