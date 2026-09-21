@@ -22,7 +22,7 @@ export const ShopLocation = ({ data }: ShopLocationProps) => {
   // one of its locations.
   const matchedLocation = data?.data.matched_location;
   const displayAddress =
-    matchedLocation?.address || matchedLocation?.city?.translation?.title || data?.data.translation?.address;
+    matchedLocation?.address || data?.data.translation?.address || matchedLocation?.city?.translation?.title;
   const latitude = matchedLocation?.latitude ?? data?.data.lat_long?.latitude;
   const longitude = matchedLocation?.longitude ?? data?.data.lat_long?.longitude;
 

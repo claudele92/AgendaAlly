@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Traits;
 
 use App\Models\Language;
+use App\Models\ShopLocation;
 use DB;
 
 /**
@@ -99,14 +100,13 @@ trait ByLocation
      * far apart the two branches are. This is the same root cause
      * ShopResource::matched_location works around for the address string;
      * mirrors its exact matching (region/country/city/area, first match by
-     * id, and - critically - the same location_type a search already
-     * required the shop to have a matching location for, so this never
-     * measures from a same-city location of the WRONG type, e.g. a shop's
-     * empty PRODUCT-type placeholder instead of its real SERVICE branch;
-     * see DemoAfricaSeeder) so the two never describe different locations
-     * for the same shop, falling back to the shop's own flat pair when no
-     * location filter was given, or no location happens to match one that
-     * was.
+     * id, and the same location_type a search asked for, defaulting to
+     * SERVICE when omitted so this never measures from a same-city
+     * location of the WRONG type, e.g. a shop's empty PRODUCT-type
+     * placeholder instead of its real SERVICE branch; see DemoAfricaSeeder)
+     * so the two never describe different locations for the same shop,
+     * falling back to the shop's own flat pair when no location filter was
+     * given, or no location happens to match one that was.
      */
     public function distanceSelectRaw(array $filter, float $longitude, float $latitude): string
     {
@@ -121,9 +121,11 @@ trait ByLocation
             return "round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1)";
         }
 
-        if ($locationType = data_get($filter, 'location_type')) {
-            $geoConditions->put('type', $locationType);
-        }
+        // Default to SERVICE when the caller omits location_type, same as
+        // ShopResource::matched_location - this is a booking marketplace,
+        // so an empty PRODUCT placeholder is never the branch a distance
+        // calculation should measure from.
+        $geoConditions->put('type', (int) (data_get($filter, 'location_type') ?: ShopLocation::SERVICE));
 
         $conditions = $geoConditions
             ->map(fn($id, $column) => "$column = " . (int)$id)

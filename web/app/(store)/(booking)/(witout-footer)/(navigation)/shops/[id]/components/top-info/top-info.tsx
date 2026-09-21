@@ -58,8 +58,8 @@ export const TopInfo = ({ data }: TopInfoProps) => {
   );
   const displayAddress =
     shopDetail?.data.matched_location?.address ||
-    shopDetail?.data.matched_location?.city?.translation?.title ||
-    shopDetail?.data.translation?.address;
+    shopDetail?.data.translation?.address ||
+    shopDetail?.data.matched_location?.city?.translation?.title;
   const today = data?.data?.shop_working_days?.find(
     (workingDay) => workingDay.day === dayjs().format("dddd").toLocaleLowerCase()
   );

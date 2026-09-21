@@ -24,8 +24,8 @@ export const ShopCard = ({ data }: ShopCardProps) => {
   const { settings } = useSettings();
   const displayAddress =
     data.matched_location?.address ||
-    data.matched_location?.city?.translation?.title ||
-    data?.translation?.address;
+    data?.translation?.address ||
+    data.matched_location?.city?.translation?.title;
   return (
     <div className="relative rounded-button overflow-hidden group shadow-storeCard justify-start">
       <div className="absolute top-3 left-3 z-[1] text-dark">
