@@ -41,13 +41,36 @@ const NearbyShops = dynamic(() =>
   import("../components/near-by").then((component) => ({ default: component.NearBy }))
 );
 
+// Reads the same region/country/city/area/location_type params a search
+// result's link carries forward (see buildShopLocationQuery) so
+// ShopResource::matched_location resolves the branch the customer actually
+// came from, instead of the shop's flat/default one.
+const shopLocationSearchKeys = ["region_id", "country_id", "city_id", "area_id", "location_type"];
+
+const extractShopLocationParams = (searchParams: Record<string, string | string[] | undefined>) => {
+  const params: Record<string, string> = {};
+  shopLocationSearchKeys.forEach((key) => {
+    const value = searchParams[key];
+    if (typeof value === "string") {
+      params[key] = value;
+    }
+  });
+  return params;
+};
+
 export const generateMetadata = async (props: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> => {
   const params = await props.params;
+  const searchParams = await props.searchParams;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
-  const shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
+  const shop = await shopService.getBySlug(params.id, {
+    lang,
+    currency_id: currencyId,
+    ...extractShopLocationParams(searchParams),
+  });
 
   return {
     title: shop.data.translation?.title,
@@ -62,15 +85,23 @@ export const generateMetadata = async (props: {
   };
 };
 
-const SingleShop = async (props: { params: Promise<{ id: string }> }) => {
+const SingleShop = async (props: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) => {
   const params = await props.params;
+  const searchParams = await props.searchParams;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
   const settings = await globalService.settings();
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
   const shopReviewsEnabled = parsedSettings?.shop_reviews_enabled === "1";
-  const shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
+  const shop = await shopService.getBySlug(params.id, {
+    lang,
+    currency_id: currencyId,
+    ...extractShopLocationParams(searchParams),
+  });
   return (
     <>
       <section className="xl:container px-4 pt-7 pb-28 lg:pb-7">

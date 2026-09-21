@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import MapPinIcon from "@/assets/icons/map-pin";
 import { ImageWithFallBack } from "@/components/image";
+import { buildShopLocationQuery } from "@/utils/build-shop-location-query";
 
 interface DealCardProps {
   data: Shop;
@@ -15,7 +16,7 @@ export const DealCard = ({ data }: DealCardProps) => {
     data?.translation?.address;
 
   return (
-  <Link href={`/shops/${data.slug}`}>
+  <Link href={`/shops/${data.slug}${buildShopLocationQuery(data)}`}>
     <div className="relative rounded-button overflow-hidden aspect-[313/300] w-full">
       <ImageWithFallBack
         src={data.background_img}

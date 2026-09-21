@@ -38,7 +38,25 @@ class MasterRepository extends CoreRepository
                 ->when(data_get($filter, 'service_id'), fn ($query, $id) => $query->where('service_id', $id))
                 ->when(data_get($filter, 'service_ids'), fn ($query, $ids) => $query->whereIn('service_id', $ids))
             )
-            ->whereHas('invite', fn($q) => $q->select(['user_id', 'status'])->where('status', Invitation::ACCEPTED))
+            ->whereHas('invite', fn($q) => $q
+                ->select(['user_id', 'status'])
+                ->where('status', Invitation::ACCEPTED)
+                // Services are shop-wide, so a master's invitation_shop_locations
+                // pivot (same one User::bookingBranchScope() uses) is the only
+                // place a customer's branch context can narrow this list.
+                ->when(
+                    collect($filter)->only(['region_id', 'country_id', 'city_id', 'area_id'])->filter()->isNotEmpty(),
+                    function ($query) use ($filter) {
+                        $locationFilter = collect($filter)->only(['region_id', 'country_id', 'city_id', 'area_id'])->filter()->all();
+
+                        if ($locationType = data_get($filter, 'location_type')) {
+                            $locationFilter['type'] = $locationType;
+                        }
+
+                        $query->whereHas('shopLocations', fn ($q2) => $q2->filter($locationFilter));
+                    }
+                )
+            )
             ->when(
                 Settings::where('key', 'by_subscription')->first()?->value,
                 fn($q) => $q->whereHas('invite.shop', fn ($query) => $query->where('visibility', true))

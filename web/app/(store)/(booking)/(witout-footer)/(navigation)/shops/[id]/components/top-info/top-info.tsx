@@ -26,6 +26,7 @@ import VerifiedIcon from "@/assets/icons/verified";
 import { ShopSocialsPanel } from "@/components/shop-social-panel";
 import Chat3LineIcon from "remixicon-react/Chat3LineIcon";
 import { useHourFormat } from "@/hook/use-hour-format";
+import { useShopLocationParams } from "@/hook/use-shop-location-params";
 
 const ShopShare = dynamic(
   () => import("../shop-share").then((component) => ({ default: component.ShopShare })),
@@ -42,13 +43,23 @@ export const TopInfo = ({ data }: TopInfoProps) => {
   const { language, currency, settings } = useSettings();
   const { hourFormat } = useHourFormat();
   const { t } = useTranslation();
+  const locationParams = useShopLocationParams();
   const { data: shopDetail } = useQuery(
-    ["shop", data?.data.id, language?.locale],
-    () => shopService.getById(data?.data.id, { lang: language?.locale, currency_id: currency?.id }),
+    ["shop", data?.data.id, language?.locale, locationParams],
+    () =>
+      shopService.getById(data?.data.id, {
+        lang: language?.locale,
+        currency_id: currency?.id,
+        ...locationParams,
+      }),
     {
       initialData: data,
     }
   );
+  const displayAddress =
+    shopDetail?.data.matched_location?.address ||
+    shopDetail?.data.matched_location?.city?.translation?.title ||
+    shopDetail?.data.translation?.address;
   const today = data?.data?.shop_working_days?.find(
     (workingDay) => workingDay.day === dayjs().format("dddd").toLocaleLowerCase()
   );
@@ -103,7 +114,7 @@ export const TopInfo = ({ data }: TopInfoProps) => {
             </div>
             <div className="md:flex items-center gap-1 text-white hidden">
               <MapPinIcon />
-              <span className="text-sm line-clamp-1">{shopDetail?.data.translation?.address}</span>
+              <span className="text-sm line-clamp-1">{displayAddress}</span>
             </div>
             <div className="md:flex items-center gap-3 text-white mt-3 hidden">
               {settings?.shop_reviews_enabled === "1" && (
@@ -150,7 +161,7 @@ export const TopInfo = ({ data }: TopInfoProps) => {
       <div className="flex items-center justify-between md:hidden my-4">
         <div className="flex items-center gap-1 ">
           <MapPinIcon />
-          <span className="text-sm line-clamp-1">{shopDetail?.data.translation?.address}</span>
+          <span className="text-sm line-clamp-1">{displayAddress}</span>
         </div>
         <div className="w-10 h-10 rounded-button flex items-center justify-center text-sm border border-dark">
           {data?.data.r_avg || 0}

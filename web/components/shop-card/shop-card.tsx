@@ -12,6 +12,7 @@ import { IconButton } from "@/components/icon-button";
 import VerifiedIcon from "@/assets/icons/verified";
 import clsx from "clsx";
 import { useSettings } from "@/hook/use-settings";
+import { buildShopLocationQuery } from "@/utils/build-shop-location-query";
 
 interface ShopCardProps {
   data: Shop;
@@ -37,7 +38,7 @@ export const ShopCard = ({ data }: ShopCardProps) => {
           <span className="text-sm font-semibold">{data.r_avg || 0}</span>
         </div>
       )}
-      <Link href={`/shops/${data.slug}`} scroll>
+      <Link href={`/shops/${data.slug}${buildShopLocationQuery(data)}`} scroll>
         <div className="relative aspect-[2/1]">
           <ImageWithFallBack
             src={data.background_img}

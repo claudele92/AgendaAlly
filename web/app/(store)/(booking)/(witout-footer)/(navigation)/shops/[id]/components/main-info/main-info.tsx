@@ -27,6 +27,7 @@ import { Types } from "@/context/booking/booking.reducer";
 import { useTransition } from "react";
 import VerifiedIcon from "@/assets/icons/verified";
 import clsx from "clsx";
+import { useShopLocationParams } from "@/hook/use-shop-location-params";
 
 const ShopReviewPanel = dynamic(() => import("../shop-review-panel"), {
   loading: () => <LoadingCard />,
@@ -46,9 +47,15 @@ export const MainInfo = ({ data, checkDate }: BookingProps) => {
   const pathname = usePathname();
   // const searchParams = useSearchParams();
   const [isReviewPanelOpen, openReviewPanel, closeReviewPanel] = useModal();
+  const locationParams = useShopLocationParams();
   const { data: shopDetail } = useQuery(
-    ["shop", data?.data.id, language?.locale],
-    () => shopService.getById(data?.data.id, { lang: language?.locale, currency_id: currency?.id }),
+    ["shop", data?.data.id, language?.locale, locationParams],
+    () =>
+      shopService.getById(data?.data.id, {
+        lang: language?.locale,
+        currency_id: currency?.id,
+        ...locationParams,
+      }),
     {
       initialData: data,
     }

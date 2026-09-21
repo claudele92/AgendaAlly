@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import { useSettings } from "@/hook/use-settings";
+import { useShopLocationParams } from "@/hook/use-shop-location-params";
 
 const Empty = dynamic(() =>
   import("@/components/empty").then((component) => ({ default: component.Empty }))
@@ -22,10 +23,16 @@ interface MastersProps {
 export const Masters = ({ shopId, shopSlug }: MastersProps) => {
   const router = useRouter();
   const { language, currency } = useSettings();
+  const locationParams = useShopLocationParams();
   const { data: masters, isLoading } = useInfiniteQuery(
-    ["masters", shopId, language?.locale],
+    ["masters", shopId, language?.locale, locationParams],
     () =>
-      masterService.list({ shop_id: shopId, lang: language?.locale, currency_id: currency?.id }),
+      masterService.list({
+        shop_id: shopId,
+        lang: language?.locale,
+        currency_id: currency?.id,
+        ...locationParams,
+      }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
     }

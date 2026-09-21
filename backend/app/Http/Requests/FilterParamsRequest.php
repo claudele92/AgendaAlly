@@ -29,6 +29,7 @@ class FilterParamsRequest extends BaseRequest
             'country_id'        => 'integer',
             'city_id'           => 'integer',
             'area_id'           => 'integer',
+            'location_type'     => 'integer',
             'price'             => 'numeric',
             'note'              => 'string|max:255',
             'date_from'         => 'date_format:Y-m-d',
