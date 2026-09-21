@@ -182,67 +182,83 @@ class ReportRepository extends CoreRepository
         $dayTimes      = [];
         $times         = [];
 
-        foreach ($shop->workingDays as $workingDay) {
+        // Occupancy (booked vs. unbooked hours against a shop's own
+        // working-day calendar) is inherently a single-shop concept - it
+        // doesn't aggregate across shops - so it's simply skipped for a
+        // platform-wide request (no shop_id given). $shop is only ever
+        // null in that case; every query above already handles a null/
+        // omitted $shopId as "don't filter by shop" via ->when().
+        if ($shop) {
 
-            if ($workingDay->disabled) {
-                $continueCount += 1;
-                continue;
-            }
+            foreach ($shop->workingDays as $workingDay) {
 
-            $dayTimes[$workingDay->day] = [
-                'from' => $workingDay->from,
-                'to'   => $workingDay->to,
-            ];
-
-            try {
-                $workingHour = (new DateTime($workingDay->from))->diff(new DateTime($workingDay->to))->h;
-            } catch (Throwable) {
-                $workingHour = 0;
-            }
-
-            $workingHours += $workingHour;
-        }
-
-        for ($i = 0; $skipDays >= $i; $i++) {
-
-            $nextDay     = date($type, strtotime("$dateFrom +$i days"));
-            $day         = Str::lower(date('l', strtotime($nextDay)));
-            $workingHour = $workingHours / $shop->workingDays->count();
-
-            if (!isset($dayTimes[$day]['from'])) {
-
-                if (!isset($times[$nextDay])) {
-                    $times[$nextDay] = [
-                        'date'           => $nextDay,
-                        'working_hours'  => $workingHour,
-                        'unbooked_hours' => 0,
-                        'booked_hours'   => 0,
-                        'hours'          => 0,
-                    ];
+                if ($workingDay->disabled) {
+                    $continueCount += 1;
+                    continue;
                 }
 
-                continue;
+                $dayTimes[$workingDay->day] = [
+                    'from' => $workingDay->from,
+                    'to'   => $workingDay->to,
+                ];
+
+                try {
+                    $workingHour = (new DateTime($workingDay->from))->diff(new DateTime($workingDay->to))->h;
+                } catch (Throwable) {
+                    $workingHour = 0;
+                }
+
+                $workingHours += $workingHour;
             }
 
-            $startTime = new DateTime($dayTimes[$day]['from']);
-            $endTime   = new DateTime($dayTimes[$day]['to']);
+            for ($i = 0; $skipDays >= $i; $i++) {
 
-            $bookedHours = ($bookings->where('time_format', $nextDay)->first())?->total_booked_hours ?? 0;
-            $closedDate  = $shop->workingDays->where('day', $nextDay)->first();
-            $closedHour  = 0;
+                // This loop always walks one calendar day at a time
+                // (matching the fixed '%Y-%m-%d' time_format column below),
+                // regardless of the overall $type granularity requested -
+                // $type is a MySQL DATE_FORMAT() pattern (e.g. '%Y-%m-%d'),
+                // not a PHP date() format, and using it here directly used
+                // to throw a TypeError from strtotime() failing to parse
+                // the resulting garbled string (e.g. '%2026-%08-%01').
+                $nextDay     = date('Y-m-d', strtotime("$dateFrom +$i days"));
+                $day         = Str::lower(date('l', strtotime($nextDay)));
+                $workingHour = $workingHours / $shop->workingDays->count();
 
-            if ($closedDate) {
-                $closedHour = $startTime->diff($endTime)->h;
+                if (!isset($dayTimes[$day]['from'])) {
+
+                    if (!isset($times[$nextDay])) {
+                        $times[$nextDay] = [
+                            'date'           => $nextDay,
+                            'working_hours'  => $workingHour,
+                            'unbooked_hours' => 0,
+                            'booked_hours'   => 0,
+                            'hours'          => 0,
+                        ];
+                    }
+
+                    continue;
+                }
+
+                $startTime = new DateTime($dayTimes[$day]['from']);
+                $endTime   = new DateTime($dayTimes[$day]['to']);
+
+                $bookedHours = ($bookings->where('time_format', $nextDay)->first())?->total_booked_hours ?? 0;
+                $closedDate  = $shop->workingDays->where('day', $nextDay)->first();
+                $closedHour  = 0;
+
+                if ($closedDate) {
+                    $closedHour = $startTime->diff($endTime)->h;
+                }
+
+                $times[$nextDay] = [
+                    'date'           => $nextDay,
+                    'hours'          => ($times[$nextDay]['hours'] ?? 0) + $workingHour + $bookedHours + $closedHour,
+                    'working_hours'  => ($times[$nextDay]['working_hours'] ?? 0) + $workingHour,
+                    'unbooked_hours' => ($times[$nextDay]['unbooked_hours'] ?? 0) + $workingHour - $bookedHours + $closedHour,
+                    'booked_hours'   => ($times[$nextDay]['booked_hours'] ?? 0) + $bookedHours,
+                ];
+
             }
-
-            $times[$nextDay] = [
-                'date'           => $nextDay,
-                'hours'          => ($times[$nextDay]['hours'] ?? 0) + $workingHour + $bookedHours + $closedHour,
-                'working_hours'  => ($times[$nextDay]['working_hours'] ?? 0) + $workingHour,
-                'unbooked_hours' => ($times[$nextDay]['unbooked_hours'] ?? 0) + $workingHour - $bookedHours + $closedHour,
-                'booked_hours'   => ($times[$nextDay]['booked_hours'] ?? 0) + $bookedHours,
-            ];
-
         }
 
         $days = $this->calculateWorkingDifference(new DateTime($dateFrom), new DateTime($dateTo), 7 - $continueCount);
@@ -250,7 +266,7 @@ class ReportRepository extends CoreRepository
         $times = collect($times)->values();
         $hours = $times->sum('hours');
 
-        $occupancyRate = $hours / $days;
+        $occupancyRate = $shop ? $hours / $days : 0;
 
         $canceledPrice  = $orders->sum('canceled_price');
         $deliveredPrice = $orders->sum('delivered_price');

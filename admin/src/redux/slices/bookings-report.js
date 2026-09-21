@@ -38,6 +38,11 @@ export const fetchStatisticsBookingsReportAdmin = createAsyncThunk(
   (params = {}) => bookingsReportService.getAllStatisticsBookings(params)
 );
 
+export const fetchPerformanceDashboardAdmin = createAsyncThunk(
+  'bookingsReport/fetchPerformanceDashboardAdmin',
+  (params = {}) => bookingsReportService.getPerformanceDashboard(params)
+);
+
 // master
 export const fetchStatisticsBookingsReportMaster = createAsyncThunk(
   'bookingsReport/fetchStatisticsBookingsReportMaster',
@@ -101,6 +106,26 @@ const bookingsReportSlice = createSlice({
       (state, action) => {
         state.loading = false;
         state.statisticsData = {};
+        state.error = action.error.message;
+      }
+    );
+    builder.addCase(fetchPerformanceDashboardAdmin.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(
+      fetchPerformanceDashboardAdmin.fulfilled,
+      (state, action) => {
+        const { payload } = action;
+        state.loading = false;
+        state.chartData = payload?.data?.bookings_chart || [];
+        state.error = '';
+      }
+    );
+    builder.addCase(
+      fetchPerformanceDashboardAdmin.rejected,
+      (state, action) => {
+        state.loading = false;
+        state.chartData = [];
         state.error = action.error.message;
       }
     );

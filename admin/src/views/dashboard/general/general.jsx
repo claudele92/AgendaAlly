@@ -31,12 +31,9 @@ const General = ({ role }) => {
           </Card>
         </>
       )}
-      {/* Admin/superadmin platform-wide view needs a backend fix first
-          (ReportRepository::performanceDashboard requires shop_id and has
-          a pre-existing date-format bug) - seller only for now. */}
-      {role === 'seller' && (
+      {(role === 'seller' || role === 'admin') && (
         <Card>
-          <BookingsRevenueChart />
+          <BookingsRevenueChart isSeller={role === 'seller'} />
         </Card>
       )}
       {!!(
