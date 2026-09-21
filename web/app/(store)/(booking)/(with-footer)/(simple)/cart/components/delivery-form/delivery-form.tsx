@@ -28,6 +28,7 @@ import { useSettings } from "@/hook/use-settings";
 import clsx from "clsx";
 import { Types } from "@/context/checkout/checkout.reducer";
 import { useCheckout } from "@/context/checkout/checkout.context";
+import { resolveDeliveryPrice } from "@/utils/resolve-delivery-price";
 
 const AddressCreate = dynamic(() => import("./address-create"), {
   loading: () => <LoadingCard />,
@@ -134,7 +135,7 @@ export const CheckoutDeliveryForm = () => {
   }
 
   if (addressList?.length === 0 && !notAvailable) {
-    return <AddressCreate deliveryPrice={deliveryPrices?.data?.[0]} onSuccess={() => refetch()} />;
+    return <AddressCreate deliveryPrices={deliveryPrices?.data} onSuccess={() => refetch()} />;
   }
 
   if (notAvailable) {
@@ -146,7 +147,7 @@ export const CheckoutDeliveryForm = () => {
       type: Types.UpdateDeliveryAddress,
       payload: {
         address,
-        deliveryPrice: deliveryPrices?.data?.[0],
+        deliveryPrice: resolveDeliveryPrice(deliveryPrices?.data, address.area?.id),
       },
     });
   };
@@ -239,13 +240,14 @@ export const CheckoutDeliveryForm = () => {
             <AddressEdit
               onSuccess={() => setSelectedAddress(undefined)}
               id={selectedAddress?.id}
-              deliveryPrice={deliveryPrices?.data?.[0]}
+              deliveryPrices={deliveryPrices?.data}
               onCancel={() => setSelectedAddress(undefined)}
             />
           ) : (
             <AddressCreate
               onSuccess={() => setShowForm(false)}
               onCancel={() => setShowForm(false)}
+              deliveryPrices={deliveryPrices?.data}
             />
           )}
         </div>

@@ -7,15 +7,16 @@ import NetworkError from "@/utils/network-error";
 import { error } from "@/components/alert";
 import { Types } from "@/context/checkout/checkout.reducer";
 import { useCheckout } from "@/context/checkout/checkout.context";
+import { resolveDeliveryPrice } from "@/utils/resolve-delivery-price";
 import AddressForm from "./address-form";
 
 interface AddressCreateProps {
   onCancel?: () => void;
   onSuccess: () => void;
-  deliveryPrice?: DeliveryPrice;
+  deliveryPrices?: DeliveryPrice[];
 }
 
-const AddressCreate = ({ onCancel, onSuccess, deliveryPrice }: AddressCreateProps) => {
+const AddressCreate = ({ onCancel, onSuccess, deliveryPrices }: AddressCreateProps) => {
   const country = useAddressStore((state) => state.country);
   const { mutate: createAddress, isLoading: isCreatingAddress } = useMutation({
     mutationFn: (body: AddressCreateBody) => addressService.create(body),
@@ -34,6 +35,7 @@ const AddressCreate = ({ onCancel, onSuccess, deliveryPrice }: AddressCreateProp
           region_id: country?.region_id,
           country_id: country?.id,
           city_id: values.city?.id,
+          area_id: values.area?.id,
         };
         createAddress(body, {
           onSuccess: (res) => {
@@ -42,7 +44,7 @@ const AddressCreate = ({ onCancel, onSuccess, deliveryPrice }: AddressCreateProp
                 type: Types.UpdateDeliveryAddress,
                 payload: {
                   address: res.data.addresses[0],
-                  deliveryPrice,
+                  deliveryPrice: resolveDeliveryPrice(deliveryPrices, values.area?.id),
                 },
               });
             }
