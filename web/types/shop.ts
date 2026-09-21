@@ -27,6 +27,24 @@ export interface ShopSocial {
   type: string;
 }
 
+// Mirrors ShopLocationResource::toArray() - shared by matched_location
+// (the single branch a search matched) and locations (every branch the
+// shop has, used by the branch switcher).
+export interface ShopLocationEntry {
+  id?: number;
+  region_id?: number;
+  country_id?: number;
+  city_id?: number;
+  area_id?: number;
+  type?: number;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  city?: { translation?: { title: string } };
+  region?: { translation?: { title: string } };
+  country?: { translation?: { title: string } };
+}
+
 export interface Shop {
   background_img: string;
   close_time: string;
@@ -64,20 +82,11 @@ export interface Shop {
   // ShopResource::toArray(). A shop with branches in more than one city
   // can legitimately match a filter through a branch other than the one
   // 'translation.address' describes; this is that matched branch.
-  matched_location?: {
-    id?: number;
-    region_id?: number;
-    country_id?: number;
-    city_id?: number;
-    area_id?: number;
-    type?: number;
-    address?: string;
-    latitude?: number;
-    longitude?: number;
-    city?: { translation?: { title: string } };
-    region?: { translation?: { title: string } };
-    country?: { translation?: { title: string } };
-  };
+  matched_location?: ShopLocationEntry;
+  // Every location this shop has (both PRODUCT and SERVICE types) - see
+  // ShopResource::toArray()'s 'locations' key. Used by the branch
+  // switcher to list a multi-branch shop's other locations.
+  locations?: ShopLocationEntry[];
 }
 
 export interface IDelivery {
