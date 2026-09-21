@@ -1,12 +1,11 @@
-import { Shop } from "@/types/shop";
+import { Shop, ShopLocationEntry } from "@/types/shop";
 
-// Carries the branch a search result actually matched (see
-// ShopResource::matched_location) forward as URL params, so the shop detail
-// page can resolve the same branch instead of falling back to the shop's
-// flat address - see useShopLocationParams, which reads these same keys
-// back out on the receiving end.
-export const buildShopLocationQuery = (data: Shop): string => {
-  const location = data.matched_location;
+// Builds the region/country/city/area/location_type query string for a
+// single branch - see useShopLocationParams, which reads these same keys
+// back out on the receiving end. Shared by buildShopLocationQuery (search
+// result cards) and the branch switcher (location.tsx), so both carry a
+// branch forward the exact same way.
+export const buildLocationQuery = (location?: ShopLocationEntry): string => {
   if (!location) {
     return "";
   }
@@ -21,3 +20,9 @@ export const buildShopLocationQuery = (data: Shop): string => {
   const query = params.toString();
   return query ? `?${query}` : "";
 };
+
+// Carries the branch a search result actually matched (see
+// ShopResource::matched_location) forward as URL params, so the shop detail
+// page can resolve the same branch instead of falling back to the shop's
+// flat address.
+export const buildShopLocationQuery = (data: Shop): string => buildLocationQuery(data.matched_location);
