@@ -297,11 +297,12 @@ export const BookingTotal = ({
                         service?.total_price ??
                         0
                       }
+                      customCurrency={calculateRes?.data?.currency}
                     />
                   </p>
                   {service.selected_extras?.map((extra) => (
                     <p className="text-base font-medium" key={extra.id}>
-                      <Price number={extra?.price ?? 0} />
+                      <Price number={extra?.price ?? 0} customCurrency={calculateRes?.data?.currency} />
                     </p>
                   ))}
                 </div>
