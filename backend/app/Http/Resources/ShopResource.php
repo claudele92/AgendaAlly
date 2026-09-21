@@ -46,6 +46,7 @@ class ShopResource extends JsonResource
             ? ShopLocation::with(['region.translation', 'country.translation', 'city.translation', 'area.translation'])
                 ->where('shop_id', $this->id)
                 ->filter($filterParams)
+                ->orderBy('id')
                 ->first()
             : null;
 

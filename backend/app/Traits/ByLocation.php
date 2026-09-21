@@ -88,6 +88,46 @@ trait ByLocation
         ];
     }
 
+    /**
+     * A shop with branches in more than one region/country/city/area (see
+     * Shop::scopeFilter()'s whereHas('locations', ...)) correctly matches a
+     * location-filtered search via ANY of its locations, but shops.latitude/
+     * shops.longitude is a single flat pair set once from whichever location
+     * existed when the shop profile was created/edited (see ShopService::
+     * setShopParams()) - it can describe a different branch than the one
+     * that actually matched, making distance-to-customer wrong by however
+     * far apart the two branches are. This is the same root cause
+     * ShopResource::matched_location works around for the address string;
+     * mirrors its exact matching (region/country/city/area, first match by
+     * id) so the two never describe different locations for the same shop,
+     * falling back to the shop's own flat pair when no location filter was
+     * given, or no location happens to match one that was.
+     */
+    public function distanceSelectRaw(array $filter, float $longitude, float $latitude): string
+    {
+        $conditions = collect([
+            'region_id'  => data_get($filter, 'region_id'),
+            'country_id' => data_get($filter, 'country_id'),
+            'city_id'    => data_get($filter, 'city_id'),
+            'area_id'    => data_get($filter, 'area_id'),
+        ])
+            ->filter()
+            ->map(fn($id, $column) => "$column = " . (int)$id)
+            ->implode(' AND ');
+
+        if (!$conditions) {
+            return "round(ST_Distance_Sphere(point(`longitude`, `latitude`), point($longitude, $latitude)) / 1000, 1)";
+        }
+
+        $matchedLongitude = "(SELECT longitude FROM shop_locations WHERE shop_id = shops.id AND $conditions ORDER BY id LIMIT 1)";
+        $matchedLatitude  = "(SELECT latitude FROM shop_locations WHERE shop_id = shops.id AND $conditions ORDER BY id LIMIT 1)";
+
+        return "round(ST_Distance_Sphere("
+            . "point(COALESCE($matchedLongitude, `longitude`), COALESCE($matchedLatitude, `latitude`)), "
+            . "point($longitude, $latitude)"
+            . ') / 1000, 1)';
+    }
+
     public function getIds(array $filter): array
     {
         $regionId   = @$filter['region_id'];
