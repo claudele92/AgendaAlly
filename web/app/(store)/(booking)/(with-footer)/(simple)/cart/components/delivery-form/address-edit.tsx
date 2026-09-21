@@ -8,16 +8,17 @@ import NetworkError from "@/utils/network-error";
 import { error } from "@/components/alert";
 import { Types } from "@/context/checkout/checkout.reducer";
 import { useCheckout } from "@/context/checkout/checkout.context";
+import { resolveDeliveryPrice } from "@/utils/resolve-delivery-price";
 import AddressForm from "./address-form";
 
 interface AddressEditFormProps {
   id?: number;
   onCancel: () => void;
   onSuccess: () => void;
-  deliveryPrice?: DeliveryPrice;
+  deliveryPrices?: DeliveryPrice[];
 }
 
-const AddressEdit = ({ id, onCancel, onSuccess, deliveryPrice }: AddressEditFormProps) => {
+const AddressEdit = ({ id, onCancel, onSuccess, deliveryPrices }: AddressEditFormProps) => {
   const country = useAddressStore((state) => state.country);
   const queryClient = useQueryClient();
   const { data: address, isFetching } = useQuery(["address", id], () => addressService.get(id));
@@ -40,13 +41,17 @@ const AddressEdit = ({ id, onCancel, onSuccess, deliveryPrice }: AddressEditForm
           region_id: country?.region_id,
           country_id: country?.id,
           city_id: values.city?.id,
+          area_id: values.area?.id,
         };
         updateAddress(body, {
           onSuccess: (res) => {
             if (res.data.id === state.deliveryAddress?.id) {
               dispatch({
                 type: Types.UpdateDeliveryAddress,
-                payload: { address: res.data, deliveryPrice },
+                payload: {
+                  address: res.data,
+                  deliveryPrice: resolveDeliveryPrice(deliveryPrices, values.area?.id),
+                },
               });
             }
             onSuccess();

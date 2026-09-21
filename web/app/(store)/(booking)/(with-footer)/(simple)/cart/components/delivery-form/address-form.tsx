@@ -2,7 +2,7 @@ import { Input } from "@/components/input";
 import { useTranslation } from "react-i18next";
 import React, { useRef, useState } from "react";
 import useAddressStore from "@/global-store/address";
-import { City } from "@/types/global";
+import { Area, City } from "@/types/global";
 import { AsyncSelect } from "@/components/async-select";
 import { Button } from "@/components/button";
 import * as yup from "yup";
@@ -27,6 +27,13 @@ const schema = yup
     street_house_number: yup.string().required().max(255),
     additional_details: yup.string().max(255),
     city: yup
+      .object({
+        id: yup.number(),
+      })
+      .nullable(),
+    // Optional: not every city has areas configured, and a shop may only
+    // ever have set a city-wide delivery price - see resolveDeliveryPrice().
+    area: yup
       .object({
         id: yup.number(),
       })
@@ -67,6 +74,7 @@ const AddressForm = ({ onCancel, data, onSubmit, isButtonLoading }: AddressFormP
     resolver: yupResolver(schema),
     defaultValues: {
       city: data?.city || city,
+      area: data?.area || null,
       firstname: data?.firstname,
       lastname: data?.lastname,
       zipcode: data?.zipcode,
@@ -221,6 +229,17 @@ const AddressForm = ({ onCancel, data, onSubmit, isButtonLoading }: AddressFormP
             extractTitle={(value) => value?.translation?.title as string}
             extractKey={(value) => value.id}
             disabled
+          />
+        </div>
+        <div className="col-span-2">
+          <AsyncSelect
+            label="area"
+            onSelect={(value) => setValue("area", value)}
+            value={watch("area") as Area}
+            queryKey="v1/rest/areas"
+            queryParams={{ city_id: watch("city")?.id, active: 1 }}
+            extractTitle={(value) => value?.translation?.title as string}
+            extractKey={(value) => value.id}
           />
         </div>
         <div className="col-span-4">

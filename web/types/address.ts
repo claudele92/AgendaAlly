@@ -1,4 +1,4 @@
-import { City, Country, Region } from "@/types/global";
+import { Area, City, Country, Region } from "@/types/global";
 
 export interface AddressCreateBody {
   additional_details?: string;
@@ -10,6 +10,7 @@ export interface AddressCreateBody {
   country_id?: number;
   region_id?: number;
   city_id?: number;
+  area_id?: number;
 }
 
 export interface Address {
@@ -27,6 +28,7 @@ export interface Address {
   city: City | null;
   country: Country | null;
   region: Region | null;
+  area?: Area | null;
   location?: {
     address: string;
     latitude: string;

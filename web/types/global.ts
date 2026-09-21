@@ -172,6 +172,15 @@ export interface DeliveryPrice {
   price: number;
   id: number;
   region_id: number;
+  // Present when a seller configured a distinct delivery price for a
+  // specific area (sub-city zone) rather than the whole city - see
+  // DeliveryPrice::area_id on the backend. A city can have several of
+  // these side by side (one per area, plus an area-less city-wide
+  // default), so callers must pick the row matching the customer's own
+  // area rather than assuming the first result in the list is the right
+  // one - see resolveDeliveryPrice().
+  area_id?: number | null;
+  area?: Area | null;
 }
 
 export interface TransactionCreateBody {
