@@ -34,6 +34,7 @@ const ShopLocations = ({ next, prev, locationType }) => {
       key: 'location',
       render: (_, row) => (
         <span>
+          {row?.alias ? `${row.alias} — ` : ''}
           {row?.country?.translation?.title}
           {row?.city ? ',' : ''} {row?.city?.translation?.title}
         </span>
@@ -132,6 +133,7 @@ const ShopLocations = ({ next, prev, locationType }) => {
     city: row?.city
       ? { value: row.city.id, label: row.city?.translation?.title }
       : { value: 'all', label: t('whole.country') },
+    alias: row?.alias,
     address: row?.address,
     latitude: row?.latitude,
     longitude: row?.longitude,
@@ -144,6 +146,7 @@ const ShopLocations = ({ next, prev, locationType }) => {
       country_id: country,
       region_id: region,
       city_id: values.city?.value,
+      alias: values.alias,
       address: values.address,
       latitude: values.latitude,
       longitude: values.longitude,
