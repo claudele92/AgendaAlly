@@ -35,6 +35,10 @@ class MissingTranslationsSeeder extends Seeder
         // widget added to the admin/seller dashboard
         'revenue.over.time' => 'Revenue over time',
         'total.revenue'     => 'Total revenue',
+        // admin: views/settings/general-settings/setting.jsx - optional
+        // logo variant for dark backgrounds/dark mode, newly wired up on
+        // both admin (sidebar) and web (header, footer)
+        'dark.logo' => 'Dark mode logo',
     ];
 
     public function run(): void

@@ -34,6 +34,7 @@ export default function GeneralSettings() {
   const dispatch = useDispatch();
   const screens = Grid.useBreakpoint();
   const [logo, setLogo] = useState(activeMenu.data?.logo || null);
+  const [darkLogo, setDarkLogo] = useState(activeMenu.data?.dark_logo || null);
   const [favicon, setFavicon] = useState(activeMenu.data?.favicon || null);
   const [adminFavicon, setAdminFavicon] = useState(
     activeMenu.data?.admin_favicon || null,
@@ -100,6 +101,11 @@ export default function GeneralSettings() {
         };
         setLocation(data.location);
         data.logo = createImage(data.logo);
+        // Unlike logo/favicon/admin_favicon, a dark-mode logo is optional -
+        // most shops only ever set the one logo, so this stays null (never
+        // createImage(undefined), which would render an upload thumbnail
+        // pointing at "undefined") until a seller actually uploads one.
+        data.dark_logo = data.dark_logo ? createImage(data.dark_logo) : null;
         data.favicon = createImage(data.favicon);
         data.admin_favicon = createImage(data.admin_favicon);
         // Only build these when a default has actually been set —
@@ -122,6 +128,7 @@ export default function GeneralSettings() {
             }
           : undefined;
         setLogo(data.logo);
+        setDarkLogo(data.dark_logo);
         setFavicon(data.favicon);
         setAdminFavicon(data.admin_favicon);
         dispatch(setMenuData({ activeMenu, data }));
@@ -153,6 +160,8 @@ export default function GeneralSettings() {
             <Setting
               logo={logo}
               setLogo={setLogo}
+              darkLogo={darkLogo}
+              setDarkLogo={setDarkLogo}
               favicon={favicon}
               setFavicon={setFavicon}
               adminFavicon={adminFavicon}

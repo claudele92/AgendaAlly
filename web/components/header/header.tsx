@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import clsx from "clsx";
 import dynamic from "next/dynamic";
@@ -5,6 +7,7 @@ import { BackButton } from "@/components/back-button";
 import CountryIndicator from "@/components/country-indicator/country-indicator";
 import { HeaderLinks } from "./links";
 import { ImageWithFallBack } from "@/components/image";
+import { useLogo } from "@/hook/use-logo";
 
 const HeaderButtons = dynamic(
   () =>
@@ -38,35 +41,38 @@ export const Header = ({
   isHidden = true,
   showOnlyBackButton,
   showBusinessButton = true,
-}: HeaderProps) => (
-  <header className={clsx(borderBottom && "border-b border-gray-link")}>
-    <div className="xl:container px-4 lg:py-7 sm:py-4 py-2.5 flex items-center justify-between ">
-      {isHidden && !showOnlyBackButton && <MobileSidebar isHidden={isHidden} />}
-      <div className="flex gap-7 items-center">
-        {!isHidden && !showOnlyBackButton && <MobileSidebar isHidden={isHidden} />}
-        <Link
-          href="/"
-          className={clsx("relative z-10 lg:z-[4] lg:inline", showOnlyBackButton && "hidden")}
-        >
-          {settings?.logo && (
-            <ImageWithFallBack
-              src={settings.logo}
-              alt={settings?.title || "logo"}
-              width={148}
-              height={28}
-              className="object-contain h-7 w-auto"
-            />
+}: HeaderProps) => {
+  const logo = useLogo(settings);
+  return (
+    <header className={clsx(borderBottom && "border-b border-gray-link")}>
+      <div className="xl:container px-4 lg:py-7 sm:py-4 py-2.5 flex items-center justify-between ">
+        {isHidden && !showOnlyBackButton && <MobileSidebar isHidden={isHidden} />}
+        <div className="flex gap-7 items-center">
+          {!isHidden && !showOnlyBackButton && <MobileSidebar isHidden={isHidden} />}
+          <Link
+            href="/"
+            className={clsx("relative z-10 lg:z-[4] lg:inline", showOnlyBackButton && "hidden")}
+          >
+            {logo && (
+              <ImageWithFallBack
+                src={logo}
+                alt={settings?.title || "logo"}
+                width={148}
+                height={28}
+                className="object-contain h-7 w-auto"
+              />
+            )}
+          </Link>
+          <CountryIndicator />
+          {showOnlyBackButton && (
+            <div className="lg:hidden">
+              <BackButton />
+            </div>
           )}
-        </Link>
-        <CountryIndicator />
-        {showOnlyBackButton && (
-          <div className="lg:hidden">
-            <BackButton />
-          </div>
-        )}
+        </div>
+        {showLinks && <HeaderLinks />}
+        <HeaderButtons canOpenDrawer={showOnlyBackButton} showBusinessButton={showBusinessButton} />
       </div>
-      {showLinks && <HeaderLinks />}
-      <HeaderButtons canOpenDrawer={showOnlyBackButton} showBusinessButton={showBusinessButton} />
-    </div>
-  </header>
-);
+    </header>
+  );
+};
