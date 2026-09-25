@@ -24,6 +24,8 @@ const Setting = ({
   favicon,
   setLogo,
   logo,
+  setDarkLogo,
+  darkLogo,
   adminFavicon,
   setAdminFavicon,
 }) => {
@@ -50,6 +52,9 @@ const Setting = ({
       ...values,
       favicon: favicon.name,
       logo: logo.name,
+      // Optional, unlike the other three - a shop that never uploads one
+      // just keeps using `logo` everywhere, light or dark background alike.
+      dark_logo: darkLogo?.name || '',
       admin_favicon: adminFavicon.name,
       hour_format: values.using_12_hour_format === '1' ? 'hh:mm a' : 'HH:mm',
     };
@@ -261,6 +266,15 @@ const Setting = ({
                 setImage={setLogo}
                 form={form}
                 name='logo'
+              />
+            </Form.Item>
+            <Form.Item label={t('dark.logo')} name='dark_logo'>
+              <ImageUploadSingle
+                type='settings'
+                image={darkLogo}
+                setImage={setDarkLogo}
+                form={form}
+                name='dark_logo'
               />
             </Form.Item>
             <Form.Item

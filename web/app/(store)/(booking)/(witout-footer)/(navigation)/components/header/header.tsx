@@ -1,32 +1,38 @@
+"use client";
+
 import Link from "next/link";
 import { SearchField } from "@/components/main-search-field";
 import { HeaderButtons } from "@/components/header-buttons/header-buttons";
 import { BackButton } from "@/components/back-button";
 import { ImageWithFallBack } from "@/components/image";
+import { useLogo } from "@/hook/use-logo";
 
 interface HeaderProps {
   settings?: Record<string, string>;
 }
 
-export const NavigationHeader = ({ settings }: HeaderProps) => (
-  <header className="border-b border-gray-link">
-    <div className="px-4 md:py-5 py-2.5 flex items-center justify-between">
-      <Link href="/" className="hidden lg:inline-block">
-        {settings?.logo && (
-          <ImageWithFallBack
-            src={settings.logo}
-            alt={settings?.title || "logo"}
-            width={148}
-            height={28}
-            className="object-contain h-7 w-auto"
-          />
-        )}
-      </Link>
-      <div className="lg:hidden">
-        <BackButton />
+export const NavigationHeader = ({ settings }: HeaderProps) => {
+  const logo = useLogo(settings);
+  return (
+    <header className="border-b border-gray-link">
+      <div className="px-4 md:py-5 py-2.5 flex items-center justify-between">
+        <Link href="/" className="hidden lg:inline-block">
+          {logo && (
+            <ImageWithFallBack
+              src={logo}
+              alt={settings?.title || "logo"}
+              width={148}
+              height={28}
+              className="object-contain h-7 w-auto"
+            />
+          )}
+        </Link>
+        <div className="lg:hidden">
+          <BackButton />
+        </div>
+        <SearchField isInHeader />
+        <HeaderButtons />
       </div>
-      <SearchField isInHeader />
-      <HeaderButtons />
-    </div>
-  </header>
-);
+    </header>
+  );
+};

@@ -15,6 +15,12 @@ interface FooterProps {
 
 export const Footer = ({ settings }: FooterProps) => {
   const isMobile = useMediaQuery("(max-width:640px)");
+  // The footer's background is always dark (bg-footerBg) regardless of the
+  // site's current light/dark theme, so it always prefers the dark-mode
+  // logo variant if one is set - unlike the headers, this isn't
+  // theme-conditional (see useLogo), since the footer never switches to a
+  // light background.
+  const logo = settings?.dark_logo || settings?.logo;
   return (
     <footer className="bg-footerBg pt-12 pb-5">
       <div className="xl:container px-4 text-white flex justify-between flex-wrap xl:flex-nowrap">
@@ -22,9 +28,9 @@ export const Footer = ({ settings }: FooterProps) => {
           <div>
             <div className="relative h-[45px] max-w-[420px] ">
               <Link href="/" className="mb-3 max-w-max">
-                {settings?.logo && (
+                {logo && (
                   <ImageWithFallBack
-                    src={settings.logo}
+                    src={logo}
                     alt={settings?.title || "logo"}
                     className="object-contain max-h-11 h-full !w-auto"
                     // quality={100}
