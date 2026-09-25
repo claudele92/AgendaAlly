@@ -45,6 +45,10 @@ class MissingTranslationsSeeder extends Seeder
         // field on Service/Product Location forms
         'location.name'             => 'Location name',
         'location.name.placeholder' => 'e.g. Bonanjo - Main Studio',
+        // admin: views/settings/general-settings/setting.jsx - optional
+        // logo variant for dark backgrounds/dark mode, newly wired up on
+        // both admin (sidebar) and web (header, footer)
+        'dark.logo' => 'Dark mode logo',
     ];
 
     public function run(): void
