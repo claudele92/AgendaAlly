@@ -28,6 +28,7 @@ const ShopLocations = ({ next, prev, locationType }) => {
       key: 'location',
       render: (_, row) => (
         <span>
+          {row?.alias ? `${row.alias} — ` : ''}
           {row.country?.translation?.title}
           {row.city ? ',' : ''} {row.city?.translation?.title}
         </span>
@@ -98,6 +99,7 @@ const ShopLocations = ({ next, prev, locationType }) => {
     const country = values?.country?.value?.split(',')?.[0];
     const region = values?.country?.value?.split(',')?.[1];
     const body = {
+      alias: values.alias,
       type: locationType?.value,
       country_id: country,
       region_id: region,
