@@ -35,6 +35,9 @@ class MissingTranslationsSeeder extends Seeder
         // widget added to the admin/seller dashboard
         'revenue.over.time' => 'Revenue over time',
         'total.revenue'     => 'Total revenue',
+        // web: shops/[id]/components/location/location.tsx - branch
+        // switcher heading, shown on multi-branch shops' pages
+        'other.locations'   => 'Other locations',
     ];
 
     public function run(): void
