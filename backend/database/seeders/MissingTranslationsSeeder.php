@@ -15,7 +15,7 @@ use Illuminate\Database\Seeder;
  * and one storefront hero subheading (confirmed the same way on /home-2).
  * Both apps read from this one shared `translations` table (see the
  * existing 'shop'/'shop.edit'/'delivery' rows, group=web, which already
- * back admin-panel strings), so all four keys use the same group.
+ * back admin-panel strings), so every key here uses the same group.
  */
 class MissingTranslationsSeeder extends Seeder
 {
@@ -35,6 +35,16 @@ class MissingTranslationsSeeder extends Seeder
         // widget added to the admin/seller dashboard
         'revenue.over.time' => 'Revenue over time',
         'total.revenue'     => 'Total revenue',
+        // web: shops/[id]/components/location/location.tsx - branch
+        // switcher heading, shown on multi-branch shops' pages. Renamed
+        // from 'other.locations' (seeded the same day) once the switcher
+        // itself started reading it as 'our.locations' - these are a
+        // shop's own branches, not somebody else's.
+        'our.locations'     => 'Our locations',
+        // admin: components/shop/location-select.jsx - the branch alias
+        // field on Service/Product Location forms
+        'location.name'             => 'Location name',
+        'location.name.placeholder' => 'e.g. Bonanjo - Main Studio',
     ];
 
     public function run(): void
@@ -45,5 +55,10 @@ class MissingTranslationsSeeder extends Seeder
                 ['value' => $value]
             );
         }
+
+        // The 'other.locations' row this seeder used to create is no
+        // longer read anywhere - clean it up rather than leave a stale,
+        // unused row once a deploy re-runs this seeder.
+        Translation::where(['locale' => 'en', 'group' => 'web', 'key' => 'other.locations'])->delete();
     }
 }

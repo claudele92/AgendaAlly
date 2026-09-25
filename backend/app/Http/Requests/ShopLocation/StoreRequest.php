@@ -54,6 +54,7 @@ class StoreRequest extends BaseRequest
                 Rule::exists('areas', 'id')
             ],
             'address' => ['nullable', 'string', 'max:255'],
+            'alias' => ['nullable', 'string', 'max:255'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'type' => [

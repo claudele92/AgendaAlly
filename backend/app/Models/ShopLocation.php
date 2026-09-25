@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $city_id
  * @property int|null $area_id
  * @property string|null $address
+ * @property string|null $alias
  * @property float|null $latitude
  * @property float|null $longitude
  * @property int $type

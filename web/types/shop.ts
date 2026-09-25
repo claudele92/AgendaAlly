@@ -38,6 +38,7 @@ export interface ShopLocationEntry {
   area_id?: number;
   type?: number;
   address?: string;
+  alias?: string;
   latitude?: number;
   longitude?: number;
   city?: { translation?: { title: string } };

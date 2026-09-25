@@ -10,6 +10,7 @@ import { useSettings } from "@/hook/use-settings";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import clsx from "clsx";
 import { createMapUrl } from "@/utils/create-map-url";
 import { buildLocationQuery } from "@/utils/build-shop-location-query";
@@ -20,22 +21,29 @@ interface ShopLocationProps {
   data?: DefaultResponse<Shop>;
 }
 
-// A branch's own address is what should distinguish it from its siblings
-// in the switcher - falling back to the shop's single flat address here
-// (unlike the primary address above, which has no sibling to be confused
-// with) would show the same text on every entry once one branch's address
-// is empty.
+// A branch's own alias is what should distinguish it from its siblings in
+// the switcher without crowding the page with full street addresses -
+// falling back to the shop's single flat address here (unlike the primary
+// address above, which has no sibling to be confused with) would show the
+// same text on every entry once one branch's own address is empty too.
 const locationLabel = (location: ShopLocationEntry) =>
-  location.address ||
-  location.city?.translation?.title ||
-  location.region?.translation?.title ||
-  location.country?.translation?.title;
+  location.alias || location.address || location.city?.translation?.title;
 
 export const ShopLocation = ({ data }: ShopLocationProps) => {
   const { settings } = useSettings();
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
+  // Google rejects a keyless or coordinate-less static map request outright
+  // (see the "maps guard" fix in 75d0816), but a validly-formed request can
+  // still fail at request time for reasons this component has no way to
+  // predict up front - the key missing "Maps Static API" specifically,
+  // billing not enabled, an HTTP referrer restriction that doesn't cover
+  // this domain, a transient network error. Whatever the cause, the
+  // customer must never see a broken-image icon + raw alt text, so this
+  // hides the element the instant its own <img> fails to load, regardless
+  // of why.
+  const [mapImageFailed, setMapImageFailed] = useState(false);
   // Prefer the branch the customer actually matched (see
   // ShopResource::matched_location) over the shop's own flat address/
   // coordinates - a multi-branch shop's flat lat_long only ever describes
@@ -59,21 +67,20 @@ export const ShopLocation = ({ data }: ShopLocationProps) => {
         <MapPinIcon />
         <span className="text-sm">{displayAddress}</span>
       </Link>
-      {settings?.google_map_key && (
+      {settings?.google_map_key && latitude && longitude && !mapImageFailed && (
         <img
-          src={`https://maps.googleapis.com/maps/api/staticmap?center=${
-            latitude ?? ""
-          },${longitude ?? ""}&zoom=10&size=600x270&markers=color:black|label:${
+          src={`https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=10&size=600x270&markers=color:black|label:${
             data?.data?.r_avg ?? 0
-          }|${latitude ?? ""},${longitude ?? ""}&key=${settings.google_map_key}`}
+          }|${latitude},${longitude}&key=${settings.google_map_key}`}
           alt="location"
           className="w-full md:max-h-[270px] max-h-[390px] object-cover rounded-button"
+          onError={() => setMapImageFailed(true)}
         />
       )}
       {serviceLocations && serviceLocations.length > 1 && (
         <div className="mt-5 pt-5 border-t border-gray-link">
           <h3 className="text-sm font-semibold mb-3">
-            {t("other.locations", { defaultValue: "Other locations" })}
+            {t("our.locations", { defaultValue: "Our locations" })}
           </h3>
           <div className="flex flex-wrap gap-2">
             {serviceLocations.map((location) => {
