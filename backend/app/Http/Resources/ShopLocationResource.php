@@ -26,6 +26,7 @@ class ShopLocationResource extends JsonResource
             'city_id'       => $this->when($this->city_id, $this->city_id),
             'area_id'       => $this->when($this->area_id, $this->area_id),
             'address'       => $this->when($this->address, $this->address),
+            'alias'         => $this->when($this->alias, $this->alias),
             'latitude'      => $this->when($this->latitude, $this->latitude),
             'longitude'     => $this->when($this->longitude, $this->longitude),
             'type'          => $this->when($this->type, $this->type),
