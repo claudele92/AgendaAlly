@@ -40,7 +40,13 @@ export const Masters = () => {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
     }
   );
-  const masterList = extractDataFromPagination(masters?.pages);
+  // A master without a live shop invite has nowhere to send the customer -
+  // `master.invite?.shop?.slug` would be undefined, producing a
+  // `/shops/undefined/booking` link that 404s on click (and on Next's own
+  // viewport prefetch, before anyone even clicks it).
+  const masterList = extractDataFromPagination(masters?.pages)?.filter((master) =>
+    Boolean(master.invite?.shop?.slug)
+  );
   return (
     <div className="mt-14">
       <ListHeader title={t("the.best.masters")} link="/masters" container />

@@ -64,5 +64,11 @@ class MissingTranslationsSeeder extends Seeder
         // longer read anywhere - clean it up rather than leave a stale,
         // unused row once a deploy re-runs this seeder.
         Translation::where(['locale' => 'en', 'group' => 'web', 'key' => 'other.locations'])->delete();
+
+        // 'error.descriptoin' was a misspelled duplicate seeded alongside
+        // the correctly-spelled 'error.description' to paper over a typo
+        // in app/error.tsx and its gallery-page copy (both now fixed to
+        // read the correct key) - drop the stale duplicate on a reseed.
+        Translation::where(['locale' => 'en', 'group' => 'web', 'key' => 'error.descriptoin'])->delete();
     }
 }
