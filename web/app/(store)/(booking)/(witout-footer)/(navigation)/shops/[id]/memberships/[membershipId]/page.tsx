@@ -1,6 +1,7 @@
 import { BackButton } from "@/components/back-button";
 import { membershipService } from "@/services/membership";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { Translate } from "@/components/translate";
 import { MembershipPurchase } from "./purchase";
 import { MembershipDetailRender } from "./detail";
@@ -15,10 +16,17 @@ const MembershipDetailPage = async (
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
-  const data = await membershipService.getById(searchParams.shopId, params.membershipId, {
-    lang,
-    currency_id: currencyId,
-  });
+  // This membership is the whole page's subject - a failed fetch reads as
+  // "not available" (404) rather than crashing.
+  let data;
+  try {
+    data = await membershipService.getById(searchParams.shopId, params.membershipId, {
+      lang,
+      currency_id: currencyId,
+    });
+  } catch {
+    notFound();
+  }
   return (
     <section className="xl:container px-4 md:py-7">
       <div className="hidden lg:block">

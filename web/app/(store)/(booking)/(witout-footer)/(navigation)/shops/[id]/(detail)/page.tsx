@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { shopService } from "@/services/shop";
 import dynamic from "next/dynamic";
@@ -66,11 +67,21 @@ export const generateMetadata = async (props: {
   const searchParams = await props.searchParams;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
-  const shop = await shopService.getBySlug(params.id, {
-    lang,
-    currency_id: currencyId,
-    ...extractShopLocationParams(searchParams),
-  });
+  // This shop *is* the entire page's subject on every route under
+  // shops/[id] - there's no partial/degraded state to fall back to, so a
+  // failed fetch here should read as "this shop isn't available" (404)
+  // rather than crash the page or generate metadata for a shop that isn't
+  // actually there.
+  let shop;
+  try {
+    shop = await shopService.getBySlug(params.id, {
+      lang,
+      currency_id: currencyId,
+      ...extractShopLocationParams(searchParams),
+    });
+  } catch {
+    notFound();
+  }
 
   return {
     title: shop.data.translation?.title,
@@ -93,16 +104,21 @@ const SingleShop = async (props: {
   const searchParams = await props.searchParams;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
-  const settings = await globalService.settings();
+  const settings = await globalService.settings().catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
   const shopReviewsEnabled = parsedSettings?.shop_reviews_enabled === "1";
   const shopLocationParams = extractShopLocationParams(searchParams);
-  const shop = await shopService.getBySlug(params.id, {
-    lang,
-    currency_id: currencyId,
-    ...shopLocationParams,
-  });
+  let shop;
+  try {
+    shop = await shopService.getBySlug(params.id, {
+      lang,
+      currency_id: currencyId,
+      ...shopLocationParams,
+    });
+  } catch {
+    notFound();
+  }
   const shopLocationQuery = new URLSearchParams(shopLocationParams).toString();
   return (
     <>
