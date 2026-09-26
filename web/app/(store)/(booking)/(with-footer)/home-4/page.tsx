@@ -17,7 +17,9 @@ const HomePage = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
   const cookieCountryId = (await cookies()).get("country_id")?.value || undefined;
   const cookieCityId = (await cookies()).get("city_id")?.value || undefined;
-  const settings = await globalService.settings();
+  // Settings drives branding/feature-flags used throughout this page, not
+  // just one section - same fail-open treatment already used in app/layout.tsx.
+  const settings = await globalService.settings().catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
   const { countryId, cityId } = resolveDefaultLocation(
@@ -25,16 +27,20 @@ const HomePage = async () => {
     cookieCityId,
     parsedSettings
   );
-  const shops = await shopService.getAll({
-    lang,
-    perPage: 8,
-    column: "r_avg",
-    sort: "desc",
-    country_id: countryId,
-    city_id: cityId,
-    location_type: "2",
-  });
-  const stories = await storyService.getAll({ lang });
+  // Failing this section open to undefined degrades just the shops/stories
+  // widgets HomePage4Content renders, instead of crashing the whole page.
+  const shops = await shopService
+    .getAll({
+      lang,
+      perPage: 8,
+      column: "r_avg",
+      sort: "desc",
+      country_id: countryId,
+      city_id: cityId,
+      location_type: "2",
+    })
+    .catch(() => undefined);
+  const stories = await storyService.getAll({ lang }).catch(() => undefined);
   return (
     <HomePage4Content
       settings={parsedSettings}
