@@ -24,7 +24,7 @@ const BlogPage = async () => {
     {
       cache: "no-cache",
     }
-  );
+  ).catch(() => undefined);
   return (
     <section className="xl:container px-4 my-7">
       <BackButton title="blog" />
