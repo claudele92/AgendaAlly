@@ -183,7 +183,10 @@ class Service extends Model
         $query
             ->when(request()->is('api/v1/rest/*'), fn($q)            => $q->actual())
             ->when(data_get($filter, 'type'),          fn($q, $type)     => $q->where('type', $type))
-            ->when(data_get($filter, 'category_id'),   fn($q, $id)       => $q->where('category_id', $id))
+            ->when(data_get($filter, 'category_id'),   fn($q, $id)       => $q->whereIn(
+                'category_id',
+                Category::where('id', $id)->orWhere('parent_id', $id)->pluck('id')
+            ))
             ->when(data_get($filter, 'shop_id'),       fn($q, $id)       => $q->where('shop_id', $id))
             ->when(data_get($filter, 'empty_shop'),    fn($q)            => $q->whereNull('shop_id'))
             ->when(data_get($filter, 'status'),        fn($q, $status)   => $q->where('status', $status))

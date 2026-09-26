@@ -9,7 +9,7 @@ import useSettingsStore from "@/global-store/settings";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { userService } from "@/services/user";
 import { globalService } from "@/services/global";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CheckIcon from "@/assets/icons/check";
 import EmptyCheckIcon from "@/assets/icons/empty-check";
 import { Button } from "@/components/button";
@@ -26,6 +26,18 @@ export const CurrencySelect = () => {
   const [localSelectedCurrency, setLocalSelectedCurrency] = useState<Currency | undefined>(
     selectedCurrency
   );
+
+  // This modal is mounted once, globally, and never unmounts on close, so
+  // its local staging state can otherwise go stale relative to the shared
+  // store (e.g. after the currency is changed elsewhere, like App Settings,
+  // or after the store's persisted value rehydrates post-mount). Resync
+  // whenever the modal is (re)opened or the real selection changes so
+  // "Save" never silently recommits a stale value.
+  useEffect(() => {
+    if (isCurrencySelectModalOpen) {
+      setLocalSelectedCurrency(selectedCurrency);
+    }
+  }, [isCurrencySelectModalOpen, selectedCurrency]);
 
   const { data, isLoading } = useQuery(["currencies"], () => globalService.currencies());
 

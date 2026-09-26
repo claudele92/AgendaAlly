@@ -54,6 +54,9 @@ const ShopsPage = () => {
       searchParams.get("service_type"),
       searchParams.get("gender"),
       searchParams.get("category_id"),
+      searchParams.get("date"),
+      searchParams.get("timeFrom"),
+      searchParams.get("timeTo"),
     ],
     ({ pageParam }) =>
       shopService.getAll({
@@ -71,6 +74,9 @@ const ShopsPage = () => {
         has_discount: searchParams.has("has_discount") ? searchParams.get("has_discount") : 0,
         service_type: searchParams.get("service_type"),
         gender: searchParams.get("gender"),
+        date: searchParams.get("date"),
+        time_from: searchParams.get("timeFrom"),
+        time_to: searchParams.get("timeTo"),
         ...Object.assign(
           {},
           ...searchParams.getAll("take").map((take, index) => ({ [`take[${index}]`]: take }))

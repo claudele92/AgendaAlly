@@ -45,6 +45,11 @@ class StoreRequest extends BaseRequest
                 'integer',
                 Rule::exists('service_masters', 'id')->where('active', true)
             ],
+            'data.*.shop_location_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('shop_locations', 'id')
+            ],
             'data.*.price_id' => [
 //                'required',
                 'integer',

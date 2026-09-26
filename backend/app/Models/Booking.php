@@ -245,6 +245,11 @@ class Booking extends Model
         return $this->belongsTo(Shop::class);
     }
 
+    public function shopLocation(): BelongsTo
+    {
+        return $this->belongsTo(ShopLocation::class);
+    }
+
     public function master(): BelongsTo
     {
         return $this->belongsTo(User::class, 'master_id');

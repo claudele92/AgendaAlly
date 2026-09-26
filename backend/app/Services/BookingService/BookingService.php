@@ -15,7 +15,9 @@ use App\Models\Payment;
 use App\Models\Booking;
 use App\Helpers\Utility;
 use App\Models\Settings;
+use App\Models\Invitation;
 use App\Models\MemberShip;
+use App\Models\ShopLocation;
 use App\Models\Transaction;
 use App\Helpers\OrderHelper;
 use App\Traits\Notification;
@@ -476,18 +478,76 @@ class BookingService extends CoreService
             throw new Exception(__('errors.' . ResponseError::OTHER_SHOP, locale: $this->language));
         }
 
-        $data['category_id']    = $serviceMaster->service?->category_id;
-        $data['service_id']     = $serviceMaster->service_id;
-        $data['master_id']      = $serviceMaster->master_id;
-        $data['type']           = $serviceMaster->type;
-        $data['discount']       = max((int)$serviceMaster->discount, 0);
-        $data['commission_fee'] = max($serviceMaster->commission_fee, 0);
-        $data['price']          = max($serviceMaster->price, 0);
-        $data['service_fee']    = max((double)Settings::where('key', 'booking_service_fee')->first()?->value, 0);
-        $data['rate']           = $rate;
-        $data['shop_id']        = $shopId;
+        $data['category_id']      = $serviceMaster->service?->category_id;
+        $data['service_id']       = $serviceMaster->service_id;
+        $data['master_id']        = $serviceMaster->master_id;
+        $data['type']             = $serviceMaster->type;
+        $data['discount']         = max((int)$serviceMaster->discount, 0);
+        $data['commission_fee']   = max($serviceMaster->commission_fee, 0);
+        $data['price']            = max($serviceMaster->price, 0);
+        $data['service_fee']      = max((double)Settings::where('key', 'booking_service_fee')->first()?->value, 0);
+        $data['rate']             = $rate;
+        $data['shop_id']          = $shopId;
+        $data['shop_location_id'] = $this->resolveBookingLocation($data, $shopId, $serviceMaster->master_id);
 
         return $data;
+    }
+
+    /**
+     * Resolves and validates the branch a booking is made at, making
+     * shop_location_id a first-class, authoritative attribute of the
+     * booking record rather than something inferred after the fact.
+     *
+     * A shop that has never set up any SERVICE ShopLocation (branches are
+     * opt-in - see ShopLocationController) keeps today's location-less
+     * behavior exactly: no location is required or stored. Once a shop has
+     * at least one SERVICE location, every booking must name one, it must
+     * belong to this shop, and - mirroring the exact opt-in semantics
+     * already used for read-side branch scoping in
+     * User::bookingBranchScope()/MasterRepository::index() - the selected
+     * master must actually be assigned to it, unless that master has no
+     * branch assignments at all (unrestricted, bookable everywhere).
+     *
+     * @throws Exception
+     */
+    private function resolveBookingLocation(array $data, int $shopId, int $masterId): ?int
+    {
+        $hasLocations = ShopLocation::where('shop_id', $shopId)
+            ->where('type', ShopLocation::SERVICE)
+            ->exists();
+
+        if (!$hasLocations) {
+            return null;
+        }
+
+        $shopLocationId = data_get($data, 'shop_location_id');
+
+        if (empty($shopLocationId)) {
+            throw new Exception(__('errors.' . ResponseError::LOCATION_REQUIRED, locale: $this->language));
+        }
+
+        $location = ShopLocation::where('id', $shopLocationId)
+            ->where('shop_id', $shopId)
+            ->where('type', ShopLocation::SERVICE)
+            ->first();
+
+        if (!$location) {
+            throw new Exception(__('errors.' . ResponseError::OTHER_LOCATION, locale: $this->language));
+        }
+
+        $invitation = Invitation::where('user_id', $masterId)
+            ->where('shop_id', $shopId)
+            ->where('status', Invitation::ACCEPTED)
+            ->with('shopLocations:id')
+            ->first();
+
+        $assignedLocationIds = $invitation?->shopLocations->pluck('id')->all() ?? [];
+
+        if (!empty($assignedLocationIds) && !in_array((int)$shopLocationId, $assignedLocationIds, true)) {
+            throw new Exception(__('errors.' . ResponseError::MASTER_NOT_IN_LOCATION, locale: $this->language));
+        }
+
+        return (int)$shopLocationId;
     }
 
     public function delete(?array $ids = [], array $filter = []): void
