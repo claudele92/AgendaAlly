@@ -4,6 +4,7 @@ import { ProductFull } from "@/types/product";
 import { Metadata } from "next";
 import React from "react";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import { ProductDetail } from "../components/product-detail";
 
@@ -17,10 +18,15 @@ export const generateMetadata = async (
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
-  const { data } = await fetcher<DefaultResponse<ProductFull>>(
-    buildUrlQueryParams(`v1/rest/products/${params.id}`, { lang, currency_id: currencyId }),
-    { redirectOnError: true }
-  );
+  let data;
+  try {
+    ({ data } = await fetcher<DefaultResponse<ProductFull>>(
+      buildUrlQueryParams(`v1/rest/products/${params.id}`, { lang, currency_id: currencyId }),
+      { redirectOnError: true }
+    ));
+  } catch {
+    notFound();
+  }
   return {
     title: data.translation?.title,
     description: data.translation?.description,
@@ -39,9 +45,14 @@ const ProductDetailPage = async (props: { params: Promise<{ id: string }> }) => 
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
-  const data = await fetcher<DefaultResponse<ProductFull>>(
-    buildUrlQueryParams(`v1/rest/products/${params.id}`, { lang, currency_id: currencyId })
-  );
+  let data;
+  try {
+    data = await fetcher<DefaultResponse<ProductFull>>(
+      buildUrlQueryParams(`v1/rest/products/${params.id}`, { lang, currency_id: currencyId })
+    );
+  } catch {
+    notFound();
+  }
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",

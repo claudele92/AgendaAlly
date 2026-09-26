@@ -6,6 +6,7 @@ import { Blog, BlogFullTranslation } from "@/types/blog";
 import Image from "next/image";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Metadata } from "next";
 import { BackButton } from "@/components/back-button";
@@ -21,12 +22,21 @@ export const generateMetadata = async (
 ): Promise<Metadata> => {
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
-  const blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
-    buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
-    {
-      redirectOnError: true,
-    }
-  );
+  // redirectOnError already turns a genuine 404 response into notFound(),
+  // but that only helps once fetch() actually gets a response back - a
+  // network-level failure (backend unreachable) throws before ever
+  // reaching that check, so this needs its own try/catch to close that gap.
+  let blog;
+  try {
+    blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
+      buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
+      {
+        redirectOnError: true,
+      }
+    );
+  } catch {
+    notFound();
+  }
   return {
     title: blog.data.translation?.title,
     description: blog.data.translation?.short_desc,
@@ -45,10 +55,15 @@ export const generateMetadata = async (
 const BlogDetailPage = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
-  const blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
-    buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
-    { redirectOnError: true }
-  );
+  let blog;
+  try {
+    blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
+      buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
+      { redirectOnError: true }
+    );
+  } catch {
+    notFound();
+  }
   return (
     <section className="xl:container px-4 my-7">
       <BackButton title="blog" />
