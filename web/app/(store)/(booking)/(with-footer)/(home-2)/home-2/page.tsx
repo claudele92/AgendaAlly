@@ -88,14 +88,23 @@ const HomePage = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
   const cookieCountryId = (await cookies()).get("country_id")?.value || undefined;
   const cookieCityId = (await cookies()).get("city_id")?.value || undefined;
-  const services = await categoryService.getAll({
-    lang,
-    type: "sub_main",
-    perPage: 11,
-    column: "input",
-    sort: "asc",
-  });
-  const settings = await globalService.settings();
+  // Each of these backs one widget/section on an otherwise-independent
+  // homepage - every consumer below already declares its `data` prop
+  // optional and falls back to its own client-side react-query fetch when
+  // it's missing, so failing a single section open to undefined degrades
+  // that one section instead of crashing the whole page.
+  const services = await categoryService
+    .getAll({
+      lang,
+      type: "sub_main",
+      perPage: 11,
+      column: "input",
+      sort: "asc",
+    })
+    .catch(() => undefined);
+  // Settings drives branding/feature-flags used throughout this page, not
+  // just one section - same fail-open treatment already used in app/layout.tsx.
+  const settings = await globalService.settings().catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
   const { countryId, cityId } = resolveDefaultLocation(
@@ -103,14 +112,16 @@ const HomePage = async () => {
     cookieCityId,
     parsedSettings
   );
-  const shops = await shopService.getAll({
-    lang,
-    perPage: 8,
-    country_id: countryId,
-    city_id: cityId,
-    location_type: "2",
-  });
-  const stories = await storyService.getAll({ lang });
+  const shops = await shopService
+    .getAll({
+      lang,
+      perPage: 8,
+      country_id: countryId,
+      city_id: cityId,
+      location_type: "2",
+    })
+    .catch(() => undefined);
+  const stories = await storyService.getAll({ lang }).catch(() => undefined);
   return (
     <>
       <Header isHidden={false} settings={parsedSettings} />
