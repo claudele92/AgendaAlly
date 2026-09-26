@@ -12,7 +12,7 @@ import { useSettings } from "@/hook/use-settings";
 import { Qa } from "./components/qa";
 
 interface HelpContentProps {
-  data: Paginate<Faq>;
+  data?: Paginate<Faq>;
 }
 
 export const HelpContent = ({ data }: HelpContentProps) => {
@@ -28,7 +28,7 @@ export const HelpContent = ({ data }: HelpContentProps) => {
     ({ pageParam }) => infoService.faq({ lang: language?.locale, page: pageParam }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
-      initialData: { pages: [data], pageParams: [1] },
+      initialData: data ? { pages: [data], pageParams: [1] } : undefined,
     }
   );
 

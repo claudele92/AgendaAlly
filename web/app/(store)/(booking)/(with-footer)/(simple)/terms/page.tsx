@@ -5,7 +5,7 @@ import { TermsContent } from "./content";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const lang = (await cookies()).get("lang")?.value || "en";
-  const terms = await infoService.terms({ lang });
+  const terms = await infoService.terms({ lang }).catch(() => undefined);
   return {
     title: terms?.data.translation?.title,
   };
@@ -13,7 +13,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
 
 const TermsPage = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
-  const terms = await infoService.terms({ lang });
+  const terms = await infoService.terms({ lang }).catch(() => undefined);
   return <TermsContent data={terms} />;
 };
 
