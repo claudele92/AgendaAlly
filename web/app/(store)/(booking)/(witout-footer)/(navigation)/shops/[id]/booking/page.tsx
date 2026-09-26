@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { shopService } from "@/services/shop";
 import dynamic from "next/dynamic";
 import { WorkingSchedule } from "../components/working-schedule";
@@ -42,7 +43,14 @@ const ShopBooking = async (
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
-  const shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
+  // This shop is the whole page's subject - a failed fetch reads as "not
+  // available" (404) rather than crashing.
+  let shop;
+  try {
+    shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
+  } catch {
+    notFound();
+  }
   return (
     <section className="xl:container px-4 py-7">
       <BookingBackButton resetAll />
