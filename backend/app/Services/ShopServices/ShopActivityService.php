@@ -79,4 +79,16 @@ class ShopActivityService extends CoreService
         $shop->update(['open' => !$shop->open]);
     }
 
+    public function changeCollectViaPlatformStatus(string $uuid): void
+    {
+        $shop = $this->model()->firstWhere('uuid', $uuid);
+
+        if (empty($shop)) {
+            throw new Exception( __('errors.' . ResponseError::ERROR_404, locale: $this->language));
+        }
+
+        /** @var Shop $shop */
+        $shop->update(['collect_via_platform' => !$shop->collect_via_platform]);
+    }
+
 }

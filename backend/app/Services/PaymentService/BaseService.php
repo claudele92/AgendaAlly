@@ -841,21 +841,29 @@ class BaseService extends CoreService
         if (in_array($modelType, [Booking::class, Cart::class], true)) {
             $shopId = $this->resolveGatewayShopId($modelType, $modelId);
             $tag    = Payment::find($paymentId)?->tag;
+            $shop   = Shop::find($shopId);
 
-            // Orange/MTN always resolve through the shop's own
+            // Orange/MTN normally resolve through the shop's own
             // ShopPayment (or nothing at all) - a missing row there must
             // keep meaning "this shop hasn't configured it", never
-            // silently fall back to the platform's own credentials.
-            if (in_array($tag, Payment::SHOP_CREDENTIAL_TAGS, true)) {
+            // silently fall back to the platform's own credentials. The
+            // one opt-in exception: a shop that has explicitly asked the
+            // platform to collect on its behalf (collect_via_platform -
+            // e.g. because a buyer's country/currency isn't one its own
+            // mobile-money account can settle) routes through the
+            // platform's own config instead, exactly like PayPal below.
+            // TransactionObserver reads this same flag at settlement time
+            // to record the shop's payable share - see
+            // PlatformFeeLedgerEntry::ENTRY_TYPE_PAYABLE.
+            if (in_array($tag, Payment::SHOP_CREDENTIAL_TAGS, true) && !$shop?->collect_via_platform) {
                 return ShopPayment::forShopAndPayment($shopId, $paymentId);
             }
 
-            // Every other gateway (PayPal) settles at the platform level -
-            // there is no per-shop merchant account to configure, so fall
-            // back to the platform's own per-country config (same source
-            // a platform-fee purchase resolves to below) purely so a
-            // currency override still applies.
-            $shop = Shop::find($shopId);
+            // Every other gateway (PayPal), or an Orange/MTN shop that
+            // opted into platform collection, settles at the platform
+            // level - there is no per-shop merchant account to use, so
+            // fall back to the platform's own per-country config (same
+            // source a platform-fee purchase resolves to below).
             $country = $shop?->checkoutCountry(ShopLocation::PRODUCT) ?? $shop?->checkoutCountry(ShopLocation::SERVICE);
 
             return $country ? PlatformPaymentConfig::forCountryAndPayment($country->id, $paymentId) : null;

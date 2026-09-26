@@ -65,6 +65,14 @@ export default function MyShop() {
       .finally(() => setStatusLoading(false));
   }
 
+  function collectViaPlatformChange() {
+    setStatusLoading(true);
+    shopService
+      .setCollectViaPlatform()
+      .then(() => dispatch(setRefetch(activeMenu)))
+      .finally(() => setStatusLoading(false));
+  }
+
   return (
     <Card
       title={t('my.shop')}
@@ -130,6 +138,20 @@ export default function MyShop() {
                     onChange={workingStatusChange}
                     disabled={isDemo && data.id == demoShop}
                   />
+                </Descriptions.Item>
+                <Descriptions.Item
+                  label={t('collect.via.platform')}
+                  span={2}
+                >
+                  <Switch
+                    name='collect_via_platform'
+                    defaultChecked={data.collect_via_platform}
+                    onChange={collectViaPlatformChange}
+                    disabled={isDemo && data.id == demoShop}
+                  />
+                  <div className='text-muted' style={{ fontSize: 12 }}>
+                    {t('collect.via.platform.description')}
+                  </div>
                 </Descriptions.Item>
                 <Descriptions.Item label={t('wallet')} span={2}>
                   {numberToPrice(

@@ -583,6 +583,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::get('shops',                     [Seller\ShopController::class, 'shopShow']);
             Route::put('shops',                     [Seller\ShopController::class, 'shopUpdate']);
             Route::post('shops/working/status',     [Seller\ShopController::class, 'setWorkingStatus']);
+            Route::post('shops/collect-via-platform', [Seller\ShopController::class, 'setCollectViaPlatform']);
 
             /* Shop Socials */
             Route::delete('shop-socials/delete',    [Seller\ShopSocialController::class, 'destroy']);

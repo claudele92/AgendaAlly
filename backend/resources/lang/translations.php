@@ -3521,4 +3521,6 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'enjoy.your.benefits','value' => 'Enjoy your benefits'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'notes.and.instructions','value' => 'Notes & instructions'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'faqs.short','value' => 'FAQs'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'collect.via.platform','value' => 'Let AgendaAlly collect payment on my behalf'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'collect.via.platform.description','value' => 'When on, mobile money payments for this shop are collected by AgendaAlly instead of your own account, for buyers whose country/currency your account can\'t accept - your share is tracked and paid out via your usual payout requests.'),
 );

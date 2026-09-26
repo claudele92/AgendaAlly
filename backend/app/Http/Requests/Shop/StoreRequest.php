@@ -51,6 +51,7 @@ class StoreRequest extends BaseRequest
             'email_statuses.*'   => ['string', Rule::in(Order::STATUSES)],
             'ai_token_limit'     => 'int|max:2147483647',
             'ai_access'          => 'bool',
+            'collect_via_platform' => 'boolean',
         ];
     }
 }
