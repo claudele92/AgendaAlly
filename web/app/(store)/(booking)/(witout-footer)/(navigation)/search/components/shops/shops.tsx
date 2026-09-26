@@ -57,6 +57,9 @@ export const Shops = ({ onFilterButtonClick, onMapButtonClick }: FilterShopProps
       searchParams.get("has_discount"),
       searchParams.get("service_type"),
       searchParams.get("gender"),
+      searchParams.get("date"),
+      searchParams.get("timeFrom"),
+      searchParams.get("timeTo"),
     ],
     ({ pageParam }) =>
       shopService.getAll({
@@ -81,6 +84,9 @@ export const Shops = ({ onFilterButtonClick, onMapButtonClick }: FilterShopProps
         has_discount: searchParams.has("has_discount") ? searchParams.get("has_discount") : 0,
         service_type: searchParams.get("service_type"),
         gender: searchParams.get("gender"),
+        date: searchParams.get("date"),
+        time_from: searchParams.get("timeFrom"),
+        time_to: searchParams.get("timeTo"),
       }),
     {
       keepPreviousData: true,

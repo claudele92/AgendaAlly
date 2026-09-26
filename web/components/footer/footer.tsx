@@ -122,7 +122,7 @@ export const Footer = ({ settings }: FooterProps) => {
                         href="/faq"
                         className="text-lg font-medium transition-all hover:underline"
                       >
-                        <Translate value="faq" />
+                        <Translate value="faqs.short" />
                       </Link>
                       <Link
                         href="/terms"

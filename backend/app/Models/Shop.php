@@ -443,9 +443,11 @@ class Shop extends Model
             })
             ->when(data_get($filter, 'slug'), fn($q, $slug) => $q->where('slug', $slug))
             ->when(data_get($filter, 'category_id'), function ($q, $id) {
-                $q->whereHas('services', fn($q) => $q->where('category_id', $id));
+                $ids = Category::where('id', $id)->orWhere('parent_id', $id)->pluck('id');
+                $q->whereHas('services', fn($q) => $q->whereIn('category_id', $ids));
             })
             ->when(data_get($filter, 'category_ids'), function ($q, $ids) {
+                $ids = Category::whereIn('id', $ids)->orWhereIn('parent_id', $ids)->pluck('id');
                 $q->whereHas('services', fn($q) => $q->whereIn('category_id', $ids));
             })
             ->when(data_get($filter, 'user_id'), function ($q, $userId) {

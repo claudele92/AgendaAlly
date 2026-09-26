@@ -3520,4 +3520,5 @@ return array(
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'select.option','value' => 'Select an option'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'enjoy.your.benefits','value' => 'Enjoy your benefits'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'notes.and.instructions','value' => 'Notes & instructions'),
+  array('status' => '1','locale' => 'en','group' => 'web','key' => 'faqs.short','value' => 'FAQs'),
 );
