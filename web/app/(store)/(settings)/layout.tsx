@@ -17,7 +17,7 @@ const SettingsLayout = async ({
 }) => {
   const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings", {
     next: { revalidate: Number(process.env.NEXT_PUBLIC_CACHE_TIME) },
-  });
+  }).catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   return (
     <>
