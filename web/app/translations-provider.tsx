@@ -7,6 +7,7 @@ import { setCookie } from "cookies-next";
 import { DEFAULT_LANGUAGE_CODE } from "@/config/global";
 import useSettingsStore from "@/global-store/settings";
 import i18n from "@/lib/i18n";
+import { criticalTranslationsFallback } from "@/lib/critical-translations-fallback";
 
 const TranslationsProvider = ({
   children,
@@ -65,7 +66,11 @@ const TranslationsProvider = ({
       defaultNS: "translation",
       fallbackNS: "translation",
       ns: "translation",
-      resources: { [lang]: { translation: translation || {} } },
+      // The static fallback is spread first so any real value the backend
+      // provides always wins - it only ever fills a gap left by a failed
+      // translations fetch (see critical-translations-fallback.ts), it
+      // never overrides real, backend-provided text.
+      resources: { [lang]: { translation: { ...criticalTranslationsFallback, ...(translation || {}) } } },
       interpolation: {
         escapeValue: false,
       },
@@ -77,7 +82,13 @@ const TranslationsProvider = ({
       isFirstRender.current = false;
       return;
     }
-    i18n.addResourceBundle(lang, "translation", translation || {}, true, true);
+    i18n.addResourceBundle(
+      lang,
+      "translation",
+      { ...criticalTranslationsFallback, ...(translation || {}) },
+      true,
+      true
+    );
     if (i18n.language !== lang) {
       i18n.changeLanguage(lang);
     }
