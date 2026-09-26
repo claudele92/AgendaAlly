@@ -3500,7 +3500,6 @@ return array(
   // i18n web/ sweep, group 9/9: error/empty states, chat & misc UI - last
   // group of the full 212-key sweep.
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'error.description','value' => 'An unexpected error occurred. Please try refreshing the page.'),
-  array('status' => '1','locale' => 'en','group' => 'web','key' => 'error.descriptoin','value' => 'An unexpected error occurred. Please try refreshing the page.'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'error.message','value' => 'Something went wrong'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'go.to.home','value' => 'Go to homepage'),
   array('status' => '1','locale' => 'en','group' => 'web','key' => 'page.doest.exist','value' => 'The page you\'re looking for doesn\'t exist'),

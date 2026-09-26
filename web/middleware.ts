@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-// import fetcher from "@/lib/fetcher";
 import { parseSettings } from "@/utils/parse-settings";
 import { BASE_URL } from "@/config/global";
 import { DefaultResponse, Language } from "@/types/global";
-// import { DefaultResponse, Setting } from "@/types/global";
 
 // Runs once per server/edge cold start, not per request - this module is
 // only ever loaded once per process. NEXT_PUBLIC_UI_TYPE silently
@@ -25,16 +23,25 @@ if (process.env.NEXT_PUBLIC_UI_TYPE) {
   );
 }
 
-// const getSettings = async () => {
-//   try {
-//     const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings", {
-//       next: { revalidate: Number(process.env.NEXT_PUBLIC_CACHE_TIME) },
-//     });
-//     return parseSettings(settings?.data);
-//   } catch (e) {
-//     return {};
-//   }
-// };
+// /api/cache/settings proxies to the real backend and throws on any
+// failure (network error, timeout, backend restart window) with no
+// try/catch of its own - that response's body is then not valid JSON,
+// and middleware runs on almost every route (see matcher below), so an
+// unguarded .json() here previously turned any transient backend hiccup
+// into a hard crash on the entire site, not just a stale/empty settings
+// object. Failing open with {} matches hasStaleLangCookie's existing
+// fail-open pattern for the same class of dependency failure.
+const getSettings = async (request: NextRequest): Promise<ReturnType<typeof parseSettings>> => {
+  try {
+    const res = await fetch(`http://${request.nextUrl.host}/api/cache/settings`);
+    if (!res.ok) {
+      throw new Error(`/api/cache/settings responded ${res.status}`);
+    }
+    return (await res.json()) as ReturnType<typeof parseSettings>;
+  } catch {
+    return {};
+  }
+};
 
 // Server components across the app read the `lang` cookie and pass it
 // straight to backend endpoints validated by FilterParamsRequest's
@@ -77,9 +84,7 @@ const hasStaleLangCookie = async (request: NextRequest): Promise<boolean> => {
 
 export const middleware = async (request: NextRequest) => {
   const { pathname } = request.nextUrl;
-  const settings = await fetch(`http://${request.nextUrl.host}/api/cache/settings`).then(
-    (res) => res.json() as Promise<ReturnType<typeof parseSettings>>
-  );
+  const settings = await getSettings(request);
   if (process.env.NEXT_PUBLIC_UI_TYPE) {
     settings.ui_type = process.env.NEXT_PUBLIC_UI_TYPE;
   }
