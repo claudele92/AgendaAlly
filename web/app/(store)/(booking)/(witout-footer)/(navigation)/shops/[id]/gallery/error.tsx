@@ -10,7 +10,7 @@ const GlobalError = () => {
       <section className="py-8 px-4 text-center">
         <div className="max-w-auto mx-auto">
           <h2 className="mt-8  text-xl lg:text-5xl font-black">{t("error.message")}</h2>
-          <p className="my-2  text-sm lg:text-base text-gray-900">{t("error.descriptoin")}</p>
+          <p className="my-2  text-sm lg:text-base text-gray-900">{t("error.description")}</p>
           <Button onClick={() => window.location.reload()}>{t("reset")}</Button>
         </div>
       </section>
