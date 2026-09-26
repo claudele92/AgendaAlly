@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 const PrivacyPolicy = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
-  const terms = await infoService.privacy({ lang });
+  const terms = await infoService.privacy({ lang }).catch(() => undefined);
   return <PrivacyContent data={terms} />;
 };
 

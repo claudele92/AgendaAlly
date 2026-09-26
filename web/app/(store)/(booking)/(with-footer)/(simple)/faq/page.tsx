@@ -6,7 +6,7 @@ import { HelpContent } from "./content";
 
 const Help = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
-  const faqs = await infoService.faq({ lang });
+  const faqs = await infoService.faq({ lang }).catch(() => undefined);
   return (
     <>
       <HelpContent data={faqs} />
