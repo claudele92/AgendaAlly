@@ -4,7 +4,7 @@ import { parseSettings } from "@/utils/parse-settings";
 import { NavigationHeader } from "./components/header";
 
 const NavigationLayout = async ({ children }: { children: React.ReactNode }) => {
-  const settings = await globalService.settings();
+  const settings = await globalService.settings().catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   return (
     <>

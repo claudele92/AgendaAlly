@@ -113,6 +113,10 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
           });
         }
         return res.data;
+      })
+      .catch((e) => {
+        console.log("default country/city error", e);
+        return undefined;
       });
   }
   const translation = await translationService.getAll(lang).catch((error) => {

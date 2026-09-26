@@ -5,7 +5,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
 const BusinessPagesLayout = async ({ children }: { children: React.ReactNode }) => {
-  const settings = await globalService.settings();
+  const settings = await globalService.settings().catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   return (
     <div className="overflow-x-hidden">

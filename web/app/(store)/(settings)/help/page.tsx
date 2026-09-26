@@ -12,7 +12,7 @@ const Help = async () => {
   const faqs = await fetcher<Paginate<Faq>>(
     buildUrlQueryParams("v1/rest/faqs/paginate", { lang }),
     { cache: "no-cache" }
-  );
+  ).catch(() => undefined);
   return (
     <div className="flex flex-col gap-2 w-full">
       {faqs?.data?.map((faq) => (
