@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { shopService } from "@/services/shop";
 import { Translate } from "@/components/translate";
 import { ExtraAddressForm } from "@/app/(store)/(booking)/(witout-footer)/(navigation)/shops/[id]/booking/location/axtra-address-form";
@@ -9,7 +10,14 @@ import { BookingBackButton } from "../booking-back-button";
 const ShopBookingLocation = async (props: { params: Promise<{ id: string }> }) => {
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
-  const shop = await shopService.getBySlug(params.id, { lang });
+  // This shop is the whole page's subject - a failed fetch reads as "not
+  // available" (404) rather than crashing.
+  let shop;
+  try {
+    shop = await shopService.getBySlug(params.id, { lang });
+  } catch {
+    notFound();
+  }
   return (
     <section className="xl:container px-2 py-7">
       <BookingBackButton deleteAddress />
