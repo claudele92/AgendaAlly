@@ -4,7 +4,7 @@ import { parseSettings } from "@/utils/parse-settings";
 import BrandsList from "./components/brand-list/brand-list";
 
 const Brands = async () => {
-  const settings = await globalService.settings();
+  const settings = await globalService.settings().catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
 

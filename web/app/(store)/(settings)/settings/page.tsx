@@ -6,10 +6,10 @@ import SettingsForm from "./settings-form";
 const Settings = async () => {
   const languages = await fetcher<DefaultResponse<Language[]>>("v1/rest/languages/active", {
     next: { revalidate: Number(process.env.NEXT_PUBLIC_CACHE_TIME) },
-  });
+  }).catch(() => undefined);
   const currencies = await fetcher<DefaultResponse<Currency[]>>("v1/rest/currencies/active", {
     next: { revalidate: Number(process.env.NEXT_PUBLIC_CACHE_TIME) },
-  });
+  }).catch(() => undefined);
   return (
     <div className="flex-1">
       <div className="w-full">

@@ -15,13 +15,18 @@ import { Brands } from "./components/brands";
 
 const Products = async () => {
   const lang = (await cookies()).get("lang")?.value || "en";
+  // Banners is one decorative section on this page - Banners already
+  // declares its prop optional and falls back to its own client-side
+  // react-query fetch when initialData is missing (same pattern as the
+  // homepage widgets), so failing it open to undefined degrades just this
+  // section instead of the whole page.
   const banners = await fetcher<Paginate<Banner>>(
     buildUrlQueryParams("v1/rest/banners/paginate", { lang }),
     {
       cache: "no-cache",
     }
-  );
-  const settings = await globalService.settings();
+  ).catch(() => undefined);
+  const settings = await globalService.settings().catch((e) => console.log("settings error", e));
   const parsedSettings = parseSettings(settings?.data);
   const productsEnabled = parsedSettings?.products_enabled === "1";
 
