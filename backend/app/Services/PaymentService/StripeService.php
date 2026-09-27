@@ -28,6 +28,44 @@ class StripeService extends BaseService
      */
     private const WALLET_MODEL_TYPES = [Subscription::class, ShopAdsPackage::class];
 
+    /**
+     * Stripe's documented zero-decimal currencies — unit_amount must be
+     * passed as the amount in the currency's OWN unit, never multiplied
+     * by 100. Every before*() helper in BaseService (beforeCart,
+     * beforeBooking, beforeMemberShip, beforeParcel, beforeSubscription,
+     * beforePackage, beforeWallet, beforeGiftCart, beforeAuction)
+     * unconditionally does `round($totalPrice * 100, 2)`, assuming a
+     * 2-decimal currency (correct for USD/EUR-style checkouts, the only
+     * ones this integration has ever actually been used with) - none of
+     * them special-case a zero-decimal currency, and neither does this
+     * service. Rather than teach every call site (and Checkout Session
+     * line item) the correct scaling for each one - real work, not yet
+     * done - this list exists to block the currencies that *100 would
+     * silently overcharge by 100x, until that support is actually built.
+     * Verify against https://docs.stripe.com/currencies before adding or
+     * removing entries; this is not fetched live.
+     */
+    public const ZERO_DECIMAL_CURRENCIES = [
+        'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA',
+        'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF',
+    ];
+
+    /**
+     * Whether Stripe can safely be offered/charged for this currency
+     * today. False for any currency on ZERO_DECIMAL_CURRENCIES (see
+     * above) — used both to hide Stripe from the customer-facing payment
+     * method list (PaymentController::index()) and, as a hard backstop,
+     * to reject processTransaction() below if reached anyway.
+     */
+    public static function supportsCurrency(?string $currency): bool
+    {
+        if (empty($currency)) {
+            return true;
+        }
+
+        return !in_array(Str::upper($currency), self::ZERO_DECIMAL_CURRENCIES, true);
+    }
+
     protected function getModelClass(): string
     {
         return Payout::class;
@@ -50,6 +88,19 @@ class StripeService extends BaseService
         Stripe::setApiKey(data_get($payload, 'stripe_sk'));
 
         [$key, $before] = $this->getPayload($data, $payload);
+
+        $currency = data_get($before, 'currency');
+
+        // Hard backstop behind the payment-method-list filter
+        // (PaymentController::index()) — if this is ever reached anyway
+        // (a stale client, a direct API call), fail loudly rather than
+        // silently overcharge 100x on a zero-decimal currency.
+        if (!self::supportsCurrency($currency)) {
+            throw new Exception(
+                "Stripe payment is not supported for $currency currency. Please select a supported local payment method.",
+                400
+            );
+        }
 
         $host = request()->getSchemeAndHttpHost();
 

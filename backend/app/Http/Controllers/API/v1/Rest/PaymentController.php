@@ -11,6 +11,7 @@ use App\Models\Shop;
 use App\Models\ShopLocation;
 use App\Models\ShopPayment;
 use App\Repositories\PaymentRepository\PaymentRepository;
+use App\Services\PaymentService\StripeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -95,9 +96,27 @@ class PaymentController extends RestBaseController
             ->whereIn('id', $country->activePaymentIds())
             ->get()
             ->reject(fn (Payment $payment) => $this->shopHasNotEnabled($payment, (int) $shopId))
+            ->reject(fn (Payment $payment) => $this->currencyUnsupported($payment, $country->currency?->title))
             ->values();
 
         return PaymentResource::collection($payments);
+    }
+
+    /**
+     * Stripe's Checkout Session would silently overcharge 100x on a
+     * zero-decimal currency like XAF (see StripeService::
+     * ZERO_DECIMAL_CURRENCIES) - never offer it as an option for a
+     * country whose checkout currency isn't one Stripe can safely be
+     * charged in today, rather than letting the customer pick it and
+     * fail (or worse) at payment time.
+     */
+    private function currencyUnsupported(Payment $payment, ?string $currency): bool
+    {
+        if ($payment->tag !== Payment::TAG_STRIPE) {
+            return false;
+        }
+
+        return !StripeService::supportsCurrency($currency);
     }
 
     /**
