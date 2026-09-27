@@ -15,30 +15,66 @@ use Illuminate\Support\Facades\Schema;
  * unique(transaction_id, entry_type) so a 'payable' row and, later, one
  * 'payable_adjustment' row can each coexist alongside the 'fee' row
  * already written for the same transaction.
+ *
+ * Fixed after a production failure (SQLSTATE 1553: "Cannot drop index
+ * ...transaction_id_unique: needed in a foreign key constraint"): the
+ * original version of this migration dropped that single-column unique
+ * index BEFORE creating its composite replacement. That index is also
+ * the sole index backing transaction_id's foreign key to transactions
+ * (declared together via ->unique()->constrained() in the table's
+ * create migration), and MySQL/InnoDB refuses to drop the only index
+ * currently supporting a FK. Every step here is now guarded with an
+ * existence check and reordered so the replacement index always exists
+ * before the old one is dropped, making this safe to re-run against a
+ * database left mid-way through the original, broken version (MySQL DDL
+ * isn't transactional, so the ADD COLUMN below may already have applied
+ * even though this migration was never marked as run).
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
-            $table->string('entry_type', 24)->default('fee')->after('shop_id');
-            $table->dropUnique(['transaction_id']);
-        });
+        if (!Schema::hasColumn('platform_fee_ledger_entries', 'entry_type')) {
+            Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
+                $table->string('entry_type', 24)->default('fee')->after('shop_id');
+            });
+        }
 
-        Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
-            $table->unique(['transaction_id', 'entry_type']);
-        });
+        // Create the composite unique index while the old single-column
+        // one still exists, so the transaction_id -> transactions foreign
+        // key always has a supporting index to fall back on - only once
+        // this exists is it safe to drop the old one.
+        if (!Schema::hasIndex('platform_fee_ledger_entries', ['transaction_id', 'entry_type'], 'unique')) {
+            Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
+                $table->unique(['transaction_id', 'entry_type']);
+            });
+        }
+
+        if (Schema::hasIndex('platform_fee_ledger_entries', ['transaction_id'], 'unique')) {
+            Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
+                $table->dropUnique(['transaction_id']);
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
-            $table->dropUnique(['transaction_id', 'entry_type']);
-        });
+        if (!Schema::hasIndex('platform_fee_ledger_entries', ['transaction_id'], 'unique')) {
+            Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
+                $table->unique('transaction_id');
+            });
+        }
 
-        Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
-            $table->unique('transaction_id');
-            $table->dropColumn('entry_type');
-        });
+        if (Schema::hasIndex('platform_fee_ledger_entries', ['transaction_id', 'entry_type'], 'unique')) {
+            Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
+                $table->dropUnique(['transaction_id', 'entry_type']);
+            });
+        }
+
+        if (Schema::hasColumn('platform_fee_ledger_entries', 'entry_type')) {
+            Schema::table('platform_fee_ledger_entries', function (Blueprint $table) {
+                $table->dropColumn('entry_type');
+            });
+        }
     }
 };
