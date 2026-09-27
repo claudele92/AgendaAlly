@@ -77,7 +77,7 @@ class TransactionObserver
     }
 
     /**
-     * When a shop has opted into collect_via_platform, checkout already
+     * When a shop had opted into collect_via_platform, checkout already
      * routed this payment through the platform's own gateway (see
      * BaseService::resolveGatewayConfig()) rather than the shop's own
      * credentials - so the platform, not the shop, actually holds the
@@ -85,10 +85,18 @@ class TransactionObserver
      * ledger row, read once here at settlement and never recomputed if the
      * shop's toggle or fee settings change afterward (firstOrCreate never
      * updates an existing row's amount).
+     *
+     * Reads booking->collect_via_platform - frozen onto the booking at
+     * creation time in BookingService::beforeSave() - rather than the
+     * shop's current, possibly-since-changed setting. Checkout resolved
+     * the gateway from that same frozen intent; if this read instead
+     * followed the shop's live setting, a toggle flipped between checkout
+     * and settlement could make the two disagree about whether the
+     * platform actually holds the money.
      */
     private function recordPayableIfCollectingOnBehalfOfShop(Transaction $transaction, Booking $booking): void
     {
-        if (!$booking->shop?->collect_via_platform) {
+        if (!$booking->collect_via_platform) {
             return;
         }
 

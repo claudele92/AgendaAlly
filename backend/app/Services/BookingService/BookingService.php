@@ -489,17 +489,23 @@ class BookingService extends CoreService
             throw new Exception(__('errors.' . ResponseError::OTHER_SHOP, locale: $this->language));
         }
 
-        $data['category_id']      = $serviceMaster->service?->category_id;
-        $data['service_id']       = $serviceMaster->service_id;
-        $data['master_id']        = $serviceMaster->master_id;
-        $data['type']             = $serviceMaster->type;
-        $data['discount']         = max((int)$serviceMaster->discount, 0);
-        $data['commission_fee']   = max($serviceMaster->commission_fee, 0);
-        $data['price']            = max($serviceMaster->price, 0);
-        $data['service_fee']      = max((double)Settings::where('key', 'booking_service_fee')->first()?->value, 0);
-        $data['rate']             = $rate;
-        $data['shop_id']          = $shopId;
-        $data['shop_location_id'] = $this->resolveBookingLocation($data, $shopId, $serviceMaster->master_id);
+        $data['category_id']         = $serviceMaster->service?->category_id;
+        $data['service_id']          = $serviceMaster->service_id;
+        $data['master_id']           = $serviceMaster->master_id;
+        $data['type']                = $serviceMaster->type;
+        $data['discount']            = max((int)$serviceMaster->discount, 0);
+        $data['commission_fee']      = max($serviceMaster->commission_fee, 0);
+        $data['price']               = max($serviceMaster->price, 0);
+        $data['service_fee']         = max((double)Settings::where('key', 'booking_service_fee')->first()?->value, 0);
+        $data['rate']                = $rate;
+        $data['shop_id']             = $shopId;
+        $data['shop_location_id']    = $this->resolveBookingLocation($data, $shopId, $serviceMaster->master_id);
+        // Frozen here, alongside service_fee/commission_fee above, so a
+        // shop flipping this setting after the booking exists can never
+        // change what an already-created booking settles as - see
+        // TransactionObserver, which reads this column, never the shop's
+        // live setting.
+        $data['collect_via_platform'] = (bool)Shop::find($shopId)?->collect_via_platform;
 
         return $data;
     }
