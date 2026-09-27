@@ -35,6 +35,10 @@ const Setting = ({
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [form] = Form.useForm();
   const { isDemo } = useDemo();
+  const serviceFeeType =
+    Form.useWatch('service_fee_type', form) ??
+    activeMenu.data?.service_fee_type ??
+    'fixed';
 
   function updateSettings(data) {
     setLoadingBtn(true);
@@ -73,6 +77,7 @@ const Setting = ({
         deliveryman_order_acceptance_time: 30,
         ...activeMenu.data,
         max_day_booking: activeMenu.data?.max_day_booking || 90,
+        service_fee_type: activeMenu.data?.service_fee_type || 'fixed',
       }}
     >
       <Row gutter={12}>
@@ -125,16 +130,47 @@ const Setting = ({
         {/*</Col>*/}
         <Col span={12}>
           <Form.Item
+            label={t('service_fee_type')}
+            name='service_fee_type'
+          >
+            <Select
+              options={[
+                { label: t('fixed'), value: 'fixed' },
+                { label: t('percentage'), value: 'percentage' },
+              ]}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item
             label={t('service.fee')}
             name='service_fee'
             rules={[
+              {
+                validator(_, value) {
+                  if (
+                    serviceFeeType === 'percentage' &&
+                    value &&
+                    (value < 0 || value > 100)
+                  ) {
+                    return Promise.reject(
+                      new Error(t('must.be.between.0.and.100')),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
               {
                 required: true,
                 message: t('required'),
               },
             ]}
           >
-            <InputNumber min={0} className='w-100' />
+            <InputNumber
+              min={0}
+              className='w-100'
+              addonAfter={serviceFeeType === 'percentage' ? '%' : undefined}
+            />
           </Form.Item>
         </Col>
         <Col span={12}>
@@ -168,9 +204,29 @@ const Setting = ({
           <Form.Item
             label={t('booking.service.fee')}
             name='booking_service_fee'
-            rules={[{ required: true, message: t('required') }]}
+            rules={[
+              {
+                validator(_, value) {
+                  if (
+                    serviceFeeType === 'percentage' &&
+                    value &&
+                    (value < 0 || value > 100)
+                  ) {
+                    return Promise.reject(
+                      new Error(t('must.be.between.0.and.100')),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+              { required: true, message: t('required') },
+            ]}
           >
-            <InputNumber min={0} className='w-100' />
+            <InputNumber
+              min={0}
+              className='w-100'
+              addonAfter={serviceFeeType === 'percentage' ? '%' : undefined}
+            />
           </Form.Item>
         </Col>
         <Col span={12}>
