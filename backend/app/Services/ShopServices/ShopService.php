@@ -9,6 +9,7 @@ use Throwable;
 use App\Models\Shop;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Language;
 use App\Models\Service;
 use App\Models\Gallery;
 use App\Models\Settings;
@@ -16,6 +17,7 @@ use App\Models\Invitation;
 use App\Models\ServiceMaster;
 use App\Services\CoreService;
 use App\Helpers\ResponseError;
+use App\Helpers\Utility;
 use App\Traits\SetTranslations;
 
 class ShopService extends CoreService
@@ -234,14 +236,69 @@ class ShopService extends CoreService
             $deliveryTime['type'] = $data['delivery_time_type'];
         }
 
-        if (isset($data['lat_long'])) {
-            $data['latitude']  = @$data['lat_long']['latitude'];
-            $data['longitude'] = @$data['lat_long']['longitude'];
-            unset($data['lat_long']);
-        }
+        $data = $this->resolveShopCoordinates($data, $shop);
 
         $data['delivery_time'] = $deliveryTime;
         $data['type']          = 1;
+
+        return $data;
+    }
+
+    /**
+     * The frontend's map-pin state is fragile: it only updates when the
+     * seller/admin actually clicks a Google Places autocomplete suggestion,
+     * not on every address-text edit (see AddressForm) - so a submitted
+     * 'lat_long' can silently still describe the OLD address while
+     * 'address' now reads as a different one entirely. Rather than trust
+     * whatever lat_long happened to be attached to the request, the server
+     * re-geocodes from the submitted address text itself whenever lat_long
+     * is missing, or the address text actually changed from what's
+     * currently stored - covering exactly the case that let a shop's own
+     * coordinates go stale after an address edit (see ByLocation::
+     * distanceSelectRaw(), which falls back to these coordinates for
+     * distance-sorted search when no branch-location filter narrows to a
+     * closer match).
+     *
+     * Falls back to the submitted lat_long (if any) when geocoding fails
+     * (missing key, no results, network error), and otherwise leaves
+     * latitude/longitude untouched - never worse than the pre-existing
+     * behavior, only more often correct.
+     */
+    private function resolveShopCoordinates(array $data, ?Shop $shop): array
+    {
+        $defaultLocale = Language::whereDefault(1)->first()?->locale;
+
+        $newAddress = data_get($data, "address.$defaultLocale");
+
+        if (!is_string($newAddress) || trim($newAddress) === '') {
+            $newAddress = is_string(data_get($data, 'address')) ? data_get($data, 'address') : null;
+        }
+
+        $oldAddress = $shop && $defaultLocale
+            ? $shop->translations()->where('locale', $defaultLocale)->value('address')
+            : null;
+
+        $addressChanged = $newAddress !== null && $newAddress !== $oldAddress;
+
+        if ($newAddress && (!isset($data['lat_long']) || $addressChanged)) {
+
+            $geocoded = Utility::geocodeAddress($newAddress);
+
+            if ($geocoded) {
+                $data['latitude']  = $geocoded['latitude'];
+                $data['longitude'] = $geocoded['longitude'];
+                unset($data['lat_long']);
+
+                return $data;
+            }
+        }
+
+        if (isset($data['lat_long'])) {
+            $data['latitude']  = @$data['lat_long']['latitude'];
+            $data['longitude'] = @$data['lat_long']['longitude'];
+        }
+
+        unset($data['lat_long']);
 
         return $data;
     }
