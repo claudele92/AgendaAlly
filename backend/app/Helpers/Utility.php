@@ -18,6 +18,7 @@ use App\Models\Settings;
 use App\Traits\SetCurrency;
 use App\Http\Resources\AuctionResource;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Http;
 use Log;
 use Throwable;
 
@@ -47,6 +48,55 @@ class Utility
     public static function paginate($items, $perPage, $page = null, $options = []): LengthAwarePaginator
     {
         return new LengthAwarePaginator($items?->forPage($page, $perPage), $items?->count() ?? 0, $perPage, $page, $options);
+    }
+
+    /**
+     * Geocodes a free-text address into coordinates via Google's Geocoding
+     * API, so the server can be authoritative about a shop's lat/long
+     * instead of trusting whatever (possibly stale) map-pin state the
+     * admin/seller frontend happened to submit alongside an address edit.
+     * Uses the same 'google_map_key' setting admin/web already use to
+     * init their own Maps SDKs (see SettingsSeeder) - this is the only
+     * place the backend itself calls Google's API with it.
+     *
+     * Returns null on any failure (missing key, no results, network
+     * error) so callers fall back to their own prior behavior rather than
+     * overwriting good coordinates with a failed lookup.
+     */
+    public static function geocodeAddress(string $address): ?array
+    {
+        $address = trim($address);
+
+        if ($address === '') {
+            return null;
+        }
+
+        $key = Settings::where('key', 'google_map_key')->first()?->value;
+
+        if (empty($key)) {
+            return null;
+        }
+
+        try {
+            $response = Http::timeout(5)->get('https://maps.googleapis.com/maps/api/geocode/json', [
+                'address' => $address,
+                'key'     => $key,
+            ]);
+
+            $location = $response->json('results.0.geometry.location');
+
+            if (!$response->successful() || $response->json('status') !== 'OK' || empty($location)) {
+                return null;
+            }
+
+            return [
+                'latitude'  => (float) data_get($location, 'lat'),
+                'longitude' => (float) data_get($location, 'lng'),
+            ];
+        } catch (Throwable $e) {
+            Log::error($e->getMessage(), [$e->getCode(), $e->getLine(), $e->getFile()]);
+            return null;
+        }
     }
 
     /**
