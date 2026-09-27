@@ -5,6 +5,7 @@ namespace App\Repositories\BookingRepository;
 
 use App\Helpers\OrderHelper;
 use App\Helpers\ResponseError;
+use App\Helpers\Utility;
 use App\Http\Resources\CurrencyResource;
 use App\Http\Resources\ServiceExtraResource;
 use App\Http\Resources\ServiceMasterResource;
@@ -168,8 +169,6 @@ class BookingRepository extends CoreRepository
             $currency   = $country->currency;
         }
 
-        $serviceFee = Settings::where('key', 'booking_service_fee')->first()?->value;
-        $serviceFee = max((double)$serviceFee, 0) * $rate;
         $user       = User::select(['id', 'firstname', 'lastname'])->find($data['user_id']);
 
         $items = [];
@@ -291,6 +290,16 @@ class BookingRepository extends CoreRepository
             }
 
             $data['shop_id'] = $serviceMaster->shop_id;
+
+            // Computed per item, against that item's own (already
+            // rate-converted) pre-extras price - the same base
+            // commission_fee already uses - not once for the whole
+            // request, so a multi-item booking charges this fee per
+            // booked service, matching how each item becomes its own
+            // Booking row (and its own frozen service_fee) in
+            // BookingService::beforeSave().
+            $serviceFee = Utility::resolveServiceFee('booking_service_fee', $totalPrice, $rate);
+
             $totalPrice += $extraPrice;
 
             $items[$key]['extras']              = ServiceExtraResource::collection($extras);
