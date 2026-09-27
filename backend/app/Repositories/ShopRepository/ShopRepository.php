@@ -224,7 +224,11 @@ class ShopRepository extends CoreRepository
                 ->first();
         }
 
-        $distance = $shop?->distance ?? 1;
+        // Null (not a fake 1) when no distance was actually computed -
+        // matches AdminShopRepository's own shopDetails(), and see
+        // ShopResource's own 'distance' field for why 0 was the same
+        // kind of mistake on the list side.
+        $distance = $shop?->distance;
 
         return $shop->fresh($this->with())->setAttribute('distance', $distance);
     }
