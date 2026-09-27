@@ -70,6 +70,23 @@ on a *new* environment specifically - the same reasoning `optimize:clear`
 below is unconditional rather than conditional on "did this deploy touch
 anything cached."
 
+The same composer script now also runs
+`php artisan db:seed --class=TranslationSeeder --force` and
+`php artisan db:seed --class=MissingTranslationsSeeder --force`. A
+translation key correctly committed to one of these seeder files (`en/web`
+group, matched by `locale`+`group`+`key`) is not actually present on a
+deployed database until one of these seeders is re-run there - a deploy
+that merges a PR adding a new key does not, by itself, add that row to any
+already-running environment's database, `git pull`/`composer install`
+alone included. Found live: `faqs.short` and `collect.via.platform`/
+`collect.via.platform.description` were correctly committed with
+`firstOrCreate` in their respective seeder files, but rendered as raw,
+untranslated keys in production until these seeders were run there by
+hand. Both seeders are idempotent (`firstOrCreate` keyed on
+`locale`+`group`+`key`) and cheap - matching every other step in this
+list, they now run unconditionally on every deploy rather than depending
+on someone remembering translations changed in this particular one.
+
 ## Environment variables to re-check on every new environment
 
 `backend/.env` is not committed, so these don't travel with the repo - they
