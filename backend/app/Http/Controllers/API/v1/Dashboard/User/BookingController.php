@@ -38,7 +38,22 @@ class BookingController extends UserBaseController
      */
     public function index(FilterParamsRequest $request): AnonymousResourceCollection
     {
-        $models = $this->repository->paginate($request->merge(['user_id' => auth('sanctum')->id()])->all());
+        $filter = $request->merge(['user_id' => auth('sanctum')->id()])->all();
+
+        // A Booking row is created the moment a time slot is confirmed -
+        // before the customer ever reaches the payment step (see
+        // BookingService::create()) - and is left at the DB default
+        // status 'new' if they abandon checkout before paying. Never
+        // show those in the customer's own appointments list; canceled
+        // bookings stay visible, since the app already has dedicated
+        // handling for that status (see BookingCard's showOptions).
+        // Skipped if the request already asked for a specific
+        // status/statuses itself, so this only supplies a default.
+        if (!isset($filter['status']) && !isset($filter['statuses'])) {
+            $filter['statuses'] = array_values(array_diff(Booking::STATUSES, [Booking::STATUS_NEW]));
+        }
+
+        $models = $this->repository->paginate($filter);
 
         return BookingResource::collection($models);
     }

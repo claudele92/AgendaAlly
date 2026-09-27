@@ -105,7 +105,14 @@ class ShopResource extends JsonResource
             'max_price'         => $this->when($this->max_price,          $this->max_price),
             'service_min_price' => $this->when($this->service_min_price,  $this->service_min_price),
             'service_max_price' => $this->when($this->service_max_price,  $this->service_max_price),
-            'distance'          => $this->distance ?? 0,
+            // Null (not 0) when no distance was actually computed - see
+            // ByLocation::distanceSelectRaw(), only added to the query
+            // when a real customer position is known. A shop's own,
+            // possibly-stale coordinates aside, "no known position"
+            // must never render as if the customer were standing at the
+            // shop (see shop-card.tsx / shop-card-ui-2.tsx, which now
+            // hide the distance line entirely when this is null).
+            'distance'          => $this->distance,
             'ai_token_limit'    => $this->when($this->ai_token_limit, $this->ai_token_limit ?? 0),
             'ai_access'         => $this->when($this->ai_access, $this->ai_access ?? false),
             'email_statuses'    => $this->when($this->email_statuses,     $this->email_statuses),
