@@ -5,10 +5,10 @@ namespace App\Repositories\CartRepository;
 
 use App\Helpers\OrderHelper;
 use App\Helpers\ResponseError;
+use App\Helpers\Utility;
 use App\Http\Resources\CurrencyResource;
 use App\Models\Cart;
 use App\Models\CartDetailProduct;
-use App\Models\Settings;
 use App\Repositories\CoreRepository;
 use App\Services\CartService\CartService;
 use App\Traits\ByLocation;
@@ -169,11 +169,10 @@ class CartRepository extends CoreRepository
 
         }
 
-        $serviceFee = (double)Settings::where('key', 'service_fee')->first()?->value ?: 0;
-
-        if ($serviceFee > 0) {
-            $serviceFee *= $rate;
-        }
+        // Base = the cart's own already-rate-converted subtotal (rate_total_price),
+        // matching how a percentage rate applies against a pre-fee subtotal
+        // elsewhere (OrderService::calculateOrder()'s existing commission/tax).
+        $serviceFee = Utility::resolveServiceFee('service_fee', $cart->rate_total_price, $rate);
 
         $totalPrice = $cart->rate_total_price + $serviceFee + $totalShopTax;
 

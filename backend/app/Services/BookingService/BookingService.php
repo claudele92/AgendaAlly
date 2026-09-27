@@ -496,7 +496,7 @@ class BookingService extends CoreService
         $data['discount']            = max((int)$serviceMaster->discount, 0);
         $data['commission_fee']      = max($serviceMaster->commission_fee, 0);
         $data['price']               = max($serviceMaster->price, 0);
-        $data['service_fee']         = max((double)Settings::where('key', 'booking_service_fee')->first()?->value, 0);
+        $data['service_fee']         = Utility::resolveServiceFee('booking_service_fee', $data['price']);
         $data['rate']                = $rate;
         $data['shop_id']             = $shopId;
         $data['shop_location_id']    = $this->resolveBookingLocation($data, $shopId, $serviceMaster->master_id);
