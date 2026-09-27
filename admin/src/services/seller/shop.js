@@ -7,6 +7,8 @@ const shopService = {
   setVisibilityStatus: () =>
     request.post('dashboard/seller/shops/visibility/status'),
   setWorkingStatus: () => request.post('dashboard/seller/shops/working/status'),
+  setCollectViaPlatform: () =>
+    request.post('dashboard/seller/shops/collect-via-platform'),
 };
 
 export default shopService;

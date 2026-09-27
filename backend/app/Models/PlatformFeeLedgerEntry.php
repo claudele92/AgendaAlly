@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $payable_type
  * @property int $payable_id
  * @property int $shop_id
+ * @property string $entry_type
  * @property int $transaction_id
  * @property int|null $payment_id
  * @property int|null $currency_id
@@ -50,6 +51,24 @@ class PlatformFeeLedgerEntry extends Model
         self::STATUS_PENDING,
         self::STATUS_COLLECTED,
         self::STATUS_WAIVED,
+    ];
+
+    // The pre-existing row: what the platform is owed from the shop
+    // (booking_service_fee), unrelated to collect_via_platform.
+    const ENTRY_TYPE_FEE = 'fee';
+
+    // What the platform owes the shop back, written only when the shop had
+    // collect_via_platform=true at settlement time - see TransactionObserver.
+    const ENTRY_TYPE_PAYABLE = 'payable';
+
+    // A signed correction against a 'payable' row for a booking that was
+    // later canceled/refunded - never a mutation of the original row.
+    const ENTRY_TYPE_PAYABLE_ADJUSTMENT = 'payable_adjustment';
+
+    const ENTRY_TYPES = [
+        self::ENTRY_TYPE_FEE,
+        self::ENTRY_TYPE_PAYABLE,
+        self::ENTRY_TYPE_PAYABLE_ADJUSTMENT,
     ];
 
     public function payable(): MorphTo
@@ -85,6 +104,22 @@ class PlatformFeeLedgerEntry extends Model
     public function scopeForShop($query, int $shopId)
     {
         return $query->where('shop_id', $shopId);
+    }
+
+    /**
+     * What the platform currently owes $shopId for payments it collected on
+     * the shop's behalf: the sum of every 'payable' entry plus every signed
+     * 'payable_adjustment' correction against them, minus whatever has
+     * already been marked collected (paid out). Read-only aggregate - never
+     * mutates history, matching the ledger's append-only design.
+     */
+    public static function payableBalanceForShop(int $shopId): float
+    {
+        return (float) self::query()
+            ->where('shop_id', $shopId)
+            ->whereIn('entry_type', [self::ENTRY_TYPE_PAYABLE, self::ENTRY_TYPE_PAYABLE_ADJUSTMENT])
+            ->where('status', '!=', self::STATUS_COLLECTED)
+            ->sum('amount');
     }
 
     public function markCollected(?string $note = null): bool

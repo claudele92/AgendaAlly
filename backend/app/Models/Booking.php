@@ -101,8 +101,9 @@ class Booking extends Model
     protected $casts = [
 //        'start_date' => 'datetime:Y-m-d H:i:s',
 //        'end_date'   => 'datetime:Y-m-d H:i:s',
-        'data'       => 'array',
-        'notes'      => 'array',
+        'data'                  => 'array',
+        'notes'                 => 'array',
+        'collect_via_platform'  => 'bool',
     ];
 
     const STATUS_NEW       = 'new';

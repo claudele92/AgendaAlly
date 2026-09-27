@@ -18,6 +18,7 @@ use App\Models\Settings;
 use App\Models\Invitation;
 use App\Models\MemberShip;
 use App\Models\ShopLocation;
+use App\Models\PlatformFeeLedgerEntry;
 use App\Models\Transaction;
 use App\Helpers\OrderHelper;
 use App\Traits\Notification;
@@ -412,6 +413,10 @@ class BookingService extends CoreService
                 'canceled_note' => $filter['canceled_note'] ?? $model->canceled_note
             ]);
 
+            if ($status === Booking::STATUS_CANCELED) {
+                $this->reversePayableForCanceledBooking($model);
+            }
+
             return $model;
         });
     }
@@ -436,6 +441,12 @@ class BookingService extends CoreService
             $model->update($data);
 
             $model->children()->update($data);
+
+            $this->reversePayableForCanceledBooking($model);
+
+            foreach ($model->children as $child) {
+                $this->reversePayableForCanceledBooking($child);
+            }
 
             (new BookingActivityService)->create($model, $data['status'], $this->language, $data);
 
@@ -478,17 +489,23 @@ class BookingService extends CoreService
             throw new Exception(__('errors.' . ResponseError::OTHER_SHOP, locale: $this->language));
         }
 
-        $data['category_id']      = $serviceMaster->service?->category_id;
-        $data['service_id']       = $serviceMaster->service_id;
-        $data['master_id']        = $serviceMaster->master_id;
-        $data['type']             = $serviceMaster->type;
-        $data['discount']         = max((int)$serviceMaster->discount, 0);
-        $data['commission_fee']   = max($serviceMaster->commission_fee, 0);
-        $data['price']            = max($serviceMaster->price, 0);
-        $data['service_fee']      = max((double)Settings::where('key', 'booking_service_fee')->first()?->value, 0);
-        $data['rate']             = $rate;
-        $data['shop_id']          = $shopId;
-        $data['shop_location_id'] = $this->resolveBookingLocation($data, $shopId, $serviceMaster->master_id);
+        $data['category_id']         = $serviceMaster->service?->category_id;
+        $data['service_id']          = $serviceMaster->service_id;
+        $data['master_id']           = $serviceMaster->master_id;
+        $data['type']                = $serviceMaster->type;
+        $data['discount']            = max((int)$serviceMaster->discount, 0);
+        $data['commission_fee']      = max($serviceMaster->commission_fee, 0);
+        $data['price']               = max($serviceMaster->price, 0);
+        $data['service_fee']         = max((double)Settings::where('key', 'booking_service_fee')->first()?->value, 0);
+        $data['rate']                = $rate;
+        $data['shop_id']             = $shopId;
+        $data['shop_location_id']    = $this->resolveBookingLocation($data, $shopId, $serviceMaster->master_id);
+        // Frozen here, alongside service_fee/commission_fee above, so a
+        // shop flipping this setting after the booking exists can never
+        // change what an already-created booking settles as - see
+        // TransactionObserver, which reads this column, never the shop's
+        // live setting.
+        $data['collect_via_platform'] = (bool)Shop::find($shopId)?->collect_via_platform;
 
         return $data;
     }
@@ -548,6 +565,43 @@ class BookingService extends CoreService
         }
 
         return (int)$shopLocationId;
+    }
+
+    /**
+     * A canceled booking's original 'payable' ledger row (see
+     * TransactionObserver) must not be edited in place - that would erase
+     * the record of what actually happened at settlement. Instead, this
+     * writes a signed 'payable_adjustment' row that fully reverses it: a
+     * canceled booking delivered no service, so the platform no longer owes
+     * the shop that share. firstOrCreate keyed on the same transaction
+     * makes this idempotent if cancellation is somehow triggered twice.
+     */
+    private function reversePayableForCanceledBooking(Booking $booking): void
+    {
+        $payableEntries = PlatformFeeLedgerEntry::query()
+            ->where('payable_type', Booking::class)
+            ->where('payable_id', $booking->id)
+            ->where('entry_type', PlatformFeeLedgerEntry::ENTRY_TYPE_PAYABLE)
+            ->get();
+
+        foreach ($payableEntries as $entry) {
+            PlatformFeeLedgerEntry::query()->firstOrCreate(
+                [
+                    'transaction_id' => $entry->transaction_id,
+                    'entry_type'     => PlatformFeeLedgerEntry::ENTRY_TYPE_PAYABLE_ADJUSTMENT,
+                ],
+                [
+                    'payable_type' => Booking::class,
+                    'payable_id'   => $booking->id,
+                    'shop_id'      => $entry->shop_id,
+                    'payment_id'   => $entry->payment_id,
+                    'currency_id'  => $entry->currency_id,
+                    'amount'       => -$entry->amount,
+                    'status'       => PlatformFeeLedgerEntry::STATUS_PENDING,
+                    'note'         => "Reversed: booking #{$booking->id} canceled",
+                ]
+            );
+        }
     }
 
     public function delete(?array $ids = [], array $filter = []): void

@@ -79,6 +79,7 @@ class ShopResource extends JsonResource
             'open'              => (bool)$this->open,
             'visibility'        => (bool)$this->visibility,
             'verify'            => (bool)$this->verify,
+            'collect_via_platform' => (bool)$this->collect_via_platform,
             'delivery_type'     => $this->when($this->delivery_type, $this->delivery_type),
             'background_img'    => $this->when($this->background_img, $this->background_img),
             'logo_img'          => $this->when($this->logo_img, $this->logo_img),

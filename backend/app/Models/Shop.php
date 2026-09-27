@@ -141,12 +141,13 @@ class Shop extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'delivery_time'  => 'array',
-        'open'           => 'bool',
-        'visibility'     => 'bool',
-        'verify'         => 'bool',
-        'delivery_type'  => 'int',
-        'email_statuses' => 'array',
+        'delivery_time'        => 'array',
+        'open'                 => 'bool',
+        'visibility'           => 'bool',
+        'verify'               => 'bool',
+        'delivery_type'        => 'int',
+        'email_statuses'       => 'array',
+        'collect_via_platform' => 'bool',
     ];
 
     const NEW       = 'new';

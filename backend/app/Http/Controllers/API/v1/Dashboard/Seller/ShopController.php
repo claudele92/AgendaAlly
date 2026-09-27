@@ -127,6 +127,21 @@ class ShopController extends SellerBaseController
     }
 
     /**
+     * Toggles whether the platform collects Orange/MTN checkout on this
+     * shop's behalf instead of the shop's own ShopPayment credentials - see
+     * BaseService::resolveGatewayConfig() and TransactionObserver.
+     */
+    public function setCollectViaPlatform(): JsonResponse
+    {
+        (new ShopActivityService)->changeCollectViaPlatformStatus($this->shop->uuid);
+
+        return $this->successResponse(
+            __('errors.' . ResponseError::RECORD_WAS_SUCCESSFULLY_UPDATED, locale: $this->language),
+            ShopResource::make($this->shop->fresh())
+        );
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param int $id
