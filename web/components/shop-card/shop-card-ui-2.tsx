@@ -69,12 +69,14 @@ export const ShopCardUi2 = ({ data }: ShopCardProps) => {
               {data.translation?.description}
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <MapPinIcon />
-            <span className="text-xs text-gray-field">
-              {data?.distance} {t("km.away.from.you")}
-            </span>
-          </div>
+          {data?.distance != null && (
+            <div className="flex items-center gap-1">
+              <MapPinIcon />
+              <span className="text-xs text-gray-field">
+                {data.distance} {t("km.away.from.you")}
+              </span>
+            </div>
+          )}
 
           {settings?.shop_reviews_enabled === "1" && (
             <>

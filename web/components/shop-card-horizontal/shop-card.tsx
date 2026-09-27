@@ -74,8 +74,8 @@ export const ShopCard = memo(
                 <MapPinIcon />
                 <span className="text-xs text-gray-field line-clamp-1">
                   {displayAddress}
-                  {displayAddress && " · "}
-                  {data?.distance} {t("km.away.from.you")}
+                  {displayAddress && data?.distance != null && " · "}
+                  {data?.distance != null && `${data.distance} ${t("km.away.from.you")}`}
                 </span>
               </div>
               <div className="flex items-center gap-2 mt-3">
