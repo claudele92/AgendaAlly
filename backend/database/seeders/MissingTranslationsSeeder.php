@@ -49,6 +49,12 @@ class MissingTranslationsSeeder extends Seeder
         // logo variant for dark backgrounds/dark mode, newly wired up on
         // both admin (sidebar) and web (header, footer)
         'dark.logo' => 'Dark mode logo',
+        // admin: views/settings/general-settings/setting.jsx - the shared
+        // flat/percentage toggle governing both service_fee and
+        // booking_service_fee
+        'service_fee_type' => 'Service fee type',
+        'fixed'             => 'Fixed',
+        'percentage'        => 'Percentage',
     ];
 
     public function run(): void

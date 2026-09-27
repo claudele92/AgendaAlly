@@ -50,6 +50,52 @@ class Utility
         return new LengthAwarePaginator($items?->forPage($page, $perPage), $items?->count() ?? 0, $perPage, $page, $options);
     }
 
+    const SERVICE_FEE_TYPE_FIXED      = 'fixed';
+    const SERVICE_FEE_TYPE_PERCENTAGE = 'percentage';
+
+    const SERVICE_FEE_TYPES = [
+        self::SERVICE_FEE_TYPE_FIXED      => self::SERVICE_FEE_TYPE_FIXED,
+        self::SERVICE_FEE_TYPE_PERCENTAGE => self::SERVICE_FEE_TYPE_PERCENTAGE,
+    ];
+
+    /**
+     * Resolves the platform service fee for either domain (bookings:
+     * $settingKey = 'booking_service_fee', product orders: 'service_fee')
+     * against the shared 'service_fee_type' setting - a single
+     * fixed/percentage mode that governs both, while each keeps its own
+     * numeric rate. Defaults to 'fixed', preserving pre-existing behavior
+     * byte-for-byte for anyone who never touches the new setting.
+     *
+     * $baseAmount is the pre-fee subtotal a percentage rate applies
+     * against - the same "subtotal / 100 * rate" shape already used for
+     * OrderService::calculateOrder()'s existing shop-commission/tax
+     * percentages, applied here for consistency rather than inventing a
+     * different convention.
+     */
+    public static function resolveServiceFee(string $settingKey, float $baseAmount, float $rate = 1): float
+    {
+        $type       = Settings::where('key', 'service_fee_type')->first()?->value ?: self::SERVICE_FEE_TYPE_FIXED;
+        $settingFee = (double) Settings::where('key', $settingKey)->first()?->value ?: 0;
+
+        if ($type === self::SERVICE_FEE_TYPE_PERCENTAGE) {
+            return max($baseAmount / 100 * $settingFee, 0);
+        }
+
+        return max($settingFee, 0) * $rate;
+    }
+
+    /**
+     * Whether service_fee_type is currently 'percentage' - used where a
+     * caller needs to branch on the mode itself rather than just get a
+     * resolved amount (e.g. OrderService::calculateOrder() skipping its
+     * flat-fee-only "split one fee across N orders" step, since a
+     * percentage fee is already correctly scoped per order).
+     */
+    public static function isPercentageServiceFee(): bool
+    {
+        return Settings::where('key', 'service_fee_type')->first()?->value === self::SERVICE_FEE_TYPE_PERCENTAGE;
+    }
+
     /**
      * Geocodes a free-text address into coordinates via Google's Geocoding
      * API, so the server can be authoritative about a shop's lat/long

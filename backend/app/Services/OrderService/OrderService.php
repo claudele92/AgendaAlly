@@ -12,6 +12,7 @@ use App\Models\Coupon;
 use App\Models\Payment;
 use App\Models\Settings;
 use App\Helpers\OrderHelper;
+use App\Helpers\Utility;
 use App\Traits\Notification;
 use App\Services\CoreService;
 use App\Helpers\ResponseError;
@@ -274,11 +275,20 @@ class OrderService extends CoreService
 
         }
 
-        $serviceFee = (double)Settings::where('key', 'service_fee')->first()?->value ?: 0;
-
+        // Base = $totalPrice as it stands here: post-tax, pre-delivery,
+        // pre-coupon, pre-service-fee - the same subtotal $commissionFee
+        // above already used for its own percentage.
         $serviceFee = !$isUpdate
-            ? $serviceFee > 0 ? $serviceFee / $ordersCount : $serviceFee
+            ? Utility::resolveServiceFee('service_fee', $totalPrice)
             : $order->service_fee;
+
+        // Splitting one flat fee across every order a multi-shop cart
+        // spawns only makes sense in fixed mode - a percentage fee is
+        // already correctly scoped to each order's own subtotal, so
+        // dividing it again would undercharge every order in the cart.
+        if (!$isUpdate && $serviceFee > 0 && !Utility::isPercentageServiceFee()) {
+            $serviceFee /= $ordersCount;
+        }
 
         $couponPriceSum = collect($couponPrice)->sum('price');
 
