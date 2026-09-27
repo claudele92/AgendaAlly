@@ -4,73 +4,102 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Models\Booking;
+use App\Models\Order;
 use App\Models\PlatformFeeLedgerEntry;
 use App\Models\Transaction;
 
 /**
  * Records both directions of the fee ledger the moment a payment actually
  * completes, regardless of which gateway carried it — see
- * PlatformFeeLedgerEntry. Every current "paid" code path (gateway
- * callback in BaseService::afterHook, the synchronous wallet debit in
- * TransactionService::walletHistoryAdd) works by calling
- * Transaction::update(['status' => ...]), so this is the one place
- * that catches all of them without duplicating the check into each
- * gateway service: what the platform is owed (its service fee, always),
- * and what the platform now owes the shop back (only when the shop opted
- * into collect_via_platform, so the platform's own gateway - not the
- * shop's - actually received the money).
+ * PlatformFeeLedgerEntry. Covers both Bookings and product Orders, which
+ * share the same Payable trait and (for the fee side) the same relevant
+ * columns (shop_id, currency_id, service_fee) - only the payable-on-
+ * behalf-of-shop side is Booking-specific, since collect_via_platform
+ * doesn't exist on Order.
+ *
+ * Most "paid" code paths (gateway callback in BaseService::afterHook,
+ * the synchronous wallet debit in TransactionService::walletHistoryAdd)
+ * work by calling Transaction::update(['status' => ...]) on a row that
+ * already existed in some other status - a genuine updated() transition.
+ * One path doesn't: CartOrderService::createTransactionByOrder(), used
+ * for a multi-shop cart checkout, resolves the whole cart's payment
+ * status BEFORE creating each order's own Transaction row, so that row
+ * is inserted already 'paid' and never fires updated() at all - hence
+ * the separate created() hook below, rather than just widening the
+ * updated() class check.
  */
 class TransactionObserver
 {
-    public function updated(Transaction $transaction): void
+    private const FEE_PAYABLE_TYPES = [Booking::class, Order::class];
+
+    public function created(Transaction $transaction): void
     {
-        if (!$this->isNewlyPaidBookingTransaction($transaction)) {
+        if (!$this->isPaidFeeEligibleTransaction($transaction)) {
             return;
         }
 
-        /** @var Booking $booking */
-        $booking = $transaction->payable;
-
-        $this->recordFee($transaction, $booking);
-        $this->recordPayableIfCollectingOnBehalfOfShop($transaction, $booking);
+        $this->recordFee($transaction, $transaction->payable);
     }
 
-    private function isNewlyPaidBookingTransaction(Transaction $transaction): bool
+    public function updated(Transaction $transaction): void
+    {
+        if (!$this->isNewlyPaidFeeEligibleTransaction($transaction)) {
+            return;
+        }
+
+        $payable = $transaction->payable;
+
+        $this->recordFee($transaction, $payable);
+
+        if ($payable instanceof Booking) {
+            $this->recordPayableIfCollectingOnBehalfOfShop($transaction, $payable);
+        }
+    }
+
+    private function isPaidFeeEligibleTransaction(Transaction $transaction): bool
     {
         if ($transaction->status !== Transaction::STATUS_PAID) {
             return false;
         }
 
-        // Only the progress -> paid transition is a real payment event;
-        // any other update to an already-paid transaction (e.g. a later
-        // refund flips it away and back, or an unrelated field changes)
-        // must not create a second ledger entry for the same money.
-        if ($transaction->getOriginal('status') === Transaction::STATUS_PAID) {
-            return false;
-        }
-
-        if ($transaction->payable_type !== Booking::class) {
+        if (!in_array($transaction->payable_type, self::FEE_PAYABLE_TYPES, true)) {
             return false;
         }
 
         return (bool) $transaction->payable;
     }
 
-    private function recordFee(Transaction $transaction, Booking $booking): void
+    private function isNewlyPaidFeeEligibleTransaction(Transaction $transaction): bool
     {
-        if ((float) $booking->service_fee <= 0) {
+        // Only the progress -> paid transition is a real payment event;
+        // any other update to an already-paid transaction (e.g. a later
+        // refund flips it away and back, or an unrelated field changes)
+        // must not create a second ledger entry for the same money. A
+        // transaction that was already 'paid' at creation (see created()
+        // above) has getOriginal('status') === 'paid' from the moment it
+        // exists, so this correctly never re-fires for it here.
+        if ($transaction->getOriginal('status') === Transaction::STATUS_PAID) {
+            return false;
+        }
+
+        return $this->isPaidFeeEligibleTransaction($transaction);
+    }
+
+    private function recordFee(Transaction $transaction, Booking|Order $payable): void
+    {
+        if ((float) $payable->service_fee <= 0) {
             return;
         }
 
         PlatformFeeLedgerEntry::query()->firstOrCreate(
             ['transaction_id' => $transaction->id, 'entry_type' => PlatformFeeLedgerEntry::ENTRY_TYPE_FEE],
             [
-                'payable_type' => Booking::class,
-                'payable_id'   => $booking->id,
-                'shop_id'      => $booking->shop_id,
+                'payable_type' => get_class($payable),
+                'payable_id'   => $payable->id,
+                'shop_id'      => $payable->shop_id,
                 'payment_id'   => $transaction->payment_sys_id,
-                'currency_id'  => $booking->currency_id,
-                'amount'       => $booking->service_fee,
+                'currency_id'  => $payable->currency_id,
+                'amount'       => $payable->service_fee,
                 'status'       => PlatformFeeLedgerEntry::STATUS_PENDING,
             ]
         );
