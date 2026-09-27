@@ -71,9 +71,10 @@ below is unconditional rather than conditional on "did this deploy touch
 anything cached."
 
 The same composer script now also runs
-`php artisan db:seed --class=TranslationSeeder --force` and
-`php artisan db:seed --class=MissingTranslationsSeeder --force`. A
-translation key correctly committed to one of these seeder files (`en/web`
+`php artisan db:seed --class=TranslationSeeder --force`,
+`php artisan db:seed --class=MissingTranslationsSeeder --force`, and
+`php artisan db:seed --class=UnitSeeder --force`. A translation key
+correctly committed to one of the first two seeder files (`en/web`
 group, matched by `locale`+`group`+`key`) is not actually present on a
 deployed database until one of these seeders is re-run there - a deploy
 that merges a PR adding a new key does not, by itself, add that row to any
@@ -82,10 +83,14 @@ alone included. Found live: `faqs.short` and `collect.via.platform`/
 `collect.via.platform.description` were correctly committed with
 `firstOrCreate` in their respective seeder files, but rendered as raw,
 untranslated keys in production until these seeders were run there by
-hand. Both seeders are idempotent (`firstOrCreate` keyed on
-`locale`+`group`+`key`) and cheap - matching every other step in this
+hand. The same gap was then found again for `UnitSeeder` specifically:
+its 33 demo units were correctly committed with `updateOrCreate` keyed
+on a fixed `id`, but `SELECT COUNT(*) FROM units` on production still
+returned 1 (the pre-existing default row) until it was added here too.
+All three seeders are idempotent (`firstOrCreate`/`updateOrCreate` keyed
+on a stable natural key) and cheap - matching every other step in this
 list, they now run unconditionally on every deploy rather than depending
-on someone remembering translations changed in this particular one.
+on someone remembering data changed in this particular one.
 
 ## Environment variables to re-check on every new environment
 

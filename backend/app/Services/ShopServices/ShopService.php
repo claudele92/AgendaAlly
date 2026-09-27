@@ -222,6 +222,26 @@ class ShopService extends CoreService
      */
     private function setShopParams(array $data, ?Shop $shop = null): array
     {
+        // 'status' is rendered as a disabled, read-only field on both the
+        // admin and seller shop-edit forms (see shop-form.jsx / shop-add-
+        // data.jsx) - approval/rejection is only ever meant to happen
+        // through the dedicated ShopActivityService::changeStatus()
+        // endpoint. But 'disabled' only stops the user from typing into
+        // it; antd still submits whatever value the field held at the
+        // moment its Form mounted, and a Form's initialValues are captured
+        // once on that first mount, before the async fetch that's supposed
+        // to populate the shop's real current status has necessarily
+        // resolved. When it hasn't, the field silently holds the form's
+        // hardcoded 'new' fallback, and submitting ANY unrelated edit
+        // (e.g. the address) sends 'status: new' back to the server -
+        // silently un-approving an already-approved shop. Stripping
+        // 'status' here (rather than only patching the frontend race)
+        // closes this at the trust boundary regardless of client state,
+        // and is a no-op for the one legitimate path that sets it
+        // deliberately (ShopActivityService::changeStatus()), which
+        // doesn't call this method.
+        unset($data['status']);
+
         $deliveryTime = $shop?->delivery_time ?? [];
 
         if (isset($data['delivery_time_from'])) {
