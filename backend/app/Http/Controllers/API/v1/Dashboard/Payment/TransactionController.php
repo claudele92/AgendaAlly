@@ -17,6 +17,8 @@ use App\Http\Resources\WalletResource;
 use App\Models\Booking;
 use App\Models\Order;
 use App\Models\ParcelOrder;
+use App\Models\Payment;
+use App\Models\PaymentProcess;
 use App\Models\ShopAdsPackage;
 use App\Models\ShopSubscription;
 use App\Models\Transaction;
@@ -25,6 +27,7 @@ use App\Models\UserMemberShip;
 use App\Models\Wallet;
 use App\Services\TransactionService\TransactionService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends PaymentBaseController
 {
@@ -147,20 +150,23 @@ class TransactionController extends PaymentBaseController
 
     public function updateStatus(string $type, int $id, TransactionUpdateRequest $request): JsonResponse
     {
-        if (!auth('sanctum')->user()?->hasRole(['admin', 'seller'])) {
+        /** @var \App\Models\User $user */
+        $user = auth('sanctum')->user();
+
+        if (!$user?->hasRole(['admin', 'seller'])) {
             return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
         }
 
         /** @var Order $model */
         $model = match($type) {
-            'parcel-order'  => ParcelOrder::with('transaction')->find($id),
-            'subscription'  => ShopSubscription::with('transaction')->find($id),
-            'ads-package', 'ads' => ShopAdsPackage::with('transaction')->find($id),
-            'wallet'        => Wallet::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')])->find($id),
-            'booking'       => Booking::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')])->find($id),
-            'member-ship'   => UserMemberShip::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')])->find($id),
-            'gift-cart'     => UserGiftCart::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')])->find($id),
-            default         => Order::with('transaction')->find($id),
+            'parcel-order'  => ParcelOrder::with('transaction.paymentSystem')->find($id),
+            'subscription'  => ShopSubscription::with('transaction.paymentSystem')->find($id),
+            'ads-package', 'ads' => ShopAdsPackage::with('transaction.paymentSystem')->find($id),
+            'wallet'        => Wallet::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')->with('paymentSystem')])->find($id),
+            'booking'       => Booking::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')->with('paymentSystem')])->find($id),
+            'member-ship'   => UserMemberShip::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')->with('paymentSystem')])->find($id),
+            'gift-cart'     => UserGiftCart::with(['transaction' => fn($q) => $q->orderBy('id', 'desc')->with('paymentSystem')])->find($id),
+            default         => Order::with('transaction.paymentSystem')->find($id),
         };
 
         if (!$model) {
@@ -174,21 +180,62 @@ class TransactionController extends PaymentBaseController
             ]);
         }
 
-//        $paymentProcess = PaymentProcess::find($request->input('token'));
-//
-//        if (empty($paymentProcess) && !in_array($order->transaction->paymentSystem?->tag, ['cash', 'wallet'])) {
-//            return $this->onErrorResponse([
-//                'code'    => ResponseError::ERROR_400,
-//                'message' => 'Order not paid'
-//            ]);
-//        }
+        $paymentTag = $model->transaction->paymentSystem?->tag;
+        $isCash     = $paymentTag === Payment::TAG_CASH;
+
+        // A gateway (non-cash) transaction is real money moving through a
+        // third party - only an admin may override its status by hand, and
+        // only with a reason, since there's no other audit trail for why a
+        // human overrode what the gateway itself reported. A seller can
+        // still confirm their own cash bookings, same as before.
+        if (!$isCash && !$user->hasRole('admin')) {
+            return $this->onErrorResponse(['code' => ResponseError::ERROR_404]);
+        }
+
+        $reason = trim((string) $request->input('reason'));
+
+        if (!$isCash && $reason === '') {
+            return $this->onErrorResponse([
+                'code'    => ResponseError::ERROR_400,
+                'message' => __('errors.' . ResponseError::ERROR_400, locale: $this->language)
+                    . ': a reason is required to manually override a non-cash transaction\'s status'
+            ]);
+        }
+
+        $paymentProcess = PaymentProcess::find($request->input('token'));
+
+        if (empty($paymentProcess) && !in_array($paymentTag, [Payment::TAG_CASH, Payment::TAG_WALLET])) {
+            return $this->onErrorResponse([
+                'code'    => ResponseError::ERROR_400,
+                'message' => 'Order not paid'
+            ]);
+        }
+
+        $previousStatus = $model->transaction->status;
 
         /** @var Transaction $transaction */
         $model->transaction->update([
-            'status' => $request->input('status')
+            'status' => $request->input('status'),
+            'note'   => $isCash
+                ? $model->transaction->note
+                : trim(($model->transaction->note ? $model->transaction->note . "\n" : '')
+                    . now()->toDateTimeString() . " manual override by {$user->email} (#{$user->id}): $reason"),
         ]);
 
-//        $paymentProcess?->delete();
+        if (!$isCash) {
+            Log::warning('Manual non-cash transaction status override', [
+                'transaction_id'  => $model->transaction->id,
+                'payable_type'    => $type,
+                'payable_id'      => $id,
+                'previous_status' => $previousStatus,
+                'new_status'      => $request->input('status'),
+                'actor_id'        => $user->id,
+                'actor_email'     => $user->email,
+                'reason'          => $reason,
+            ]);
+        }
+
+        $paymentProcess?->delete();
 
         return $this->successResponse(
             __('errors.' . ResponseError::NO_ERROR, locale: $this->language),

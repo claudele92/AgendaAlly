@@ -65,6 +65,14 @@ class BookingRepository extends CoreRepository
             'children.review',
             'children.activities',
             'children.extraTimes',
+            // BookingResource exposes both the singular 'transaction' (a
+            // MorphOne) and the plural 'transactions' (a MorphMany) -
+            // only the plural's paymentSystem was eager-loaded here, so
+            // any consumer reading booking.transaction.payment_system.tag
+            // (e.g. the "Pay" button and payment-method-aware labels in
+            // booking-detail.tsx) was silently falling back to a lazy
+            // per-request load instead of using eager-loaded data.
+            'transaction.paymentSystem',
             'transactions.paymentSystem',
             'transactions.children',
             'children.transactions.paymentSystem',
