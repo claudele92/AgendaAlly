@@ -26,6 +26,19 @@ use Tests\TestCase;
  * now makes shop_location_id a first-class, validated attribute of the
  * booking - while preserving the pre-existing "zero pivot rows = assigned
  * everywhere" semantics for masters (see User::bookingBranchScope()).
+ *
+ * Also covers the hotfix that followed: the storefront never actually
+ * sends shop_location_id at all (no frontend work had shipped for it yet),
+ * so requiring it unconditionally once a shop had any SERVICE location
+ * blocked every booking to that shop - single-branch or multi-branch
+ * alike. autoResolveBookingLocation() now resolves the unambiguous cases
+ * (one location; or several, but the master is only assigned to one) when
+ * shop_location_id is omitted, and only a genuinely ambiguous case (a
+ * multi-branch shop with an unrestricted, or multiply-assigned, master)
+ * still rejects - with a distinct LOCATION_AMBIGUOUS code rather than the
+ * generic LOCATION_REQUIRED, so the frontend can tell the two apart. An
+ * explicitly supplied shop_location_id is still fully validated exactly
+ * as before either way.
  */
 class BookingBranchValidationTest extends TestCase
 {
@@ -211,9 +224,52 @@ class BookingBranchValidationTest extends TestCase
         }
     }
 
-    public function test_missing_location_is_rejected_once_shop_has_branches(): void
+    public function test_single_location_shop_auto_resolves_when_shop_location_id_omitted(): void
     {
         $shop = $this->makeShop();
+        $location = $this->makeLocation($shop);
+        $master = User::factory()->create();
+        $serviceMaster = $this->makeServiceMaster($shop, $master);
+
+        $shopId = null;
+        $result = (new BookingService)->beforeSave(
+            $this->bookingItem($serviceMaster, null),
+            1,
+            $shopId
+        );
+
+        $this->assertSame($location->id, $result['shop_location_id']);
+    }
+
+    public function test_master_assigned_to_exactly_one_of_several_locations_auto_resolves(): void
+    {
+        $shop = $this->makeShop();
+        $locationA = $this->makeLocation($shop);
+        $this->makeLocation($shop);
+        $master = User::factory()->create();
+        $serviceMaster = $this->makeServiceMaster($shop, $master);
+
+        $invitation = Invitation::query()->create([
+            'shop_id' => $shop->id,
+            'user_id' => $master->id,
+            'status' => Invitation::ACCEPTED,
+        ]);
+        $invitation->shopLocations()->sync([$locationA->id]);
+
+        $shopId = null;
+        $result = (new BookingService)->beforeSave(
+            $this->bookingItem($serviceMaster, null),
+            1,
+            $shopId
+        );
+
+        $this->assertSame($locationA->id, $result['shop_location_id']);
+    }
+
+    public function test_ambiguous_case_is_rejected_for_unrestricted_master_at_multi_branch_shop(): void
+    {
+        $shop = $this->makeShop();
+        $this->makeLocation($shop);
         $this->makeLocation($shop);
         $master = User::factory()->create();
         $serviceMaster = $this->makeServiceMaster($shop, $master);
@@ -225,10 +281,41 @@ class BookingBranchValidationTest extends TestCase
                 1,
                 $shopId
             );
-            $this->fail('Expected a missing shop_location_id to be rejected once the shop has branches.');
+            $this->fail('Expected an unrestricted master at a multi-branch shop with no shop_location_id to be ambiguous.');
         } catch (Exception $e) {
             $this->assertStringContainsString(
-                __('errors.' . ResponseError::LOCATION_REQUIRED),
+                __('errors.' . ResponseError::LOCATION_AMBIGUOUS),
+                $e->getMessage()
+            );
+        }
+    }
+
+    public function test_ambiguous_case_is_rejected_for_master_assigned_to_multiple_locations(): void
+    {
+        $shop = $this->makeShop();
+        $locationA = $this->makeLocation($shop);
+        $locationB = $this->makeLocation($shop);
+        $master = User::factory()->create();
+        $serviceMaster = $this->makeServiceMaster($shop, $master);
+
+        $invitation = Invitation::query()->create([
+            'shop_id' => $shop->id,
+            'user_id' => $master->id,
+            'status' => Invitation::ACCEPTED,
+        ]);
+        $invitation->shopLocations()->sync([$locationA->id, $locationB->id]);
+
+        try {
+            $shopId = null;
+            (new BookingService)->beforeSave(
+                $this->bookingItem($serviceMaster, null),
+                1,
+                $shopId
+            );
+            $this->fail('Expected a master assigned to multiple locations with no shop_location_id to be ambiguous.');
+        } catch (Exception $e) {
+            $this->assertStringContainsString(
+                __('errors.' . ResponseError::LOCATION_AMBIGUOUS),
                 $e->getMessage()
             );
         }
