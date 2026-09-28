@@ -36,6 +36,7 @@ use App\Services\PaymentService\BaseService;
 use App\Http\Resources\ServiceMasterResource;
 use App\Services\TransactionService\TransactionService;
 use App\Repositories\BookingRepository\BookingRepository;
+use Illuminate\Support\Collection;
 
 class BookingService extends CoreService
 {
@@ -518,29 +519,33 @@ class BookingService extends CoreService
      * A shop that has never set up any SERVICE ShopLocation (branches are
      * opt-in - see ShopLocationController) keeps today's location-less
      * behavior exactly: no location is required or stored. Once a shop has
-     * at least one SERVICE location, every booking must name one, it must
-     * belong to this shop, and - mirroring the exact opt-in semantics
-     * already used for read-side branch scoping in
+     * at least one SERVICE location, every booking must resolve to one -
+     * explicitly supplied or auto-resolved, see autoResolveBookingLocation()
+     * - and it must belong to this shop, and - mirroring the exact opt-in
+     * semantics already used for read-side branch scoping in
      * User::bookingBranchScope()/MasterRepository::index() - the selected
      * master must actually be assigned to it, unless that master has no
-     * branch assignments at all (unrestricted, bookable everywhere).
+     * branch assignments at all (unrestricted, bookable everywhere). This
+     * final check runs identically whether shop_location_id came from the
+     * request or from auto-resolution - a manipulated/cross-branch id is
+     * rejected exactly the same either way.
      *
      * @throws Exception
      */
     private function resolveBookingLocation(array $data, int $shopId, int $masterId): ?int
     {
-        $hasLocations = ShopLocation::where('shop_id', $shopId)
+        $serviceLocationIds = ShopLocation::where('shop_id', $shopId)
             ->where('type', ShopLocation::SERVICE)
-            ->exists();
+            ->pluck('id');
 
-        if (!$hasLocations) {
+        if ($serviceLocationIds->isEmpty()) {
             return null;
         }
 
         $shopLocationId = data_get($data, 'shop_location_id');
 
         if (empty($shopLocationId)) {
-            throw new Exception(__('errors.' . ResponseError::LOCATION_REQUIRED, locale: $this->language));
+            $shopLocationId = $this->autoResolveBookingLocation($shopId, $masterId, $serviceLocationIds);
         }
 
         $location = ShopLocation::where('id', $shopLocationId)
@@ -565,6 +570,57 @@ class BookingService extends CoreService
         }
 
         return (int)$shopLocationId;
+    }
+
+    /**
+     * Called only when the request omitted shop_location_id - the
+     * frontend has no way to send it yet in every case (a single-branch
+     * shop never needed a branch picker; a multi-branch shop's picker is
+     * still being built - see the Prompt 2 branch-validation follow-up).
+     * Auto-resolves only where there is no genuine ambiguity to protect
+     * against:
+     *
+     * 1. The shop itself has exactly one SERVICE location - the same
+     *    location every booking to it would have to name anyway.
+     * 2. The shop has several, but the selected master is (via the
+     *    invitation_shop_locations pivot) assigned to exactly one of
+     *    them - naming any other location would fail the master-
+     *    assignment check right below this call regardless, so this one
+     *    is the only value that could ever succeed.
+     *
+     * Anything else - a multi-branch shop whose master is unassigned
+     * (bookable everywhere) or assigned to more than one of its
+     * locations - is genuinely ambiguous: no signal available server-side
+     * says which branch the customer meant, so this throws a distinct
+     * LOCATION_AMBIGUOUS (not the generic LOCATION_REQUIRED) for the
+     * frontend to act on - e.g. by prompting a branch picker - rather
+     * than silently guessing one and risking a booking at the wrong
+     * branch, which is exactly what this whole validation exists to
+     * prevent.
+     *
+     * @throws Exception
+     */
+    private function autoResolveBookingLocation(int $shopId, int $masterId, Collection $serviceLocationIds): int
+    {
+        if ($serviceLocationIds->count() === 1) {
+            return (int) $serviceLocationIds->first();
+        }
+
+        $invitation = Invitation::where('user_id', $masterId)
+            ->where('shop_id', $shopId)
+            ->where('status', Invitation::ACCEPTED)
+            ->with('shopLocations:id')
+            ->first();
+
+        $assignedLocationIds = ($invitation?->shopLocations->pluck('id') ?? collect())
+            ->intersect($serviceLocationIds)
+            ->values();
+
+        if ($assignedLocationIds->count() === 1) {
+            return (int) $assignedLocationIds->first();
+        }
+
+        throw new Exception(__('errors.' . ResponseError::LOCATION_AMBIGUOUS, locale: $this->language));
     }
 
     /**
