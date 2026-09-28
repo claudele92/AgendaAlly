@@ -15,10 +15,17 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Redirect;
 
 class StripeController extends PaymentBaseController
 {
+    // Last-resort fallback if config('app.front_url') itself is broken
+    // (e.g. FRONT_URL set to an empty string rather than unset, which
+    // env()'s own default can't catch) - never re-derived from the same
+    // config that just failed, so this can't also be empty.
+    private const FALLBACK_FRONT_URL = 'https://agendaally.com/';
+
     public function __construct(private StripeService $service)
     {
         parent::__construct($service);
@@ -73,6 +80,21 @@ class StripeController extends PaymentBaseController
                 $to = config('app.admin_url');
             }
 
+        }
+
+        // A bare relative path here (FRONT_URL/ADMIN_URL unset or blank)
+        // would resolve against this API's own host rather than the
+        // storefront/admin panel, sending the customer's browser to an
+        // unmatched API route that renders as a raw JSON 404 - exactly
+        // the failure this guard exists to catch instead of doing that
+        // silently.
+        if (!filter_var($to, FILTER_VALIDATE_URL)) {
+            Log::error('Payment redirect resolved to a non-absolute URL - check FRONT_URL/ADMIN_URL config', [
+                'computed_to' => $to,
+                'query'       => $request->query(),
+            ]);
+
+            $to = self::FALLBACK_FRONT_URL;
         }
 
         return Redirect::to($to);

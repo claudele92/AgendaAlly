@@ -29,39 +29,15 @@ class PayPalService extends BaseService
      */
     public function processTransaction(array $data): PaymentProcess
     {
-        $payment        = Payment::where('tag', Payment::TAG_PAY_PAL)->first();
-        $paymentPayload = PaymentPayload::where('payment_id', $payment?->id)->first();
-
-        $payload        = $paymentPayload?->payload;
-
-        $url            = 'https://api-m.sandbox.paypal.com';
-        $clientId       = data_get($payload, 'paypal_sandbox_client_id');
-        $clientSecret   = data_get($payload, 'paypal_sandbox_client_secret');
-
-        if (data_get($payload, 'paypal_mode', 'sandbox') === 'live') {
-            $url            = 'https://api-m.paypal.com';
-            $clientId       = data_get($payload, 'paypal_live_client_id');
-            $clientSecret   = data_get($payload, 'paypal_live_client_secret');
-        }
+        $payment = Payment::where('tag', Payment::TAG_PAY_PAL)->first();
+        [$url, $clientId, $clientSecret, $payload] = $this->resolvePayPalCredentials($payment);
+        [$tokenType, $accessToken] = $this->getAccessToken($url, $clientId, $clientSecret);
 
         $provider = new Client();
-        $responseAuth = $provider->post("$url/v1/oauth2/token", [
-            'auth' => [
-                $clientId,
-                $clientSecret,
-            ],
-            'form_params' => [
-                'grant_type' => 'client_credentials',
-            ]
-        ]);
-
-        $responseAuth = json_decode($responseAuth->getBody()->getContents(), true);
 
         [$key, $before] = $this->getPayload($data, $payload);
 
         $modelId     = data_get($before, 'model_id');
-        $tokenType   = data_get($responseAuth, 'token_type', 'Bearer');
-        $accessToken = data_get($responseAuth, 'access_token');
         $host        = request()->getSchemeAndHttpHost();
         $title       = Settings::where('key', 'title')->first()?->title ?? env('APP_NAME');
 
@@ -129,6 +105,107 @@ class PayPalService extends BaseService
             ], $before)
         ]);
 
+    }
+
+    /**
+     * PayPal's intent=CAPTURE flow does NOT auto-capture once the buyer
+     * approves - approval only means PayPal will let us capture; a
+     * separate server-side call to this endpoint is required before any
+     * money actually moves (confirmed against PayPal's own Orders v2
+     * docs). Called from PayPalController::paymentWebHook() on
+     * CHECKOUT.ORDER.APPROVED - only THIS call's own result is trusted
+     * to mean paid, never the approval event alone.
+     *
+     * @return array{status: string, capture_id: ?string, raw: array}
+     * @throws GuzzleException
+     */
+    public function captureOrder(string $orderId): array
+    {
+        $payment = Payment::where('tag', Payment::TAG_PAY_PAL)->first();
+        [$url, $clientId, $clientSecret] = $this->resolvePayPalCredentials($payment);
+        [$tokenType, $accessToken] = $this->getAccessToken($url, $clientId, $clientSecret);
+
+        $provider = new Client();
+
+        try {
+            $response = $provider->post("$url/v2/checkout/orders/$orderId/capture", [
+                'headers' => [
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => "$tokenType $accessToken",
+                ],
+            ]);
+        } catch (GuzzleException $e) {
+            $errorBody = method_exists($e, 'getResponse') && $e->getResponse()
+                ? json_decode($e->getResponse()->getBody()->getContents(), true)
+                : null;
+
+            // A retried/duplicate CHECKOUT.ORDER.APPROVED delivery (PayPal
+            // does not guarantee exactly-once webhook delivery) hits this
+            // exact error on the second attempt - the original capture
+            // already ran and already reported its own real result, so
+            // this is NOT a failure and must not overwrite an
+            // already-paid transaction with a false rejection.
+            if (data_get($errorBody, 'details.0.issue') === 'ORDER_ALREADY_CAPTURED') {
+                return ['status' => 'ALREADY_CAPTURED', 'capture_id' => null, 'raw' => $errorBody];
+            }
+
+            // Any other 4xx/5xx (e.g. ORDER_NOT_APPROVED) is PayPal
+            // telling us capture genuinely didn't happen - never treat
+            // this as paid.
+            return ['status' => 'FAILED', 'capture_id' => null, 'raw' => $errorBody ?? ['error' => $e->getMessage()]];
+        }
+
+        $body = json_decode($response->getBody()->getContents(), true);
+
+        return [
+            'status'     => data_get($body, 'purchase_units.0.payments.captures.0.status', data_get($body, 'status', 'FAILED')),
+            'capture_id' => data_get($body, 'purchase_units.0.payments.captures.0.id'),
+            'raw'        => $body,
+        ];
+    }
+
+    /**
+     * @return array{0: string, 1: ?string, 2: ?string, 3: ?array} [base_url, client_id, client_secret, raw_payload]
+     */
+    private function resolvePayPalCredentials(?Payment $payment): array
+    {
+        $paymentPayload = PaymentPayload::where('payment_id', $payment?->id)->first();
+        $payload        = $paymentPayload?->payload;
+
+        $url          = 'https://api-m.sandbox.paypal.com';
+        $clientId     = data_get($payload, 'paypal_sandbox_client_id');
+        $clientSecret = data_get($payload, 'paypal_sandbox_client_secret');
+
+        if (data_get($payload, 'paypal_mode', 'sandbox') === 'live') {
+            $url          = 'https://api-m.paypal.com';
+            $clientId     = data_get($payload, 'paypal_live_client_id');
+            $clientSecret = data_get($payload, 'paypal_live_client_secret');
+        }
+
+        return [$url, $clientId, $clientSecret, $payload];
+    }
+
+    /**
+     * @return array{0: string, 1: ?string} [token_type, access_token]
+     * @throws GuzzleException
+     */
+    private function getAccessToken(string $url, ?string $clientId, ?string $clientSecret): array
+    {
+        $provider = new Client();
+
+        $responseAuth = $provider->post("$url/v1/oauth2/token", [
+            'auth' => [$clientId, $clientSecret],
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+            ]
+        ]);
+
+        $responseAuth = json_decode($responseAuth->getBody()->getContents(), true);
+
+        return [
+            data_get($responseAuth, 'token_type', 'Bearer'),
+            data_get($responseAuth, 'access_token'),
+        ];
     }
 
     /**
