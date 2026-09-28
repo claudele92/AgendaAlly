@@ -8,6 +8,7 @@ import { BookingContext } from '../provider';
 import CreateUserModal from '../components/create-user-modal';
 import { useTranslation } from 'react-i18next';
 import { downloadInvoice } from '../helpers/index';
+import BookingBranchSelect from 'components/booking-branch-select';
 
 const { Title } = Typography;
 
@@ -15,6 +16,7 @@ const InfoFormItems = ({
   isDisabled,
   title = 'new.booking',
   isAdd = false,
+  shopLocations,
 }) => {
   const { t } = useTranslation();
   const { calculatedData, setViewContent, setInfoData, infoForm, service_id } =
@@ -60,6 +62,9 @@ const InfoFormItems = ({
               fetchOptions={fetchShops}
             />
           </Form.Item>
+        </Col>
+        <Col span={24}>
+          <BookingBranchSelect shopLocations={shopLocations} disabled={!isAdd} />
         </Col>
         <Col span={24}>
           <Form.Item

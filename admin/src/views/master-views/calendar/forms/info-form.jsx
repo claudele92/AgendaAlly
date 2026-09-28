@@ -7,12 +7,14 @@ import { Button, Col, Form, Row, Typography } from 'antd';
 import { fetchPayments, fetchUsers } from '../helpers';
 import ServiceCard from '../components/service-card';
 import { BookingContext } from '../provider';
+import BookingBranchSelect from 'components/booking-branch-select';
 const { Title } = Typography;
 
 const InfoFormItems = ({
   isDisabled,
   title = 'new.booking',
   isAdd = false,
+  shopLocations,
 }) => {
   const { calculatedData, setViewContent, setInfoData, infoForm } =
     useContext(BookingContext);
@@ -50,6 +52,9 @@ const InfoFormItems = ({
             disabled
           />
         </Form.Item>
+      </Col>
+      <Col span={24}>
+        <BookingBranchSelect shopLocations={shopLocations} disabled={!isAdd} />
       </Col>
       {calculatedData?.items?.map((item) => (
         <Col span={24} key={item.id}>

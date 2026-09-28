@@ -475,6 +475,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['block.ip']], function () {
             Route::post('bookings/{id}/extra-time',     [Master\BookingController::class, 'extraTime']);
             Route::post('bookings/calculate',           [Master\BookingController::class, 'calculate']);
 
+            /* Shop Locations - read-only, used to pick a branch when
+               booking at a multi-branch shop */
+            Route::get('shop-locations', [Master\ShopLocationController::class, 'index']);
+
             /* Bookings report */
             Route::apiResource('users',       Master\UserController::class)->only(['index', 'show']);
             Route::get('booking/reports/statistic',     [Master\BookingReportController::class, 'statistic']);

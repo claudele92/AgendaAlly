@@ -1,8 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Form } from 'antd';
 import { BookingContext } from '../provider';
 import InfoFormItems from '../forms/info-form';
 import bookingService from 'services/seller/booking';
+import shopLocationService from 'services/seller/shop-locations';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { fetchSellerBookingList } from 'redux/slices/booking';
@@ -18,6 +19,15 @@ const InfoForm = () => {
   const dispatch = useDispatch();
   const client = Form.useWatch('client', infoForm);
   const payment_id = Form.useWatch('payment_id', infoForm);
+  const shop_location_id = Form.useWatch('shop_location_id', infoForm);
+  const [shopLocations, setShopLocations] = useState([]);
+
+  useEffect(() => {
+    shopLocationService
+      .getAll({ perPage: 100 })
+      .then(({ data }) => setShopLocations(data))
+      .catch(() => setShopLocations([]));
+  }, []);
 
   const onFinish = (values) => {
     bookingService
@@ -28,6 +38,7 @@ const InfoForm = () => {
           note: item.note,
           data: item.data,
           service_master_id: item?.service_master?.id,
+          shop_location_id: values.shop_location_id,
           service_extras: item?.extras?.length
             ? item?.extras?.map((item) => item?.id)
             : undefined,
@@ -46,9 +57,17 @@ const InfoForm = () => {
       });
   };
 
+  const needsBranch = shopLocations.filter((l) => l.type === 2).length > 1;
+
   return (
     <Form form={infoForm} layout='vertical' onFinish={onFinish}>
-      <InfoFormItems isAdd isDisabled={!(client && payment_id)} />
+      <InfoFormItems
+        isAdd
+        isDisabled={
+          !(client && payment_id) || (needsBranch && !shop_location_id)
+        }
+        shopLocations={shopLocations}
+      />
     </Form>
   );
 };
