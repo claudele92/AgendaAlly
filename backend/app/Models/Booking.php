@@ -361,6 +361,21 @@ class Booking extends Model
             ->when(data_get($filter, 'end_date'),            fn($q, $time)       => $q->where('end_date', '<=', $time))
             ->when(data_get($filter, 'status'),              fn($q, $status)     => $q->where('status',  $status))
             ->when(data_get($filter, 'statuses'),            fn($q, $statuses)   => $q->whereIn('status',  $statuses))
+            // Used only by the customer's own "My Appointments" list
+            // (Dashboard/User/BookingController::index()) as its default,
+            // never sent as raw client input. A 'new' booking with a
+            // Transaction row completed checkout and is simply waiting on
+            // the seller to confirm it - that includes every cash booking,
+            // since BookingService::create() writes a Transaction the
+            // moment a payment_id is supplied, whatever its tag. Only a
+            // 'new' booking with no Transaction at all - the create request
+            // never carried a payment_id - is a genuinely abandoned
+            // checkout, so that's the only case hidden here.
+            ->when(data_get($filter, 'hide_abandoned_new'), function ($q) {
+                $q->where(fn($q2) => $q2
+                    ->where('status', '!=', Booking::STATUS_NEW)
+                    ->orWhereHas('transaction'));
+            })
             ->when(data_get($filter, 'price_from'),          fn($q, $price)      => $q->where('price', '>=', $price))
             ->when(data_get($filter, 'price_to'),            fn($q, $price)      => $q->where('price', '<=', $price))
             ->when(data_get($filter, 'discount_from'),       fn($q, $discount)   => $q->where('discount', '>=', $discount))

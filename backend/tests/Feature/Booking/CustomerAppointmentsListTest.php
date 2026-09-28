@@ -6,19 +6,31 @@ namespace Tests\Feature\Booking;
 
 use App\Models\Booking;
 use App\Models\Currency;
+use App\Models\Payment;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * BookingService::create() inserts a Booking row the moment a time slot
- * is confirmed - before the customer ever reaches the payment step - and
- * it stays at the DB default status 'new' if they abandon checkout
- * before paying (see create_bookings_table migration). The customer's
- * own "My Appointments" list (Dashboard/User/BookingController::index())
- * must not show those - they were never actually confirmed - while
- * still showing every other status, canceled included.
+ * A Booking row is created by BookingService::create() at the final
+ * checkout submission - not earlier, contrary to this test's own previous
+ * assumption - and starts at the DB default status 'new' regardless of
+ * payment method (see create_bookings_table migration); the seller/staff
+ * move it to 'booked' afterward. So 'new' is the ordinary status of every
+ * fresh booking, cash included, and blindly excluding it (the original
+ * fix here) hid real cash bookings a customer had just placed, waiting on
+ * the seller to confirm them.
+ *
+ * The customer's own "My Appointments" list
+ * (Dashboard/User/BookingController::index()) now keys off whether a
+ * Transaction row exists instead: BookingService::create() writes one via
+ * $model->createTransaction() the moment a payment_id is supplied,
+ * whatever its tag - a cash booking included, since the frontend always
+ * sends payment_id once a payment method is chosen. Only a 'new' booking
+ * with no Transaction at all - the create request never carried a
+ * payment_id in the first place - is a genuinely abandoned checkout.
+ * Every other status stays visible regardless, canceled included.
  */
 class CustomerAppointmentsListTest extends TestCase
 {
@@ -45,15 +57,17 @@ class CustomerAppointmentsListTest extends TestCase
         ]);
     }
 
-    public function test_appointments_list_excludes_never_paid_bookings_but_keeps_every_other_status(): void
+    public function test_appointments_list_excludes_abandoned_new_bookings_but_keeps_every_other_status(): void
     {
         $customer = User::factory()->create();
 
-        $new      = $this->makeBooking($customer, Booking::STATUS_NEW);
-        $booked   = $this->makeBooking($customer, Booking::STATUS_BOOKED);
-        $progress = $this->makeBooking($customer, Booking::STATUS_PROGRESS);
-        $ended    = $this->makeBooking($customer, Booking::STATUS_ENDED);
-        $canceled = $this->makeBooking($customer, Booking::STATUS_CANCELED);
+        // No Transaction row - the create request never carried a
+        // payment_id, so checkout never actually completed.
+        $abandoned = $this->makeBooking($customer, Booking::STATUS_NEW);
+        $booked    = $this->makeBooking($customer, Booking::STATUS_BOOKED);
+        $progress  = $this->makeBooking($customer, Booking::STATUS_PROGRESS);
+        $ended     = $this->makeBooking($customer, Booking::STATUS_ENDED);
+        $canceled  = $this->makeBooking($customer, Booking::STATUS_CANCELED);
 
         $response = $this->actingAs($customer, 'sanctum')
             ->getJson('api/v1/dashboard/user/bookings?parent=1')
@@ -61,11 +75,36 @@ class CustomerAppointmentsListTest extends TestCase
 
         $ids = collect($response->json('data'))->pluck('id')->all();
 
-        $this->assertNotContains($new->id, $ids, 'a never-paid booking must not appear in My Appointments');
+        $this->assertNotContains($abandoned->id, $ids, 'a booking with no Transaction at all must not appear in My Appointments');
         $this->assertContains($booked->id, $ids);
         $this->assertContains($progress->id, $ids);
         $this->assertContains($ended->id, $ids);
         $this->assertContains($canceled->id, $ids, 'canceled bookings must stay visible');
+    }
+
+    public function test_a_completed_cash_booking_stays_visible_while_awaiting_seller_confirmation(): void
+    {
+        $customer = User::factory()->create();
+        $cash = Payment::factory()->create(['active' => true, 'tag' => Payment::TAG_CASH]);
+
+        $new = $this->makeBooking($customer, Booking::STATUS_NEW);
+        $new->createTransaction([
+            'price'          => $new->total_price,
+            'user_id'        => $customer->id,
+            'payment_sys_id' => $cash->id,
+        ]);
+
+        $response = $this->actingAs($customer, 'sanctum')
+            ->getJson('api/v1/dashboard/user/bookings?parent=1')
+            ->assertOk();
+
+        $ids = collect($response->json('data'))->pluck('id')->all();
+
+        $this->assertContains(
+            $new->id,
+            $ids,
+            'a cash booking that completed checkout must stay visible even while still new'
+        );
     }
 
     public function test_an_explicit_status_filter_is_not_overridden_by_the_default_exclusion(): void
