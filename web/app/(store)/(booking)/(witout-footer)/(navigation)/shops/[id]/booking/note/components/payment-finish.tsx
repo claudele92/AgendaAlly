@@ -15,6 +15,7 @@ import { error } from "@/components/alert";
 import { Modal } from "@/components/modal";
 import { BookingDetail } from "@/app/(store)/(booking)/components/booking-detail";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 interface PaymentFinishProps {
   shop: DefaultResponse<Shop>;
@@ -22,6 +23,7 @@ interface PaymentFinishProps {
 
 const PaymentFinish = ({ shop }: PaymentFinishProps) => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { state } = useBooking();
   const { currency } = useSettings();
   const [orderDetail, setOrderDetail] = useState<Booking[] | undefined>();
@@ -32,6 +34,15 @@ const PaymentFinish = ({ shop }: PaymentFinishProps) => {
       setOrderDetail(res.data);
     },
     onError: (err: NetworkError) => {
+      if (err.code === "LOCATION_AMBIGUOUS") {
+        error(
+          t("choose.a.branch.description", {
+            defaultValue: "This shop has multiple locations - please select one to continue booking.",
+          })
+        );
+        router.back();
+        return;
+      }
       error(err.message);
     },
   });
@@ -58,6 +69,7 @@ const PaymentFinish = ({ shop }: PaymentFinishProps) => {
             ? service?.selected_extras.map((extra) => extra.id)
             : undefined,
           start_date: `${dayjs(startDateTime?.date).format("YYYY-MM-DD")} ${startDateTime?.time}`,
+          shop_location_id: state.shopLocationId,
         };
       }),
       currency_id: currency?.id,

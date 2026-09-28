@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import NetworkError from "@/utils/network-error";
 import { error } from "@/components/alert";
 import { useExternalPayment } from "@/hook/use-external-payment";
+import { useTranslation } from "react-i18next";
 
 dayjs.extend(utc);
 
@@ -37,6 +38,7 @@ interface PaymentFinishProps {
 
 export const PaymentFinish = ({ shop }: PaymentFinishProps) => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { state } = useBooking();
   const { currency } = useSettings();
   const [orderDetail, setOrderDetail] = useState<Booking[] | undefined>();
@@ -55,6 +57,15 @@ export const PaymentFinish = ({ shop }: PaymentFinishProps) => {
       }
     },
     onError: (err: NetworkError) => {
+      if (err.code === "LOCATION_AMBIGUOUS") {
+        error(
+          t("choose.a.branch.description", {
+            defaultValue: "This shop has multiple locations - please select one to continue booking.",
+          })
+        );
+        router.back();
+        return;
+      }
       error(err.message);
     },
   });
@@ -77,6 +88,7 @@ export const PaymentFinish = ({ shop }: PaymentFinishProps) => {
             ? service?.selected_extras.map((extra) => extra.id)
             : undefined,
           start_date: `${dayjs(startDateTime?.date).format("YYYY-MM-DD")} ${startDateTime?.time}`,
+          shop_location_id: state.shopLocationId,
         };
       }),
       currency_id: currency?.id,

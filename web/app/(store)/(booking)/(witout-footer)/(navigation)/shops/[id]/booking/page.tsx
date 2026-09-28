@@ -6,6 +6,8 @@ import { WorkingSchedule } from "../components/working-schedule";
 import { BookingTotal } from "../components/booking-total";
 import { BookingBackButton } from "./booking-back-button";
 import { BuyOptions } from "../components/buy-options";
+import { BranchGate } from "../components/branch-gate";
+import { extractShopLocationParams } from "@/utils/extract-shop-location-params";
 
 const Services = dynamic(
   () => import("../components/services").then((component) => ({ default: component.Services })),
@@ -36,18 +38,24 @@ const Services = dynamic(
 const ShopBooking = async (
   props: {
     params: Promise<{ id: string }>;
-    searchParams?: Promise<{ master_id: string }>;
+    searchParams?: Promise<Record<string, string | string[] | undefined>>;
   }
 ) => {
-  const searchParams = await props.searchParams;
+  const searchParams = (await props.searchParams) ?? {};
   const params = await props.params;
   const lang = (await cookies()).get("lang")?.value || "en";
   const currencyId = (await cookies()).get("currency_id")?.value;
+  const masterId =
+    typeof searchParams.master_id === "string" ? searchParams.master_id : undefined;
   // This shop is the whole page's subject - a failed fetch reads as "not
   // available" (404) rather than crashing.
   let shop;
   try {
-    shop = await shopService.getBySlug(params.id, { lang, currency_id: currencyId });
+    shop = await shopService.getBySlug(params.id, {
+      lang,
+      currency_id: currencyId,
+      ...extractShopLocationParams(searchParams),
+    });
   } catch {
     notFound();
   }
@@ -56,7 +64,9 @@ const ShopBooking = async (
       <BookingBackButton resetAll />
       <div className="grid lg:grid-cols-3 grid-cols-1 lg:gap-x-7 gap-y-7 lg:mt-6">
         <div className="col-span-2">
-          <Services isInBookingPage shopId={shop?.data?.id} masterId={searchParams?.master_id} />
+          <BranchGate data={shop}>
+            <Services isInBookingPage shopId={shop?.data?.id} masterId={masterId} />
+          </BranchGate>
         </div>
         <div>
           <div className="sticky top-6 flex flex-col gap-7">
