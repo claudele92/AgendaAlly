@@ -58,6 +58,11 @@ class MasterStoreRequest extends BaseRequest
                     ->where('active', true)
                     ->where('master_id', auth('sanctum')->id())
             ],
+            'data.*.shop_location_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('shop_locations', 'id')
+            ],
             'data.*.price_id' => [
 //                'required',
                 'integer',
