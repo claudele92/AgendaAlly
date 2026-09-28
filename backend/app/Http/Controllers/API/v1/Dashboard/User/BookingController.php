@@ -40,17 +40,23 @@ class BookingController extends UserBaseController
     {
         $filter = $request->merge(['user_id' => auth('sanctum')->id()])->all();
 
-        // A Booking row is created the moment a time slot is confirmed -
-        // before the customer ever reaches the payment step (see
-        // BookingService::create()) - and is left at the DB default
-        // status 'new' if they abandon checkout before paying. Never
-        // show those in the customer's own appointments list; canceled
-        // bookings stay visible, since the app already has dedicated
-        // handling for that status (see BookingCard's showOptions).
-        // Skipped if the request already asked for a specific
-        // status/statuses itself, so this only supplies a default.
+        // A Booking row is created by BookingService::create() at the
+        // final checkout submission (the storefront never calls it
+        // earlier - see payment-finish.tsx), and starts at the DB default
+        // status 'new' regardless of payment method; the seller/staff
+        // move it to 'booked' afterward. So 'new' is the normal status of
+        // every fresh booking, cash included - it is NOT itself a sign of
+        // an abandoned checkout, and excluding it outright hid real cash
+        // bookings a customer had just placed. The only bookings actually
+        // worth hiding are ones that never completed checkout at all: see
+        // Booking::scopeFilter()'s hide_abandoned_new, which keys off
+        // whether a Transaction row exists rather than status alone.
+        // Canceled bookings stay visible either way, since the app already
+        // has dedicated handling for that status (see BookingCard's
+        // showOptions). Skipped if the request already asked for a
+        // specific status/statuses itself, so this only supplies a default.
         if (!isset($filter['status']) && !isset($filter['statuses'])) {
-            $filter['statuses'] = array_values(array_diff(Booking::STATUSES, [Booking::STATUS_NEW]));
+            $filter['hide_abandoned_new'] = true;
         }
 
         $models = $this->repository->paginate($filter);
