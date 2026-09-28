@@ -58,6 +58,12 @@ export interface BookingCreateBody {
     note?: string;
     data?: BookingAddressData;
     start_date: string;
+    // Which branch this booking is at - see BookingService::
+    // resolveBookingLocation() on the backend. Required once a shop has
+    // more than one SERVICE location; auto-resolved server-side for the
+    // unambiguous cases (a single location, or a master only assigned to
+    // one), otherwise the create call fails with LOCATION_AMBIGUOUS.
+    shop_location_id?: number;
   }[];
   user_gift_cart_id?: number;
   coupon?: string;

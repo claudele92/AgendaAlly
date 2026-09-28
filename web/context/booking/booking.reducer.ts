@@ -37,6 +37,12 @@ export type InitialStateType = {
   extraAddress?: ExtraBookingAddress;
   fromWalletPrice: number | undefined;
   totalPrice?: number;
+  // Which branch this booking is at - see BookingCreateBody.shop_location_id.
+  // Synced from the shop's own matched_location when location context
+  // survived into this page (a search result's link, the branch switcher),
+  // or chosen directly via a required branch-selection prompt when it
+  // didn't and the shop has more than one location.
+  shopLocationId?: number;
 };
 type ActionMap<
   M extends {
@@ -83,6 +89,7 @@ export enum Types {
   SetExtraAddress = "SET_EXTERNAL_ADDRESS",
   UpdateFromWalletPrice = "UPDATE_FROM_WALLET_PRICE",
   UpdateTotalPrice = "UPDATE_TOTAL_PRICE",
+  SetShopLocation = "SET_SHOP_LOCATION",
 }
 
 type BookingActionPayload = {
@@ -136,6 +143,7 @@ type BookingActionPayload = {
   [Types.SetExtraAddress]: ExtraBookingAddress;
   [Types.UpdateFromWalletPrice]: number | undefined;
   [Types.UpdateTotalPrice]: number | undefined;
+  [Types.SetShopLocation]: number | undefined;
 };
 
 export type BookingActions = ActionMap<BookingActionPayload>[keyof ActionMap<BookingActionPayload>];
@@ -371,6 +379,11 @@ export const bookingReducer = (
       return {
         ...state,
         totalPrice: action.payload,
+      };
+    case Types.SetShopLocation:
+      return {
+        ...state,
+        shopLocationId: action.payload,
       };
     default:
       return state;

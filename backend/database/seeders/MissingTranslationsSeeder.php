@@ -55,6 +55,11 @@ class MissingTranslationsSeeder extends Seeder
         'service_fee_type' => 'Service fee type',
         'fixed'             => 'Fixed',
         'percentage'        => 'Percentage',
+        // web: shops/[id]/components/branch-gate/branch-gate.tsx - required
+        // branch picker shown when a multi-branch shop is entered with no
+        // location context (backend's LOCATION_AMBIGUOUS case)
+        'choose.a.branch'             => 'Choose a branch',
+        'choose.a.branch.description' => 'This shop has multiple locations - please select one to continue booking.',
     ];
 
     public function run(): void

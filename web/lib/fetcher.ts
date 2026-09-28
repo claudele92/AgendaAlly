@@ -44,7 +44,7 @@ const fetcher = async <T>(input: string | string[], init?: CustomRequestInit): P
     if (init?.redirectOnError && res.status === 404) {
       return notFound();
     }
-    throw new NetworkError(errorMessage, res.status, errorResponse?.params);
+    throw new NetworkError(errorMessage, res.status, errorResponse?.params, errorResponse?.statusCode);
   }
   return res.json();
 };

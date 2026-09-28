@@ -36,6 +36,7 @@ use App\Services\PaymentService\BaseService;
 use App\Http\Resources\ServiceMasterResource;
 use App\Services\TransactionService\TransactionService;
 use App\Repositories\BookingRepository\BookingRepository;
+use App\Exceptions\LocationAmbiguousException;
 use Illuminate\Support\Collection;
 
 class BookingService extends CoreService
@@ -225,6 +226,19 @@ class BookingService extends CoreService
                 'status'  => true,
                 'message' => ResponseError::NO_ERROR,
                 'data'    => $models,
+            ];
+        } catch (LocationAmbiguousException $e) {
+
+            // Not an unexpected failure like the generic catch below -
+            // the frontend acts on this one specifically (a "choose a
+            // branch" prompt), so its own code must survive the
+            // response rather than collapsing to ERROR_501 like every
+            // other exception here.
+            return [
+                'status'  => false,
+                'message' => $e->getMessage(),
+                'code'    => ResponseError::LOCATION_AMBIGUOUS,
+                'data'    => $calculate
             ];
         } catch (Throwable $e) {
 
@@ -598,7 +612,7 @@ class BookingService extends CoreService
      * branch, which is exactly what this whole validation exists to
      * prevent.
      *
-     * @throws Exception
+     * @throws LocationAmbiguousException
      */
     private function autoResolveBookingLocation(int $shopId, int $masterId, Collection $serviceLocationIds): int
     {
@@ -620,7 +634,7 @@ class BookingService extends CoreService
             return (int) $assignedLocationIds->first();
         }
 
-        throw new Exception(__('errors.' . ResponseError::LOCATION_AMBIGUOUS, locale: $this->language));
+        throw new LocationAmbiguousException(__('errors.' . ResponseError::LOCATION_AMBIGUOUS, locale: $this->language));
     }
 
     /**

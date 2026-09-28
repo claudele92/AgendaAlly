@@ -12,6 +12,7 @@ import { globalService } from "@/services/global";
 import { parseSettings } from "@/utils/parse-settings";
 import { TopInfo } from "../components/top-info";
 import { ShopLocation } from "../components/location";
+import { BranchGate } from "../components/branch-gate";
 import { MainInfo } from "../components/main-info";
 import { WorkingSchedule } from "../components/working-schedule";
 import { BuyOptions } from "../components/buy-options";
@@ -127,8 +128,10 @@ const SingleShop = async (props: {
         <div className="grid lg:grid-cols-3 xl:gap-7 sm:gap-4 grid-cols-1 md:gap-7 gap-y-7 mt-6">
           <div className="flex flex-col gap-7 col-span-2">
             <ShopLocation data={shop} />
-            <Services shopId={shop?.data?.id} shopSlug={shop?.data?.slug} />
-            <Masters shopId={shop?.data?.id} shopSlug={shop?.data?.slug} />
+            <BranchGate data={shop}>
+              <Services shopId={shop?.data?.id} shopSlug={shop?.data?.slug} />
+              <Masters shopId={shop?.data?.id} shopSlug={shop?.data?.slug} />
+            </BranchGate>
             {shopReviewsEnabled && (
               <Reviews
                 reviewCount={shop?.data?.r_count}
