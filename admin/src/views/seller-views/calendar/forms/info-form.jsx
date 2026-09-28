@@ -7,12 +7,14 @@ import { fetchUsers } from '../helpers';
 import ServiceCard from '../components/service-card';
 import { BookingContext } from '../provider';
 import { downloadInvoice } from '../helpers/index';
+import BookingBranchSelect from 'components/booking-branch-select';
 const { Title } = Typography;
 
 const InfoFormItems = ({
   isDisabled,
   title = 'new.booking',
   isAdd = false,
+  shopLocations,
 }) => {
   const { calculatedData, setViewContent, setInfoData, infoForm, service_id } =
     useContext(BookingContext);
@@ -74,6 +76,9 @@ const InfoFormItems = ({
             <Select.Option value={1}>{t('cash')}</Select.Option>
           </Select>
         </Form.Item>
+      </Col>
+      <Col span={24}>
+        <BookingBranchSelect shopLocations={shopLocations} disabled={!isAdd} />
       </Col>
       {calculatedData?.items?.map((item) => (
         <Col span={24} key={item.id}>
