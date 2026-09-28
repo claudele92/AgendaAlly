@@ -1,6 +1,6 @@
 import { Master } from "@/types/master";
 import { ServiceExtras, ServiceMaster } from "@/types/service";
-import { Shop } from "@/types/shop";
+import { Shop, ShopLocationEntry } from "@/types/shop";
 import { Review } from "@/types/review";
 import { Currency, Transaction } from "@/types/global";
 
@@ -96,6 +96,13 @@ export interface Booking {
   master: Master | null;
   service_master: ServiceMaster | null;
   shop: Shop | null;
+  // The branch this booking is actually at - see BookingService::
+  // resolveBookingLocation() on the backend. Prefer this address over
+  // shop.translation.address (the shop's flat, shop-wide address) when
+  // showing where a specific booking happens; it's only null for
+  // bookings placed before shop_location_id existed, or a shop with no
+  // SERVICE locations at all.
+  shop_location?: ShopLocationEntry | null;
   canceled_all: boolean;
   review: Review | null;
   data?: Record<string, any>;

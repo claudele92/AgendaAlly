@@ -39,6 +39,26 @@ $paymentMethod = $translations[$paymentMethod] ?? $paymentMethod;
 $userName = $model?->user?->full_name;
 $userPhone = $model?->user?->phone;
 
+// Fallback order: the booked branch's own address, then its city/country
+// (many ShopLocation rows have a null address but a real city/country),
+// then the shop's flat, shop-wide address - but only when the booking
+// has no shop_location_id at all (pre-dates the field, or a shop with no
+// SERVICE locations). Once a branch is resolved, its own city/country is
+// preferred over the flat address even when its address is empty,
+// because the flat address can name a different city entirely.
+$shopLocation = $model?->shopLocation;
+
+if ($shopLocation) {
+    $shopLocationCityCountry = collect([
+        $shopLocation->city?->translation?->title,
+        $shopLocation->country?->translation?->title,
+    ])->filter()->implode(', ');
+
+    $shopAddress = $shopLocation->address ?: $shopLocationCityCountry;
+} else {
+    $shopAddress = $model?->shop?->translation?->address;
+}
+
 $address = data_get($model?->data, 'address', '');
 $position = $model?->currency?->position;
 $symbol = $model?->currency?->symbol;
@@ -231,11 +251,13 @@ foreach ($model?->children ?? [] as $children) {
     <thead>
     <tr>
         <th scope="col">{{ __('errors.' . ResponseError::SHOP, locale: $lang) }}</th>
+        <th scope="col">{{ __('errors.' . ResponseError::ADDRESS, locale: $lang) }}</th>
     </tr>
     </thead>
     <tbody>
     <tr>
         <th scope="row">{{$model?->shop?->translation?->title}}</th>
+        <td>{{$shopAddress}}</td>
     </tr>
     </tbody>
 </table>

@@ -178,6 +178,7 @@ class ResponseError
     public const PAYMENT_TYPE = 'PAYMENT_TYPE';
     public const MASTER = 'MASTER';
     public const PLACE = 'PLACE';
+    public const ADDRESS = 'ADDRESS';
     public const TRANSACTION_STATUS = 'TRANSACTION_STATUS';
     public const GIFT_CART_PRICE = 'GIFT_CART_PRICE';
     public const BOOKING = 'BOOKING';

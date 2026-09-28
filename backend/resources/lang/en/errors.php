@@ -222,6 +222,7 @@ return [
     $e::INVOICE                         => $languages['invoice'] ?? 'Invoice',
     $e::MASTER                          => $languages['master'] ?? 'Master',
     $e::PLACE                           => $languages['place'] ?? 'Place',
+    $e::ADDRESS                         => $languages['address'] ?? 'Address',
     $e::DISCOUNT                        => $languages['discount'] ?? 'Discount',
     $e::QUANTITY                        => $languages['quantity'] ?? 'Quantity',
     $e::TOTAL_TAX                       => $languages['total.tax'] ?? 'Total tax',
