@@ -107,6 +107,21 @@ export const BookingDetail = ({ data, id }: BookingDetailProps) => {
     (acc, curr) => acc + (curr?.gift_cart_price ?? 0),
     0
   );
+  // Fallback order: the booked branch's own address, then its city/country
+  // (many ShopLocation rows have a null address but a real city/country),
+  // then the shop's flat, shop-wide address - but only when the booking
+  // has no shop_location at all. Once a branch is resolved, its own
+  // city/country is preferred over the flat address even when its address
+  // is empty, since the flat address can name a different city entirely.
+  const shopLocationCityCountry = [
+    mainData?.shop_location?.city?.translation?.title,
+    mainData?.shop_location?.country?.translation?.title,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const shopAddress = mainData?.shop_location
+    ? mainData.shop_location.address || shopLocationCityCountry
+    : mainData?.shop?.translation?.address;
   if (isLoading && !!id) {
     return <LoadingCard />;
   }
@@ -169,7 +184,7 @@ export const BookingDetail = ({ data, id }: BookingDetailProps) => {
           </div>
           <div className="flex items-start gap-1">
             <MapPinIcon />
-            <p className="text-sm line-clamp-2">{mainData?.shop?.translation?.address}</p>
+            <p className="text-sm line-clamp-2">{shopAddress}</p>
           </div>
         </div>
       </div>

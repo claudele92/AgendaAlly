@@ -83,6 +83,7 @@ class BookingResource extends JsonResource
             'master'                => UserResource::make($this->whenLoaded('master')),
             'user'                  => UserResource::make($this->whenLoaded('user')),
             'shop'                  => ShopResource::make($this->whenLoaded('shop')),
+            'shop_location'         => ShopLocationResource::make($this->whenLoaded('shopLocation')),
             'user_member_ship'      => UserMemberShipResource::make($this->whenLoaded('userMemberShip')),
             'currency'              => CurrencyResource::make($this->whenLoaded('currency')),
             'transaction'           => TransactionResource::make($this->whenLoaded('transaction')),

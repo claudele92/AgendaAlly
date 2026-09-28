@@ -51,6 +51,10 @@ class BookingRepository extends CoreRepository
             'shop:id,uuid,slug,logo_img,user_id,latitude,longitude,o_count,b_count,verify',
             'shop.translation' => fn($query) => $query
                 ->where('locale', $this->language),
+            'shopLocation.city.translation' => fn($query) => $query
+                ->where('locale', $this->language),
+            'shopLocation.country.translation' => fn($query) => $query
+                ->where('locale', $this->language),
             'userMemberShip',
             'extras.translation' => fn($query) => $query
                 ->where('locale', $this->language),

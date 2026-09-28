@@ -301,7 +301,11 @@ class OrderRepository extends CoreRepository
             'transactions.children',
             'shop:id,user_id',
             'shop.translation' => fn($query) => $query
-                ->select(['id', 'locale', 'title', 'shop_id'])
+                ->select(['id', 'locale', 'title', 'address', 'shop_id'])
+                ->where('locale', $this->language),
+            'shopLocation.city.translation' => fn($query) => $query
+                ->where('locale', $this->language),
+            'shopLocation.country.translation' => fn($query) => $query
                 ->where('locale', $this->language),
 
             'serviceMaster.service.translation' => fn($query) => $query
