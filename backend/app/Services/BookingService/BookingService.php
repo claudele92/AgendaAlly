@@ -31,6 +31,7 @@ use App\Models\ServiceMaster;
 use App\Models\UserMemberShip;
 use App\Helpers\ResponseError;
 use App\Models\BookingExtraTime;
+use App\Models\Service;
 use App\Models\ShopSubscription;
 use App\Services\PaymentService\BaseService;
 use App\Http\Resources\ServiceMasterResource;
@@ -92,6 +93,40 @@ class BookingService extends CoreService
                 }
 
                 $items = collect($calculate['items']);
+
+                if (data_get($data, 'payment_id') && !data_get($data, 'trx_status')) {
+
+                    $paymentMethod = Payment::find($data['payment_id']);
+
+                    // Cash is cash-on-arrival: the seller collects it in
+                    // person at their own venue, so it only makes sense
+                    // when every service in the booking happens there
+                    // (Service::OFFLINE_IN). A service whose location
+                    // type was never explicitly set still sits at the
+                    // schema's default (Service::ONLINE) - true of
+                    // almost every service today, since sellers haven't
+                    // had a reason to touch this field yet - so only the
+                    // explicit OFFLINE_OUT (at the customer's own
+                    // location, no collection point for the seller) is
+                    // rejected here; treating the untouched default as
+                    // if it were OFFLINE_IN avoids hiding cash from
+                    // every service nobody's configured. Mirrors the
+                    // frontend filter in BookingPaymentList as a hard
+                    // backstop, same pattern as StripeService::
+                    // supportsCurrency()'s currency backstop.
+                    if ($paymentMethod?->tag === Payment::TAG_CASH) {
+                        $hasOfflineOutService = $items->contains(
+                            fn ($calculateValue) => data_get($calculateValue, 'service_master.type') === Service::OFFLINE_OUT
+                        );
+
+                        if ($hasOfflineOutService) {
+                            throw new Exception(
+                                'Cash payment is only available when every service in this booking is provided at the seller\'s own venue.',
+                                400
+                            );
+                        }
+                    }
+                }
 
                 if (isset($data['from_wallet_price'])) {
                     $data['from_wallet_price'] /= count($data['data']);
